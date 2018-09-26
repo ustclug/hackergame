@@ -1,0 +1,43 @@
+{% load i18n static %}
+
+<!DOCTYPE html>
+<html lang="{{ LANGUAGE_CODE }}">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}{{ site.title }}{% endblock %}</title>
+    <meta name="description" content="{% block description %}{{ site.description }}{% endblock %}">
+    <meta name="keywords" content="{% block keywords %}{{ site.keywords|join:',' }}{% endblock %}">
+    {% block css %}
+        <link rel="stylesheet" href="{% static 'pure.min.css' %}">
+        <link rel="stylesheet" href="{% static 'grids-responsive.min.css' %}">
+        <link rel="stylesheet" href="{% static 'fontawesome/css/all.min.css' %}">
+        <link rel="stylesheet" href="{% static 'main.css' %}">
+    {% endblock %}
+    {% block js %}
+    {% endblock %}
+</head>
+<body>
+<div class="banner">
+    <div class="content">
+        <a class="title" href="{% url 'hub' %}">{{ site.title }}</a>
+        {% include 'user/widget.html' %}
+    </div>
+</div>
+<div class="content">
+    {% if messages %}
+        {% for message in messages %}
+            <div class="msg-{{ message.tags }}">{{ message }}</div>
+        {% endfor %}
+    {% endif %}
+    {% block content %}
+    {% endblock %}
+</div>
+<div class="footer">
+    <div class="legal content">
+        <p><a href="http://lug.ustc.edu.cn/">中国科学技术大学学生Linux用户协会（USTC LUG）</a> <a href="mailto:lug@ustc.edu.cn">联系我们</a></p>
+        <p>假装这里有备案号</p>
+    </div>
+</div>
+</body>
+</html>

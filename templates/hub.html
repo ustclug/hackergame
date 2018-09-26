@@ -1,0 +1,121 @@
+{% extends 'base.html' %}
+{% load static vue_utils %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div class="msg-info">您目前得分：{{ ctf_info.score|default:'0' }}</div>
+    <div id="app" class="pure-g">
+        <div class="pure-u-1-1 hide-md">
+            folded
+        </div>
+        <div class="pure-u-1-1 pure-u-md-1-2">
+            <h1>${problem.name}</h1>
+            <form class="pure-form" method="post" :key="problem_index">
+                {% csrf_token %}
+                <a class="pure-button pure-input-rounded" target="_blank" :href="problem.url">打开题目</a>
+                <input type="hidden" name="problem" :value="problem.pk">
+                <input type="text" name="flag" class="pure-input-rounded" autocomplete="off" placeholder="flag{...}">
+                <button type="submit" class="pure-button pure-button-primary pure-input-rounded">提交</button>
+            </form>
+            <div><p v-html="problem.detail"></p></div>
+        </div>
+        <div class="show-md pure-u-1-2">
+            <table class="pure-table pure-table-horizontal">
+                <thead>
+                    <tr>
+                        <th>题目</th>
+                        <th>分数</th>
+                        <th>完成人数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="row in table_rows"
+                        :class="{problem: row.problem, flag: !row.problem, 'problem-highlight': row.index==problem_index}"
+                        @click="row.problem?(problem_index=row.index,location.hash='#'+problem_list[row.index].pk):0">
+                        <td v-if="row.problem">
+                            <i v-if="!solved[row.index]" class="far fa-circle"></i>
+                            <i v-if="solved[row.index]" class="fas fa-check-circle"></i>
+                            ${row.name}
+                        </td>
+                        <td v-if="!row.problem">
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <i v-if="!has(solved_flags, row.pk)" class="far fa-circle"></i>
+                            <i v-if="has(solved_flags, row.pk)" class="fas fa-check-circle"></i>
+                            ${row.name}
+                        </td>
+                        <td>${row.score}</td>
+                        <td>${row.problem&&problem_list[row.index].flags.length>1 ? '' : row.user_solved}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {{ problem_list|list|json_script:'problem-list' }}
+    {{ ctf_info.solved_flags|json_script:'solved-flags' }}
+    <script>
+        problem_list = JSON.parse(document.getElementById('problem-list').textContent)
+        solved_flags = JSON.parse(document.getElementById('solved-flags').textContent)
+        function has(l, i) {
+            return (l.indexOf(i) != -1)
+        }
+        solved = []
+        for (var i = 0; i < problem_list.length; i++) {
+            var s = true
+            for (var j = 0; j < problem_list[i].flags.length; j++) {
+                if (!has(solved_flags, problem_list[i].flags[j].pk)) {
+                    s = false
+                    break
+                }
+            }
+            solved.push(s)
+        }
+        var pk = decodeURI(location.hash.slice(1))
+        var problem_index = 0
+        for (var i = 0; i < problem_list.length; i++) {
+            if (problem_list[i].pk == pk) {
+                problem_index = i
+                break
+            }
+        }
+        app = new Vue({
+            el: '#app',
+            delimiters: ['${', '}'],
+            data: {
+                problem_index: problem_index,
+            },
+            computed: {
+                problem: function () {
+                    return problem_list[this.problem_index]
+                },
+                table_rows: function () {
+                    var r = []
+                    for (var i = 0; i < problem_list.length; i++) {
+                        r.push({
+                            problem: true,
+                            index: i,
+                            name: problem_list[i].name,
+                            score: problem_list[i].score,
+                            user_solved: problem_list[i].user_solved,
+                        })
+                        if (i==this.problem_index && problem_list[i].flags.length > 1) {
+                            for (var j = 0; j < problem_list[i].flags.length; j++) {
+                                r.push({
+                                    problem: false,
+                                    pk: problem_list[i].flags[j].pk,
+                                    name: problem_list[i].flags[j].name,
+                                    score: problem_list[i].flags[j].score,
+                                    user_solved: problem_list[i].flags[j].user_solved,
+                                })
+                            }
+                        }
+                    }
+                    return r
+                },
+            },
+        })
+    </script>
+{% endblock %}
