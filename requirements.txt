@@ -1,0 +1,5 @@
+Django==2.1.1
+psycopg2-binary==2.7.5
+python-memcached==1.59
+pytz==2018.5
+six==1.11.0
