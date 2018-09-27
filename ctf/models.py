@@ -78,8 +78,9 @@ class Solve(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        key = f'flag__{self.pk}__user_solved'
+        key = f'flag__{self.flag_id}__user_solved'
         cache.delete(key)
+        UserScoreCache.update(self.user)
 
 
 class Log(models.Model):
