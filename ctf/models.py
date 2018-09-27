@@ -4,16 +4,60 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db import models
 from django.db.transaction import atomic
+from django.db.utils import ProgrammingError
 from django.utils.functional import cached_property
+from django.utils.timezone import now
 
-from utils.models import DictMixin, NameMixin
+from utils.models import DictMixin, NameMixin, UpdateCacheMixin
 
 User = get_user_model()
 
 
+class TimerSwitch(UpdateCacheMixin, models.Model):
+    time = models.DateTimeField(default=now)
+    on_off = models.BooleanField()
+    note = models.TextField(blank=True)
+
+    def __str__(self):
+        return f'{self.time} {"on" if self.on_off else "off"}{": " + self.note if self.note else ""}'
+
+    @classmethod
+    def is_on_now(cls):
+        class State:
+            def __init__(self, state, note):
+                self.state = state
+                self.note = note
+
+            def __bool__(self):
+                return self.state
+
+            def __str__(self):
+                return self.note
+
+        key = 'timer_switch__is_on_now'
+        cached = cache.get(key)
+        if cached is None:
+            try:
+                obj = cls.objects.filter(time__lt=now()).latest('time')
+                cached = obj.on_off, obj.note or ('比赛正在进行' if obj.on_off else '比赛暂时关闭')
+            except cls.DoesNotExist:
+                cached = False, '比赛尚未开始'
+            except ProgrammingError:  # we are making migrations
+                return State(False, '')
+            cache.set(key, cached)
+        return State(*cached)
+
+    def update_cache(self):
+        key = 'timer_switch__is_on_now'
+        cache.delete(key)
+
+
 class ProblemManager(models.Manager):
     def get_queryset(self):
-        return super().get_queryset().filter(is_open=True)
+        if TimerSwitch.is_on_now():
+            return super().get_queryset().filter(is_open=True)
+        else:
+            return super().get_queryset().none()
 
 
 class Problem(DictMixin, NameMixin, models.Model):
@@ -23,6 +67,7 @@ class Problem(DictMixin, NameMixin, models.Model):
     detail = models.TextField(blank=True)
     url = models.TextField(blank=True)
 
+    objects = models.Manager()
     manager = ProblemManager()
 
     @staticmethod
@@ -68,7 +113,7 @@ class Flag(DictMixin, models.Model):
         yield 'user_solved'
 
 
-class Solve(models.Model):
+class Solve(UpdateCacheMixin, models.Model):
     user = models.ForeignKey(User, models.CASCADE)
     flag = models.ForeignKey(Flag, models.PROTECT)
     time = models.DateTimeField(auto_now=True)
@@ -76,8 +121,7 @@ class Solve(models.Model):
     def __str__(self):
         return f'{self.flag} - {self.user}'
 
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
+    def update_cache(self):
         key = f'flag__{self.flag_id}__user_solved'
         cache.delete(key)
         UserScoreCache.update(self.user)

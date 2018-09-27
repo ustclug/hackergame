@@ -71,6 +71,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'ctf.context_processors.info',
+                'ctf.context_processors.switch',
                 'hackergame.context_processors.site',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
