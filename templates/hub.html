@@ -7,7 +7,13 @@
 {% endblock %}
 
 {% block content %}
-    <div class="msg-info">您目前得分：{{ ctf_info.score|default:'0' }}</div>
+    {% if user.is_authenticated %}
+        <div class="msg-info">
+            您目前得分：{{ ctf_info.score|default:'0' }}；
+            总排名：{{ ctf_info.rank }} / {{ ctf_info.rank_total }}；
+            校内排名：{{ ctf_info.local_rank }} / {{ ctf_info.local_rank_total }}；
+        </div>
+    {% endif %}
     <div id="app" class="pure-g">
         <div class="pure-u-1-1 hide-md">
             folded
@@ -48,14 +54,19 @@
                             ${row.name}
                         </td>
                         <td>${row.score}</td>
-                        <td>${row.problem&&problem_list[row.index].flags.length>1 ? '' : row.user_solved}</td>
+                        <td v-if="row.problem">${problem_list[row.index].flags.length>1 ? '' : problem_list[row.index].flags[0].user_solved}</td>
+                        <td v-if="!row.problem">${row.user_solved}</td>
                     </tr>
                 </tbody>
             </table>
         </div>
     </div>
     {{ problem_list|list|json_script:'problem-list' }}
-    {{ ctf_info.solved_flags|json_script:'solved-flags' }}
+    {% if user.is_authenticated %}
+        {{ ctf_info.solved_flags|json_script:'solved-flags' }}
+    {% else %}
+        <script id="solved-flags">[]</script>
+    {% endif %}
     <script>
         problem_list = JSON.parse(document.getElementById('problem-list').textContent)
         solved_flags = JSON.parse(document.getElementById('solved-flags').textContent)
@@ -99,7 +110,6 @@
                             index: i,
                             name: problem_list[i].name,
                             score: problem_list[i].score,
-                            user_solved: problem_list[i].user_solved,
                         })
                         if (i==this.problem_index && problem_list[i].flags.length > 1) {
                             for (var j = 0; j < problem_list[i].flags.length; j++) {
