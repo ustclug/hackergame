@@ -5,15 +5,26 @@ from django.core.cache import cache
 from django.db import models
 from django.db.transaction import atomic
 from django.db.utils import ProgrammingError
+from django.utils.decorators import classproperty
 from django.utils.functional import cached_property
 from django.utils.timezone import now
 
-from utils.models import DictMixin, NameMixin, UpdateCacheMixin
+from utils.models import DictMixin, NameMixin, SingletonMixin
 
 User = get_user_model()
 
 
-class TimerSwitch(UpdateCacheMixin, models.Model):
+class Page(SingletonMixin, models.Model):
+    title = models.TextField(default='Hackergame')
+    description = models.TextField(blank=True)
+    keywords = models.TextField(blank=True, default='Hackergame,CTF')
+    content = models.TextField(blank=True, help_text='Will be put into a div as HTML.')
+
+    def __str__(self):
+        return self.title
+
+
+class TimerSwitch(models.Model):
     time = models.DateTimeField(default=now)
     on_off = models.BooleanField()
     note = models.TextField(blank=True)
@@ -47,17 +58,13 @@ class TimerSwitch(UpdateCacheMixin, models.Model):
             cache.set(key, cached)
         return State(*cached)
 
-    def update_cache(self):
+    def _clear_cache(**kwargs):
+        _ = kwargs
         key = 'timer_switch__is_on_now'
         cache.delete(key)
 
-
-class ProblemManager(models.Manager):
-    def get_queryset(self):
-        if TimerSwitch.is_on_now():
-            return super().get_queryset().filter(is_open=True)
-        else:
-            return super().get_queryset().none()
+    models.signals.post_save.connect(_clear_cache, sender='ctf.TimerSwitch')
+    models.signals.post_delete.connect(_clear_cache, sender='ctf.TimerSwitch')
 
 
 class Problem(DictMixin, NameMixin, models.Model):
@@ -67,8 +74,12 @@ class Problem(DictMixin, NameMixin, models.Model):
     detail = models.TextField(blank=True)
     url = models.TextField(blank=True)
 
-    objects = models.Manager()
-    manager = ProblemManager()
+    @classproperty
+    def open_objects(cls):
+        if TimerSwitch.is_on_now():
+            return cls.objects.filter(is_open=True)
+        else:
+            return cls.objects.none()
 
     @staticmethod
     def annotated(queryset):
@@ -103,6 +114,14 @@ class Flag(DictMixin, models.Model):
             cache.set(key, cached)
         return cached
 
+    def _clear_cache(instance, **kwargs):
+        _ = kwargs
+        key = f'flag__{instance.flag_id}__user_solved'
+        cache.delete(key)
+
+    models.signals.post_save.connect(_clear_cache, sender='ctf.Solve')
+    models.signals.post_delete.connect(_clear_cache, sender='ctf.Solve')
+
     def __str__(self):
         return f'{self.problem}/{self.name}' if self.name else f'{self.problem}'
 
@@ -113,18 +132,13 @@ class Flag(DictMixin, models.Model):
         yield 'user_solved'
 
 
-class Solve(UpdateCacheMixin, models.Model):
+class Solve(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
     flag = models.ForeignKey(Flag, models.PROTECT)
     time = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return f'{self.flag} - {self.user}'
-
-    def update_cache(self):
-        key = f'flag__{self.flag_id}__user_solved'
-        cache.delete(key)
-        UserScoreCache.update(self.user)
 
 
 class Log(models.Model):
@@ -185,12 +199,17 @@ class UserScoreCache(models.Model):
         return f'{self.user}: {self.score}'
 
     @classmethod
-    def update(cls, user=None):
-        if user:
+    def clear_cache(cls, instance=None, **kwargs):
+        _ = kwargs
+        if instance:
             with atomic():
-                info = CtfInfo(user)
-                cls.objects.filter(user=user).delete()
-                cls.objects.create(user=user, score=info.score, time=info.time)
+                info = CtfInfo(instance)
+                cls.objects.filter(user=instance).delete()
+                cls.objects.create(user=instance, score=info.score, time=info.time)
         else:
             for user in User.objects.all():
-                cls.update(user)
+                cls.clear_cache(user)
+
+
+models.signals.post_save.connect(UserScoreCache.clear_cache, sender='ctf.Solve')
+models.signals.post_delete.connect(UserScoreCache.clear_cache, sender='ctf.Solve')

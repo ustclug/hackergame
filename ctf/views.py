@@ -9,13 +9,15 @@ from .models import Problem, Flag, Solve, Log
 
 class Hub(generic.ListView):
     template_name = settings.CTF_TEMPLATE_HUB
-    queryset = Problem.annotated(Problem.manager)
+
+    def get_queryset(self):
+        return Problem.annotated(Problem.open_objects)
 
     @staticmethod
     def post(request):
         with atomic():
             try:
-                problem = Problem.manager.get(pk=request.POST['problem'])
+                problem = Problem.open_objects.get(pk=request.POST['problem'])
             except Problem.DoesNotExist:
                 messages.error(request, '题目不存在')
                 return redirect('hub')

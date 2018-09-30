@@ -4,11 +4,6 @@ from local_settings import *
 
 # Example local_settings:
 '''
-SITE = {
-    'title': 'Hackergame',
-    'description': '',
-    'keywords': ['Hackergame', 'CTF'],
-}
 ALLOWED_HOSTS = ['example.com']
 DEBUG = False
 SECRET_KEY = '******'
@@ -18,6 +13,12 @@ DATABASES = {
         'NAME': 'database',
         'USER': 'user',
         'CONN_MAX_AGE': 60,
+    },
+}
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': '127.0.0.1:11211',
     },
 }
 '''
@@ -70,9 +71,7 @@ TEMPLATES = [
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'ctf.context_processors.info',
-                'ctf.context_processors.switch',
-                'hackergame.context_processors.site',
+                'ctf.context_processors.ctf',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.request',

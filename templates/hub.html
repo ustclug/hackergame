@@ -17,22 +17,8 @@
             校内排名：{{ ctf_info.local_rank }} / {{ ctf_info.local_rank_total }}；
         </div>
     {% endif %}
-    <div id="app" class="pure-g">
-        <div class="pure-u-1-1 hide-md">
-            folded
-        </div>
-        <div class="pure-u-1-1 pure-u-md-1-2">
-            <h1>${problem.name}</h1>
-            <form class="pure-form" method="post" :key="problem_index">
-                {% csrf_token %}
-                <a class="pure-button pure-input-rounded" target="_blank" :href="problem.url">打开题目</a>
-                <input type="hidden" name="problem" :value="problem.pk">
-                <input type="text" name="flag" class="pure-input-rounded" autocomplete="off" placeholder="flag{...}">
-                <button type="submit" class="pure-button pure-button-primary pure-input-rounded">提交</button>
-            </form>
-            <div><p v-html="problem.detail"></p></div>
-        </div>
-        <div class="show-md pure-u-1-2">
+    <div id="app">
+        <div class="problems">
             <table class="pure-table pure-table-horizontal">
                 <thead>
                     <tr>
@@ -44,7 +30,7 @@
                 <tbody>
                     <tr v-for="row in table_rows"
                         :class="{problem: row.problem, flag: !row.problem, 'problem-highlight': row.index==problem_index}"
-                        @click="row.problem?(problem_index=row.index,location.hash='#'+problem_list[row.index].pk):0">
+                        @click="row_click(row)">
                         <td v-if="row.problem">
                             <i v-if="!solved[row.index]" class="far fa-circle"></i>
                             <i v-if="solved[row.index]" class="fas fa-check-circle"></i>
@@ -60,8 +46,25 @@
                         <td v-if="row.problem">${problem_list[row.index].flags.length>1 ? '' : problem_list[row.index].flags[0].user_solved}</td>
                         <td v-if="!row.problem">${row.user_solved}</td>
                     </tr>
+                    <tr v-if="!table_rows.length">
+                        <td colspan="3" class="center">（暂无题目）</td>
+                    </tr>
                 </tbody>
             </table>
+        </div>
+        <div v-if="problem_index==-1">
+            {{ ctf_page.content|safe }}
+        </div>
+        <div v-if="problem_index!=-1">
+            <h1>${problem.name}</h1>
+            <form class="pure-form" method="post" :key="problem_index">
+                {% csrf_token %}
+                <a class="pure-button pure-input-rounded" target="_blank" :href="problem.url">打开题目</a>
+                <input type="hidden" name="problem" :value="problem.pk">
+                <input type="text" name="flag" class="pure-input-rounded" autocomplete="off" placeholder="flag{...}">
+                <button type="submit" class="pure-button pure-button-primary pure-input-rounded">提交</button>
+            </form>
+            <div><p v-html="problem.detail"></p></div>
         </div>
     </div>
     {{ problem_list|list|json_script:'problem-list' }}
@@ -88,7 +91,7 @@
             solved.push(s)
         }
         var pk = decodeURI(location.hash.slice(1))
-        var problem_index = 0
+        var problem_index = -1
         for (var i = 0; i < problem_list.length; i++) {
             if (problem_list[i].pk == pk) {
                 problem_index = i
@@ -128,6 +131,17 @@
                     }
                     return r
                 },
+            },
+            methods: {
+                row_click: function (row) {
+                    if (row.problem && row.index != this.problem_index) {
+                        this.problem_index = row.index
+                        location.hash = '#'+problem_list[row.index].pk
+                    } else {
+                        this.problem_index = -1
+                        location.hash = ''
+                    }
+                }
             },
         })
     </script>

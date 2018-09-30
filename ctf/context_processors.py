@@ -1,10 +1,9 @@
-from .models import TimerSwitch, CtfInfo
+from .models import Page, TimerSwitch, CtfInfo
 
 
-def info(request):
-    return {'ctf_info': CtfInfo(request.user)}
-
-
-def switch(request):
-    _ = request
-    return {'ctf_switch': TimerSwitch.is_on_now}
+def ctf(request):
+    return {
+        'ctf_info': CtfInfo(request.user),
+        'ctf_switch': TimerSwitch.is_on_now,
+        'ctf_page': Page.load(),
+    }

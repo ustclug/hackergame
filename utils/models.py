@@ -27,14 +27,7 @@ class NameMixin:
         return self.name
 
 
-class UpdateCacheMixin:
-    def update_cache(self):
-        raise NotImplementedError
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        self.update_cache()
-
-    def delete(self, *args, **kwargs):
-        super().delete(*args, **kwargs)
-        self.update_cache()
+class SingletonMixin:
+    @classmethod
+    def load(cls):
+        return cls.objects.get_or_create()[0]

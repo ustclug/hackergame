@@ -94,24 +94,13 @@ table {
 h1 {
     font-size: 1.75em;
 }
-.footer {
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    z-index: 100;
-    height: 50px;
+.problems {
+    float: right;
     width: 100%;
-    font-size: 87.5%;
-    border-top: 1px solid #ddd;
-    background-color: #eee;
+    max-width: 20em;
 }
-.legal {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    height: 50px;
-}
-.problem {
+.problem,
+.flag {
     cursor: pointer;
 }
 .problem:hover {
@@ -121,19 +110,11 @@ h1 {
 .problem-highlight:hover,
 .flag {
     background-color: #eef;
-    cursor: initial;
 }
 .problem i,
 .flag i {
     color: #888;
 }
-
-/*  Responsive
- * * * * * * * * * * * * * * */
-.show-md {
-    display: none;
-}
-@media screen and (min-width: 48em) {
-    .show-md { display: initial; }
-    .hide-md { display: none; }
+.center {
+    text-align: center;
 }
