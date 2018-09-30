@@ -7,6 +7,7 @@ from local_settings import *
 ALLOWED_HOSTS = ['example.com']
 DEBUG = False
 SECRET_KEY = '******'
+STATIC_ROOT = '/var/opt/hackergame/static/'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',

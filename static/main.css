@@ -97,7 +97,11 @@ h1 {
 .problems {
     float: right;
     width: 100%;
-    max-width: 20em;
+}
+@media screen and (min-width: 48em) {
+    .problems {
+        max-width: 20em;
+    }
 }
 .problem,
 .flag {
