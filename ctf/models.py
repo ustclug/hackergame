@@ -199,17 +199,20 @@ class UserScoreCache(models.Model):
         return f'{self.user}: {self.score}'
 
     @classmethod
-    def clear_cache(cls, instance=None, **kwargs):
+    def clear_cache(cls, user=None, **kwargs):
         _ = kwargs
-        if instance:
+        if user:
             with atomic():
-                info = CtfInfo(instance)
-                cls.objects.filter(user=instance).delete()
-                cls.objects.create(user=instance, score=info.score, time=info.time)
+                info = CtfInfo(user)
+                cls.objects.filter(user=user).delete()
+                cls.objects.create(user=user, score=info.score, time=info.time)
         else:
             for user in User.objects.all():
                 cls.clear_cache(user)
 
+    def _clear_cache(instance, **kwargs):
+        _ = kwargs
+        UserScoreCache.clear_cache(instance.user)
 
-models.signals.post_save.connect(UserScoreCache.clear_cache, sender='ctf.Solve')
-models.signals.post_delete.connect(UserScoreCache.clear_cache, sender='ctf.Solve')
+    models.signals.post_save.connect(_clear_cache, sender='ctf.Solve')
+    models.signals.post_delete.connect(_clear_cache, sender='ctf.Solve')
