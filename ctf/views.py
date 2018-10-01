@@ -34,5 +34,5 @@ class Hub(generic.ListView):
                 else:
                     messages.success(request, '答案正确（但您未登录，结果将不会被记录）')
             else:
-                messages.info(request, '答案错误')
+                messages.error(request, '答案错误')
             return redirect('hub')
