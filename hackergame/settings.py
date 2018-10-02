@@ -5,9 +5,17 @@ from local_settings import *
 # Example local_settings:
 '''
 ALLOWED_HOSTS = ['example.com']
+HOST = 'https://example.com'
 DEBUG = False
 SECRET_KEY = '******'
 STATIC_ROOT = '/var/opt/hackergame/static/'
+EMAIL_HOST = 'localhost'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
+EMAIL_SUBJECT_PREFIX = '[Hackergame] '
+ADMINS = [('Admin', 'admin@example.com')]
+DEFAULT_FROM_EMAIL = 'no-reply@example.com'
+SERVER_EMAIL = 'root@example.com'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -40,7 +48,8 @@ if DATABASES is None:
 CTF_TEMPLATE_HUB = 'hub.html'
 
 OTP_BACKENDS = [
-    'otp.backends.console.Console',
+    'otp.backends.ustc_cas.Ustc',
+    'otp.backends.email.Email',
 ]
 
 LOGIN_REDIRECT_URL = 'hub'
