@@ -19,9 +19,20 @@
 </head>
 <body>
 <div class="banner">
-    <div class="content">
+    <div class="nav content">
         <a class="title" href="{% url 'hub' %}">{{ ctf_page.title }}</a>
-        {% include 'user/widget.html' %}
+        <div class="pure-menu pure-menu-horizontal" style="width: auto">
+            <ul class="pure-menu-list">
+                <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                    <span class="pure-button pure-button-primary">注册/登录</span>
+                    <ul class="pure-menu-children">
+                        {% for backend in otp_backends %}
+                            <li class="pure-menu-item"><a href="{{ backend.login_url }}" class="pure-menu-link">{{ backend.name }}</a></li>
+                        {% endfor %}
+                    </ul>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 <div class="content">

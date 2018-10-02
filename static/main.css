@@ -82,6 +82,12 @@ table {
 .banner {
     background-color: #222;
 }
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 3.5625em;
+}
 .banner .content {
     display: flex;
     justify-content: space-between;

@@ -39,8 +39,15 @@ if DATABASES is None:
 
 CTF_TEMPLATE_HUB = 'hub.html'
 
+OTP_BACKENDS = [
+    'otp.backends.console.Console',
+]
+
+LOGIN_REDIRECT_URL = 'hub'
+
 INSTALLED_APPS = [
     'ctf.apps.CtfConfig',
+    'otp.apps.OtpConfig',
     'utils.apps.UtilsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -73,6 +80,7 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'ctf.context_processors.ctf',
+                'otp.context_processors.otp',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.request',
@@ -82,6 +90,8 @@ TEMPLATES = [
         },
     },
 ]
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 WSGI_APPLICATION = 'hackergame.wsgi.application'
 
