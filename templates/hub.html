@@ -7,9 +7,6 @@
 {% endblock %}
 
 {% block content %}
-    {% if not ctf_switch %}
-        <div class="msg-info">{{ ctf_switch }}</div>
-    {% endif %}
     {% if user.is_authenticated and ctf_info.score %}
         <div class="msg-info">
             您目前得分：{{ ctf_info.score }}；
@@ -47,7 +44,11 @@
                         <td v-if="!row.problem">${row.user_solved}</td>
                     </tr>
                     <tr v-if="!table_rows.length">
-                        <td colspan="3" class="center">（暂无题目）</td>
+                        {% if ctf_switch %}
+                            <td colspan="3" class="center">（暂无题目）</td>
+                        {% else %}
+                            <div class="msg-info">{{ ctf_switch }}</div>
+                        {% endif %}
                     </tr>
                 </tbody>
             </table>
