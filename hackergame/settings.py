@@ -54,6 +54,7 @@ OTP_BACKENDS = [
     'otp.backends.njust_email.Njust',
     'otp.backends.hnu_email.Hnu',
     'otp.backends.uestc_email.Uestc',
+    'otp.backends.sjtu_email.Sjtu',
     'otp.backends.email.Email',
 ]
 
