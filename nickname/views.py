@@ -15,7 +15,8 @@ class Nickname(generic.View):
         try:
             UUID(request.user.username)
         except ValueError:
-            return redirect(settings.NICKNAME_REDIRECT_URL)
+            if 'force' not in request.GET:
+                return redirect(settings.NICKNAME_REDIRECT_URL)
         try:
             prefix = request.user.device_set.all()[0].identity
         except IndexError:

@@ -12,16 +12,12 @@
 {% endblock %}
 
 {% block content %}
-    <h1>修改用户名</h1>
+    <h1>修改昵称</h1>
     <form id="app" class="pure-form pure-form-aligned" @submit.prevent="submit()">
         {% csrf_token %}
         <div class="pure-control-group">
-            <label for="prefix">前缀</label>
+            <label for="prefix">昵称</label>
             <input type="text" id="prefix" name="prefix" v-model="prefix" required="required">
-        </div>
-        <div class="pure-control-group">
-            <label for="username">用户名</label>
-            <input type="text" id="username" v-model="username" readonly="readonly">
         </div>
         <div class="pure-controls">
             <button type="submit" class="pure-button pure-button-primary" :disabled="submit_disabled">确认</button>
@@ -47,7 +43,7 @@
                     this.submit_disabled = true
                     axios.post('.', {prefix: this.prefix})
                         .then(function (response) {
-                            location.reload()
+                            location = '/'
                         })
                         .catch(function (error) {
                             switch (error.response.data.error) {
