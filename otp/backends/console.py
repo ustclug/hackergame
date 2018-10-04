@@ -17,12 +17,13 @@ from .base import Backend
 
 class Login(generic.TemplateView):
     backend = None
+    template_name = 'otp/console.html'
 
     def post(self, request):
         from ..models import Device, Token
         with atomic():
             try:
-                device = Device.objects.get(backend=self.backend, identity=request.POST['identity'])
+                device = Device.objects.get(backend=self.backend.id, identity=request.POST['identity'])
             except Device.DoesNotExist:
                 device = None
             token = Token.authenticate(device, request.POST['token'])
@@ -34,10 +35,10 @@ class Login(generic.TemplateView):
                 return redirect(settings.LOGIN_REDIRECT_URL)
             else:
                 messages.error(request, '验证码错误')
-                return redirect(f'otp:{self.backend}')
+                return redirect(f'otp:{self.backend.id}')
 
-    def get_template_names(self):
-        return f'otp/{self.backend}.html'
+    def get_context_data(self, **kwargs):
+        return super().get_context_data(backend=self.backend, **kwargs)
 
     @staticmethod
     def create_user(device):
@@ -58,7 +59,7 @@ class GetChallenge(generic.View):
         except ValidationError:
             return JsonResponse({'error': 'wrong identity'}, status=400)
         with atomic():
-            device, created = Device.objects.get_or_create(backend=self.backend, identity=identity)
+            device, created = Device.objects.get_or_create(backend=self.backend.id, identity=identity)
             try:
                 token = Token.generate(device)
             except Token.TooMany:
@@ -84,8 +85,8 @@ class Console(Backend):
 
     @property
     def login_view(self):
-        return self.LoginView.as_view(backend=self.id)
+        return self.LoginView.as_view(backend=self)
 
     @property
     def get_challenge_view(self):
-        return self.GetChallengeView.as_view(backend=self.id)
+        return self.GetChallengeView.as_view(backend=self)

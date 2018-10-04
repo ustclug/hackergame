@@ -49,6 +49,11 @@ CTF_TEMPLATE_HUB = 'hub.html'
 
 OTP_BACKENDS = [
     'otp.backends.ustc_cas.Ustc',
+    'otp.backends.zju_email.Zju',
+    'otp.backends.nju_email.Nju',
+    'otp.backends.njust_email.Njust',
+    'otp.backends.hnu_email.Hnu',
+    'otp.backends.uestc_email.Uestc',
     'otp.backends.email.Email',
 ]
 

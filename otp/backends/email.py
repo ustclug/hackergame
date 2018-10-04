@@ -8,6 +8,21 @@ from django.template.loader import render_to_string
 from .console import Console
 
 
+class DomainEmailValidator(EmailValidator):
+    def __init__(self, domains, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if isinstance(domains, str):
+            domains = [domains]
+        self.domains = set(domains)
+
+    def validate_domain_part(self, domain_part):
+        return domain_part in self.domains
+
+
+class Login(Console.LoginView):
+    template_name = 'otp/email.html'
+
+
 class GetChallenge(Console.GetChallengeView):
     identity_validator = EmailValidator()
     email_subject_template = 'otp/email/subject.txt'
@@ -27,4 +42,5 @@ class GetChallenge(Console.GetChallengeView):
 
 class Email(Console):
     name = '其他'
+    LoginView = Login
     GetChallengeView = GetChallenge
