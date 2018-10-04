@@ -52,10 +52,13 @@ OTP_BACKENDS = [
     'otp.backends.email.Email',
 ]
 
-LOGIN_REDIRECT_URL = 'hub'
+LOGIN_REDIRECT_URL = 'nickname'
+NICKNAME_REDIRECT_URL = 'hub'
+LOGOUT_REDIRECT_URL = 'hub'
 
 INSTALLED_APPS = [
     'ctf.apps.CtfConfig',
+    'logout.apps.LogoutConfig',
     'otp.apps.OtpConfig',
     'utils.apps.UtilsConfig',
     'django.contrib.admin',

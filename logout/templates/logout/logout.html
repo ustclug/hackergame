@@ -1,0 +1,8 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">注销 {{ user }}</button>
+    </form>
+{% endblock %}

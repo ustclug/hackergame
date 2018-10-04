@@ -1,0 +1,66 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'axios.min.js' %}"></script>
+    <script>
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h1>修改用户名</h1>
+    <form id="app" class="pure-form pure-form-aligned" @submit.prevent="submit()">
+        {% csrf_token %}
+        <div class="pure-control-group">
+            <label for="prefix">前缀</label>
+            <input type="text" id="prefix" name="prefix" v-model="prefix" required="required">
+        </div>
+        <div class="pure-control-group">
+            <label for="username">用户名</label>
+            <input type="text" id="username" v-model="username" readonly="readonly">
+        </div>
+        <div class="pure-controls">
+            <button type="submit" class="pure-button pure-button-primary" :disabled="submit_disabled">确认</button>
+        </div>
+    </form>
+    {{ context|json_script:'context' }}
+    <script>
+        context = JSON.parse(document.getElementById('context').textContent)
+        app = new Vue({
+            el: '#app',
+            delimiters: ['${', '}'],
+            data: {
+                prefix: context.prefix,
+                submit_disabled: false,
+            },
+            computed: {
+                username: function () {
+                    return this.prefix + '.' + context.postfix;
+                },
+            },
+            methods: {
+                submit: function () {
+                    this.submit_disabled = true
+                    axios.post('.', {prefix: this.prefix})
+                        .then(function (response) {
+                            location.reload()
+                        })
+                        .catch(function (error) {
+                            switch (error.response.data.error) {
+                                case 'wrong username':
+                                    alert('格式错误，只允许由汉字/字母/数字/@/./+/-/_构成')
+                                    break
+                                default:
+                                    alert(error.response.data.error)
+                            }
+                            app.submit_disabled = false
+                        })
+                },
+            },
+        })
+    </script>
+{% endblock %}
