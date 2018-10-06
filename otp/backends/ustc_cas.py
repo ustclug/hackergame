@@ -19,7 +19,7 @@ class Login(generic.View):
 
     @property
     def service_url(self):
-        return settings.HOST + reverse(f'otp:{self.backend}')
+        return settings.HOST + reverse(f'otp:{self.backend.id}')
 
     @property
     def login_url(self):
@@ -39,7 +39,7 @@ class Login(generic.View):
                 return HttpResponseForbidden()
             identity = result.getchildren()[0].text
             with atomic():
-                device, created = Device.objects.get_or_create(backend=self.backend, identity=identity)
+                device, created = Device.objects.get_or_create(backend=self.backend.id, identity=identity)
                 if not device.user:
                     device.user = self.create_user(device)
                     device.save()
@@ -67,4 +67,4 @@ class Ustc(Backend):
 
     @property
     def login_view(self):
-        return self.LoginView.as_view(backend=self.id)
+        return self.LoginView.as_view(backend=self)
