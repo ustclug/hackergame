@@ -41,8 +41,7 @@
                             ${row.name}
                         </td>
                         <td>${row.score}</td>
-                        <td v-if="row.problem">${problem_list[row.index].flags.length>1 ? '' : problem_list[row.index].flags[0].user_solved}</td>
-                        <td v-if="!row.problem">${row.user_solved}</td>
+                        <td>${row.user_solved}</td>
                     </tr>
                     <tr v-if="!table_rows.length">
                         {% if ctf_switch %}
@@ -118,6 +117,7 @@
                             index: i,
                             name: problem_list[i].name,
                             score: problem_list[i].score,
+                            user_solved: problem_list[i].user_solved,
                         })
                         if (i==this.problem_index && problem_list[i].flags.length > 1) {
                             for (var j = 0; j < problem_list[i].flags.length; j++) {

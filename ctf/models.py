@@ -93,6 +93,29 @@ class Problem(DictMixin, NameMixin, models.Model):
     def flags(self):
         return [dict(flag) for flag in self.flag_set.all()]
 
+    @property
+    def user_solved(self):
+        flag_count = self.flag_set.count()
+        if flag_count == 0:
+            return 0
+        elif flag_count == 1:
+            return self.flag_set.all()[0].user_solved
+        key = f'problem__{self.pk}__user_solved'
+        cached = cache.get(key)
+        if cached is None:
+            solve_count = models.Count('solve', filter=models.Q(solve__flag__problem=self))
+            cached = User.objects.annotate(solve_count=solve_count).filter(solve_count=flag_count).count()
+            cache.set(key, cached)
+        return cached
+
+    def _clear_cache(instance, **kwargs):
+        _ = kwargs
+        key = f'problem__{instance.flag.problem_id}__user_solved'
+        cache.delete(key)
+
+    models.signals.post_save.connect(_clear_cache, sender='ctf.Solve')
+    models.signals.post_delete.connect(_clear_cache, sender='ctf.Solve')
+
     def keys(self):
         yield from super().keys()
         for key in ('score',):
