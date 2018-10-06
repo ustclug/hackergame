@@ -4,10 +4,11 @@ from django.db.transaction import atomic
 from django.views import generic
 from django.shortcuts import redirect
 
+from terms.mixins import TermsRequiredMixin
 from .models import Problem, Flag, Solve, Log
 
 
-class Hub(generic.ListView):
+class Hub(TermsRequiredMixin, generic.ListView):
     template_name = settings.CTF_TEMPLATE_HUB
 
     def get_queryset(self):

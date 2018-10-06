@@ -61,11 +61,14 @@ OTP_BACKENDS = [
 LOGIN_REDIRECT_URL = 'nickname'
 NICKNAME_REDIRECT_URL = 'hub'
 LOGOUT_REDIRECT_URL = 'hub'
+TERMS_URL = 'terms'
+TERMS_REDIRECT_URL = 'hub'
 
 INSTALLED_APPS = [
     'ctf.apps.CtfConfig',
     'logout.apps.LogoutConfig',
     'otp.apps.OtpConfig',
+    'terms.apps.TermsConfig',
     'utils.apps.UtilsConfig',
     'django.contrib.admin',
     'django.contrib.auth',

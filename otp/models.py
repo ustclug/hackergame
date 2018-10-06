@@ -1,8 +1,9 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 from random import randrange
 
 from django.contrib.auth import get_user_model
 from django.db import models
+from django.utils.timezone import now
 
 from . import site
 
@@ -36,16 +37,16 @@ class Token(models.Model):
 
     @classmethod
     def generate(cls, device, period=timedelta(minutes=10), limit=3):
-        if cls.objects.filter(device=device, expiration__gt=datetime.now()).count() >= limit:
+        if cls.objects.filter(device=device, expiration__gt=now()).count() >= limit:
             raise cls.TooMany
         token = str(randrange(100000, 1000000))
-        expiration = datetime.now() + period
+        expiration = now() + period
         return cls.objects.create(device=device, token=token, expiration=expiration)
 
     @classmethod
     def authenticate(cls, device, token):
         try:
-            token = cls.objects.get(device=device, token=token, expiration__gt=datetime.now())
+            token = cls.objects.get(device=device, token=token, expiration__gt=now())
             token.delete()
             return token
         except cls.DoesNotExist:
