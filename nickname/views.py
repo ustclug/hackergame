@@ -15,14 +15,19 @@ class Nickname(generic.View):
         try:
             UUID(request.user.username)
         except ValueError:
-            if 'force' not in request.GET:
+            if 'force' in request.GET:
+                prefix = request.user.username
+                if '.' in prefix:
+                    prefix = prefix[:prefix.rfind('.')]
+            else:
                 return redirect(settings.NICKNAME_REDIRECT_URL)
-        try:
-            prefix = request.user.device_set.all()[0].identity
-        except IndexError:
-            prefix = ''
-        if '@' in prefix:
-            prefix = prefix[:prefix.find('@')]
+        else:
+            try:
+                prefix = request.user.device_set.all()[0].identity
+                if '@' in prefix:
+                    prefix = prefix[:prefix.rfind('@')]
+            except IndexError:
+                prefix = ''
         postfix = sha3_256(f'{request.user.pk}/{settings.SECRET_KEY}'.encode()).hexdigest()[:4]
         return render(request, 'nickname/change.html', {'context': {'prefix': prefix, 'postfix': postfix}})
 
