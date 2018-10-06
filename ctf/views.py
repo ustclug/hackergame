@@ -5,14 +5,17 @@ from django.views import generic
 from django.shortcuts import redirect
 
 from terms.mixins import TermsRequiredMixin
-from .models import Problem, Flag, Solve, Log
+from .models import TimerSwitch, Problem, Flag, Solve, Log
 
 
 class Hub(TermsRequiredMixin, generic.ListView):
     template_name = settings.CTF_TEMPLATE_HUB
 
     def get_queryset(self):
-        return Problem.annotated(Problem.open_objects)
+        queryset = Problem.open_objects
+        if not (TimerSwitch.is_on_now() or self.request.user.has_perm('ctf.view_problem')):
+            queryset = queryset.none()
+        return Problem.annotated(queryset)
 
     @staticmethod
     def post(request):

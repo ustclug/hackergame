@@ -50,6 +50,11 @@
                             <td colspan="3" class="center">{{ ctf_switch }}</td>
                         {% endif %}
                     </tr>
+                    {% if perms.ctf.change_problem %}
+                        <tr>
+                            <td colspan="3" class="center"><a href="{% url 'admin:index' %}">编辑题目</a></td>
+                        </tr>
+                    {% endif %}
                 </tbody>
             </table>
         </div>

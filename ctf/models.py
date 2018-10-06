@@ -77,10 +77,7 @@ class Problem(DictMixin, NameMixin, models.Model):
 
     @classproperty
     def open_objects(cls):
-        if TimerSwitch.is_on_now():
-            return cls.objects.filter(is_open=True)
-        else:
-            return cls.objects.none()
+        return cls.objects.filter(is_open=True)
 
     @staticmethod
     def annotated(queryset):
