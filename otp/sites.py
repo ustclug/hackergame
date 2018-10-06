@@ -7,6 +7,7 @@ class OtpSite:
     def __init__(self, name='otp'):
         self.name = name
         self.backends = [import_string(backend)() for backend in settings.OTP_BACKENDS]
+        self.backends_dict = {backend.id: backend for backend in self.backends}
 
     @property
     def urls(self):

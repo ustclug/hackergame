@@ -11,7 +11,8 @@
         <div class="msg-info">
             您目前得分：{{ ctf_info.score }}；
             总排名：{{ ctf_info.rank }} / {{ ctf_info.rank_total }}；
-            校内排名：{{ ctf_info.local_rank }} / {{ ctf_info.local_rank_total }}；
+            您所属的参赛组：{{ ctf_info.first_backend.name }}；
+            组内排名：{{ ctf_info.local_rank }} / {{ ctf_info.local_rank_total }}；
         </div>
     {% endif %}
     <div id="app">

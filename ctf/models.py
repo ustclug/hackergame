@@ -9,6 +9,7 @@ from django.utils.decorators import classproperty
 from django.utils.functional import cached_property
 from django.utils.timezone import now
 
+import otp
 from utils.models import DictMixin, NameMixin, SingletonMixin
 
 User = get_user_model()
@@ -157,6 +158,13 @@ class CtfInfo:
         self.user = user
 
     @cached_property
+    def first_backend(self):
+        try:
+            return otp.site.backends_dict[self.user.device_set.all()[0].backend]
+        except IndexError:
+            return None
+
+    @cached_property
     def score(self):
         return self.user.solve_set.aggregate(score=models.Sum('flag__score'))['score'] or 0
 
@@ -180,14 +188,18 @@ class CtfInfo:
 
     @property
     def local_rank(self):
-        return User.objects.filter(last_name=self.user.last_name)\
+        if not self.first_backend:
+            return 0
+        return User.objects.filter(device__backend=self.first_backend.id)\
                            .filter(models.Q(userscorecache__score__gt=self.score)
                                    | models.Q(userscorecache__score=self.score, userscorecache__time__lt=self.time))\
                            .count() + 1
 
     @property
     def local_rank_total(self):
-        return User.objects.filter(last_name=self.user.last_name).count()
+        if not self.first_backend:
+            return 0
+        return User.objects.filter(device__backend=self.first_backend.id).count()
 
 
 class UserScoreCache(models.Model):
