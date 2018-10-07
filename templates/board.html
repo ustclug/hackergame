@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% if backend %}
+        <h1>{{ backend.name }}排名</h1>
+    {% else %}
+        <h1>总排名</h1>
+    {% endif %}
+    <table class="pure-table pure-table-horizontal center">
+        <thead>
+            <tr class="center">
+                <td>名次</td>
+                <td>参赛组</td>
+                <td>用户名</td>
+                <td>分数</td>
+                <td>时间</td>
+            </tr>
+        </thead>
+        <tbody>
+            {% for object in object_list %}
+                {% widthratio object.score total_score '100' as ratio %}
+                <tr style="position: relative">
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ object.info.first_backend.name }}</td>
+                    <td>{{ object.user }}</td>
+                    <td>{{ object.score }}</td>
+                    <td>{{ object.time }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

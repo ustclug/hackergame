@@ -76,6 +76,13 @@ table {
 .msg-info {color: #31708f; background-color: #d9edf7; border-color: #bce8f1;}
 .msg-success {color: #3c763d; background-color: #dff0d8; border-color: #d6e9c6;}
 .msg-fail {color: #8a6d3b; background-color: #fcf8e3; border-color: #faebcc;}
+.msg-error a,
+.msg-info a,
+.msg-success a,
+.msg-fail a {
+    color: inherit;
+    text-decoration: underline;
+}
 
 /*  Layout
  * * * * * * * * * * * * * * */

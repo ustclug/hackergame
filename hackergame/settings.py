@@ -46,6 +46,7 @@ if DATABASES is None:
     }
 
 CTF_TEMPLATE_HUB = 'hub.html'
+CTF_TEMPLATE_BOARD = 'board.html'
 
 OTP_BACKENDS = [
     'otp.backends.ustc_cas.Ustc',

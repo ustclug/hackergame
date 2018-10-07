@@ -83,6 +83,10 @@ class Problem(DictMixin, NameMixin, models.Model):
     def open_objects(cls):
         return cls.objects.filter(is_open=True)
 
+    @classproperty
+    def total_score(cls):
+        return cls.open_objects.aggregate(total_score=models.Sum('flag__score'))['total_score']
+
     @property
     def flags(self):
         return [dict(flag) for flag in self.flag_set.all()]
@@ -228,6 +232,10 @@ class UserScoreCache(models.Model):
     def __str__(self):
         return f'{self.user}: {self.score}'
 
+    @property
+    def info(self):
+        return CtfInfo(self.user)
+
     @classmethod
     def clear_cache(cls, user=None, **kwargs):
         _ = kwargs
@@ -246,3 +254,12 @@ class UserScoreCache(models.Model):
 
     models.signals.post_save.connect(_clear_cache, sender='ctf.Solve')
     models.signals.post_delete.connect(_clear_cache, sender='ctf.Solve')
+
+    def _clear_cache(**kwargs):
+        _ = kwargs
+        UserScoreCache.clear_cache()
+
+    models.signals.post_save.connect(_clear_cache, sender='ctf.Problem')
+    models.signals.post_delete.connect(_clear_cache, sender='ctf.Problem')
+    models.signals.post_save.connect(_clear_cache, sender='ctf.Flag')
+    models.signals.post_delete.connect(_clear_cache, sender='ctf.Flag')
