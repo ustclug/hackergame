@@ -106,13 +106,21 @@ class Problem(DictMixin, NameMixin, models.Model):
             cache.set(key, cached)
         return cached
 
-    def _clear_cache(instance, **kwargs):
+    def _clear_cache_solve(instance, **kwargs):
         _ = kwargs
         key = f'problem__{instance.flag.problem_id}__user_solved'
         cache.delete(key)
 
-    models.signals.post_save.connect(_clear_cache, sender='ctf.Solve')
-    models.signals.post_delete.connect(_clear_cache, sender='ctf.Solve')
+    models.signals.post_save.connect(_clear_cache_solve, sender='ctf.Solve')
+    models.signals.post_delete.connect(_clear_cache_solve, sender='ctf.Solve')
+
+    def _clear_cache_flag(instance, **kwargs):
+        _ = kwargs
+        key = f'problem__{instance.problem_id}__user_solved'
+        cache.delete(key)
+
+    models.signals.post_save.connect(_clear_cache_flag, sender='ctf.Flag')
+    models.signals.post_delete.connect(_clear_cache_flag, sender='ctf.Flag')
 
 
 class Flag(DictMixin, models.Model):
