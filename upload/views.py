@@ -1,3 +1,4 @@
+from hashlib import sha3_256
 import os.path
 
 from django.conf import settings
@@ -15,18 +16,19 @@ class Upload(UserPassesTestMixin, generic.TemplateView):
 
     def post(self, request):
         file = request.FILES['file']
-        if len(file.name) < 16:
-            messages.error(request, '上传失败，文件名太简单')
+        if len(file.name) > 20:
+            messages.error(request, '上传失败，请使用简单文件名')
             return redirect('upload')
-        if os.path.exists(os.path.join(settings.UPLOAD_DIR, file.name)):
-            messages.error(request, '上传失败，有同名文件存在')
-            return redirect('upload')
-        self.save_file(file)
-        messages.success(request, '上传成功')
-        return redirect('upload')
-
-    @staticmethod
-    def save_file(file):
-        with open(os.path.join(settings.UPLOAD_DIR, file.name), 'wb') as f:
+        hashobj = sha3_256()
+        for chunk in file.chunks():
+            hashobj.update(chunk)
+        d = hashobj.hexdigest()
+        try:
+            os.mkdir(os.path.join(settings.UPLOAD_DIR, d))
+        except FileExistsError:
+            pass
+        with open(os.path.join(settings.UPLOAD_DIR, d, file.name), 'wb') as f:
             for chunk in file.chunks():
                 f.write(chunk)
+        messages.success(request, f'上传成功，URL: /file/{d}/{file.name}')
+        return redirect('upload')
