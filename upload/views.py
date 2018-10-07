@@ -15,16 +15,14 @@ class Upload(UserPassesTestMixin, generic.TemplateView):
 
     def post(self, request):
         file = request.FILES['file']
-        force = 'force' in request.POST
+        if len(file.name) < 16:
+            messages.error(request, '上传失败，文件名太简单')
+            return redirect('upload')
         if os.path.exists(os.path.join(settings.UPLOAD_DIR, file.name)):
-            if force:
-                self.save_file(file)
-                messages.success(request, '上传成功，覆盖了同名文件')
-            else:
-                messages.error(request, '上传失败，有同名文件存在')
-        else:
-            self.save_file(file)
-            messages.success(request, '上传成功')
+            messages.error(request, '上传失败，有同名文件存在')
+            return redirect('upload')
+        self.save_file(file)
+        messages.success(request, '上传成功')
         return redirect('upload')
 
     @staticmethod
