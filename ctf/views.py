@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.views import generic
 from django.shortcuts import redirect
@@ -21,6 +22,10 @@ class Hub(TermsRequiredMixin, generic.ListView):
 
     @staticmethod
     def post(request):
+        if not (TimerSwitch.is_on_now() or request.user.has_perm('ctf.view_problem')):
+            raise PermissionDenied
+        if not request.user.is_authenticated:
+            raise PermissionDenied
         with atomic():
             try:
                 problem = Problem.open_objects.get(pk=request.POST['problem'])
