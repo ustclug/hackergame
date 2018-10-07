@@ -15,7 +15,7 @@ class Hub(TermsRequiredMixin, generic.ListView):
         queryset = Problem.open_objects
         if not (TimerSwitch.is_on_now() or self.request.user.has_perm('ctf.view_problem')):
             queryset = queryset.none()
-        return Problem.annotated(queryset)
+        return queryset.prefetch_related('flag_set')
 
     @staticmethod
     def post(request):

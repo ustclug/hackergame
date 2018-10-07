@@ -82,6 +82,13 @@
     <script>
         problem_list = JSON.parse(document.getElementById('problem-list').textContent)
         solved_flags = JSON.parse(document.getElementById('solved-flags').textContent)
+        for (var i = 0; i < problem_list.length; i++) {
+            var score = 0
+            for (var j = 0; j < problem_list[i].flags.length; j++) {
+                score += problem_list[i].flags[j].score
+            }
+            problem_list[i].score = score
+        }
         function has(l, i) {
             return (l.indexOf(i) != -1)
         }

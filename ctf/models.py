@@ -74,17 +74,14 @@ class Problem(DictMixin, NameMixin, models.Model):
     name = models.TextField()
     detail = models.TextField(blank=True)
     url = models.TextField(blank=True)
+    index = models.IntegerField(default=0, db_index=True)
+
+    class Meta:
+        ordering = ('index',)
 
     @classproperty
     def open_objects(cls):
         return cls.objects.filter(is_open=True)
-
-    @staticmethod
-    def annotated(queryset):
-        return queryset\
-            .prefetch_related('flag_set')\
-            .annotate(score=models.Sum('flag__score'))\
-            .order_by('score')
 
     @property
     def flags(self):
@@ -113,18 +110,16 @@ class Problem(DictMixin, NameMixin, models.Model):
     models.signals.post_save.connect(_clear_cache, sender='ctf.Solve')
     models.signals.post_delete.connect(_clear_cache, sender='ctf.Solve')
 
-    def keys(self):
-        yield from super().keys()
-        for key in ('score',):
-            if hasattr(self, key):
-                yield key
-
 
 class Flag(DictMixin, models.Model):
     problem = models.ForeignKey(Problem, models.CASCADE)
     name = models.TextField(blank=True)
     flag = models.TextField(unique=True)
     score = models.IntegerField(default=100)
+    index = models.IntegerField(default=0, db_index=True)
+
+    class Meta:
+        ordering = ('index',)
 
     @property
     def user_solved(self):
@@ -157,6 +152,9 @@ class Solve(models.Model):
     user = models.ForeignKey(User, models.CASCADE)
     flag = models.ForeignKey(Flag, models.PROTECT)
     time = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ('user', 'flag')
 
     def __str__(self):
         return f'{self.flag} - {self.user}'
