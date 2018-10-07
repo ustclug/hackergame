@@ -72,6 +72,7 @@
         </div>
         <div v-if="problem_index!=-1">
             <h1>${problem.name}</h1>
+            <div><p v-html="problem.detail"></p></div>
             <form class="pure-form" method="post" :key="problem_index">
                 {% csrf_token %}
                 <a class="pure-button pure-input-rounded" target="_blank" :href="problem.url">打开题目</a>
@@ -84,7 +85,6 @@
                     <button type="submit" class="pure-button pure-button-primary pure-input-rounded" disabled="disabled">请先登录</button>
                 {% endif %}
             </form>
-            <div><p v-html="problem.detail"></p></div>
         </div>
     </div>
     {{ problem_list|list|json_script:'problem-list' }}

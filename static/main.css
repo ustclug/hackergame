@@ -113,7 +113,8 @@ h1 {
 }
 @media screen and (min-width: 48em) {
     .problems {
-        max-width: 20em;
+        max-width: 24em;
+        margin-left: 1em;
     }
 }
 .problem,
