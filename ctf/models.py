@@ -248,18 +248,18 @@ class UserScoreCache(models.Model):
             for user in User.objects.all():
                 cls.clear_cache(user)
 
-    def _clear_cache(instance, **kwargs):
+    def _clear_cache_one(instance, **kwargs):
         _ = kwargs
         UserScoreCache.clear_cache(instance.user)
 
-    models.signals.post_save.connect(_clear_cache, sender='ctf.Solve')
-    models.signals.post_delete.connect(_clear_cache, sender='ctf.Solve')
+    models.signals.post_save.connect(_clear_cache_one, sender='ctf.Solve')
+    models.signals.post_delete.connect(_clear_cache_one, sender='ctf.Solve')
 
-    def _clear_cache(**kwargs):
+    def _clear_cache_all(**kwargs):
         _ = kwargs
         UserScoreCache.clear_cache()
 
-    models.signals.post_save.connect(_clear_cache, sender='ctf.Problem')
-    models.signals.post_delete.connect(_clear_cache, sender='ctf.Problem')
-    models.signals.post_save.connect(_clear_cache, sender='ctf.Flag')
-    models.signals.post_delete.connect(_clear_cache, sender='ctf.Flag')
+    models.signals.post_save.connect(_clear_cache_all, sender='ctf.Problem')
+    models.signals.post_delete.connect(_clear_cache_all, sender='ctf.Problem')
+    models.signals.post_save.connect(_clear_cache_all, sender='ctf.Flag')
+    models.signals.post_delete.connect(_clear_cache_all, sender='ctf.Flag')
