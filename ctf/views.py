@@ -50,7 +50,7 @@ class Board(PermissionRequiredMixin, generic.ListView):
     template_name = settings.CTF_TEMPLATE_BOARD
 
     def get_queryset(self):
-        queryset = UserScoreCache.objects.order_by('-score', 'time')
+        queryset = UserScoreCache.objects.filter(score__gt=0).order_by('-score', 'time')
         if 'backend' in self.kwargs:
             queryset = queryset.filter(user__device__backend=self.kwargs['backend'])
         return queryset[:100]
