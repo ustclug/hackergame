@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>上传文件</h1>
+    <form class="pure-form pure-form-aligned" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div class="pure-control-group">
+            <label for="file">文件</label>
+            <input type="file" id="file" name="file">
+        </div>
+        <div class="pure-control-group">
+            <label for="force">覆盖同名文件</label>
+            <input type="checkbox" id="force" name="force">
+        </div>
+        <div class="pure-controls">
+            <button type="submit" class="pure-button pure-button-primary">上传</button>
+        </div>
+    </form>
+{% endblock %}

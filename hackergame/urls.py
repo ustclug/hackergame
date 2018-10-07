@@ -6,6 +6,7 @@ from ctf.views import Board, Hub
 from logout.views import Logout
 from nickname.views import Nickname
 from terms.views import TermsList
+from upload.views import Upload
 
 urlpatterns = [
     path('', Hub.as_view(), name='hub'),
@@ -15,5 +16,6 @@ urlpatterns = [
     path('nickname/', Nickname.as_view(), name='nickname'),
     path('otp/', otp.site.urls),
     path('terms/', TermsList.as_view(), name='terms'),
+    path('upload/', Upload.as_view(), name='upload'),
     path('admin/', admin.site.urls),
 ]

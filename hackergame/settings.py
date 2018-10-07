@@ -9,6 +9,7 @@ HOST = 'https://example.com'
 DEBUG = False
 SECRET_KEY = '******'
 STATIC_ROOT = '/var/opt/hackergame/static/'
+UPLOAD_DIR = '/var/opt/hackergame/file/'
 EMAIL_HOST = 'localhost'
 EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
@@ -47,6 +48,7 @@ if DATABASES is None:
 
 CTF_TEMPLATE_HUB = 'hub.html'
 CTF_TEMPLATE_BOARD = 'board.html'
+UPLOAD_TEMPLATE_UPLOAD = 'upload.html'
 
 OTP_BACKENDS = [
     'otp.backends.ustc_cas.Ustc',
@@ -70,6 +72,7 @@ INSTALLED_APPS = [
     'logout.apps.LogoutConfig',
     'otp.apps.OtpConfig',
     'terms.apps.TermsConfig',
+    'upload.apps.UploadConfig',
     'utils.apps.UtilsConfig',
     'django.contrib.admin',
     'django.contrib.auth',
