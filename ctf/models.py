@@ -89,6 +89,10 @@ class Problem(DictMixin, NameMixin, models.Model):
         return cls.open_objects.aggregate(total_score=models.Sum('flag__score'))['total_score']
 
     @property
+    def score(self):
+        return sum(flag.score for flag in self.flag_set.all())
+
+    @property
     def flags(self):
         return [dict(flag) for flag in self.flag_set.all()]
 
