@@ -74,6 +74,7 @@ class Problem(DictMixin, NameMixin, models.Model):
     name = models.TextField()
     detail = models.TextField(blank=True)
     url = models.TextField(blank=True)
+    prompt = models.TextField(blank=True, default='flag{...}')
     index = models.IntegerField(default=0, db_index=True)
 
     class Meta:

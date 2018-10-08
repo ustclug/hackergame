@@ -80,10 +80,10 @@
                 <a class="pure-button pure-input-rounded" target="_blank" :href="problem.url" v-show="problem.url">打开题目</a>
                 <input type="hidden" name="problem" :value="problem.pk">
                 {% if user.is_authenticated %}
-                    <input type="text" name="flag" class="pure-input-rounded" autocomplete="off" placeholder="flag{...}">
+                    <input type="text" name="flag" class="pure-input-rounded" autocomplete="off" :placeholder="problem.prompt">
                     <button type="submit" class="pure-button pure-button-primary pure-input-rounded">提交</button>
                 {% else %}
-                    <input type="text" name="flag" class="pure-input-rounded" autocomplete="off" placeholder="flag{...}" disabled="disabled">
+                    <input type="text" name="flag" class="pure-input-rounded" autocomplete="off" :placeholder="problem.prompt" disabled="disabled">
                     <button type="submit" class="pure-button pure-button-primary pure-input-rounded" disabled="disabled">请先登录</button>
                 {% endif %}
             </form>
