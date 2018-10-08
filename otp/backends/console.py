@@ -1,3 +1,4 @@
+from datetime import timedelta
 import json
 from uuid import uuid4
 
@@ -50,6 +51,7 @@ class Login(generic.TemplateView):
 class GetChallenge(generic.View):
     backend = None
     identity_validator = UnicodeUsernameValidator()
+    token_valid_period = timedelta(minutes=10)
 
     def post(self, request):
         from ..models import Device, Token
@@ -61,7 +63,7 @@ class GetChallenge(generic.View):
         with atomic():
             device, created = Device.objects.get_or_create(backend=self.backend.id, identity=identity)
             try:
-                token = Token.generate(device)
+                token = Token.generate(device, period=self.token_valid_period)
             except Token.TooMany:
                 return JsonResponse({'error': 'too many'}, status=429)
             return self.send(token)

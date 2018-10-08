@@ -1,3 +1,4 @@
+from datetime import timedelta
 from smtplib import SMTPException
 
 from django.core.validators import EmailValidator
@@ -27,6 +28,7 @@ class GetChallenge(Console.GetChallengeView):
     identity_validator = EmailValidator()
     email_subject_template = 'otp/email/subject.txt'
     email_body_template = 'otp/email/body.txt'
+    token_valid_period = timedelta(minutes=60)
 
     def send(self, token):
         context = {'token': token.token}
