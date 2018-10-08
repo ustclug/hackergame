@@ -56,6 +56,8 @@ class Board(UserPassesTestMixin, generic.ListView):
     def test_func(self):
         if 'backend' not in self.kwargs:
             return True
+        if not self.request.user.is_authenticated:
+            return False
         return self.kwargs['backend'] == CtfInfo(self.request.user).first_backend.id == 'ustc'
 
     def get_queryset(self):
