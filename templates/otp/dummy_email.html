@@ -1,0 +1,15 @@
+{% extends 'otp/console.html' %}
+
+{% block form %}
+    <h1>{{ backend.name }}邮箱登录</h1>
+    <form id="app" class="pure-form pure-form-aligned" method="post">
+        {% csrf_token %}
+        <div class="pure-control-group">
+            <label for="identity">邮箱</label>
+            <input type="email" id="identity" name="identity" v-model="identity" required="required">
+        </div>
+        <div class="pure-controls">
+            <button type="submit" class="pure-button pure-button-primary">登录</button>
+        </div>
+    </form>
+{% endblock %}

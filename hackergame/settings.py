@@ -58,7 +58,7 @@ OTP_BACKENDS = [
     'otp.backends.hnu_email.Hnu',
     'otp.backends.uestc_email.Uestc',
     'otp.backends.sjtu_email.Sjtu',
-    'otp.backends.email.Email',
+    'otp.backends.dummy_email.DummyEmail',
 ]
 
 LOGIN_REDIRECT_URL = 'nickname'
