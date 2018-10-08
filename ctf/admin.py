@@ -22,17 +22,35 @@ class FlagAdmin(admin.ModelAdmin):
     ordering = ('problem', 'index')
 
 
+class HaveScoreFilter(admin.SimpleListFilter):
+    title = 'score'
+    parameter_name = 'score'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('true', 'score > 0'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'true':
+            return queryset.filter(score__gt=0)
+
+
 @admin.register(UserScoreCache)
 class UserScoreCache(admin.ModelAdmin):
     list_display = ('user', 'backend', 'score', 'time')
-    list_filter = ('backend',)
+    list_filter = ('user__device__backend', HaveScoreFilter)
     search_fields = ('user',)
     ordering = ('-score', 'time')
 
     def __getattr__(self, item):
-        if item.startswith('flag_'):
-            return partial(self.flag_, item[5:])
-        raise AttributeError(item)
+        if not item.startswith('flag_'):
+            raise AttributeError(item)
+        flag = Flag.objects.get(pk=item[5:])
+        p = partial(self.flag_, flag)
+        p.__name__ = str(flag)
+        p.boolean = True
+        return p
 
     def get_list_display(self, request):
         flags = tuple(f'flag_{flag.pk}' for flag in Flag.objects.order_by('problem__index', 'index'))
@@ -45,7 +63,7 @@ class UserScoreCache(admin.ModelAdmin):
     @staticmethod
     def flag_(flag, obj):
         try:
-            Solve.objects.get(user=obj, flag_id=flag)
+            Solve.objects.get(user=obj.user, flag=flag)
             return True
         except Solve.DoesNotExist:
             return False
