@@ -4,7 +4,6 @@ from django.contrib.auth import get_user_model
 from django.core.cache import cache
 from django.db import models
 from django.db.transaction import atomic
-from django.db.utils import ProgrammingError
 from django.utils.decorators import classproperty
 from django.utils.functional import cached_property
 from django.utils.timezone import now
