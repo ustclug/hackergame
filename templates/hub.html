@@ -39,14 +39,16 @@
                         :class="{problem: row.problem, flag: !row.problem, 'problem-highlight': row.index==problem_index}"
                         @click="row_click(row)">
                         <td v-if="row.problem">
-                            <i v-if="!solved[row.index]" class="far fa-circle"></i>
-                            <i v-if="solved[row.index]" class="fas fa-check-circle"></i>
+                            <i v-if="!solved[row.index] && problem_list[row.index].flags.length<=1" class="far fa-circle fa-fw"></i>
+                            <i v-if="!solved[row.index] && problem_list[row.index].flags.length>1 && row.index!=problem_index" class="fas fa-caret-right fa-fw"></i>
+                            <i v-if="!solved[row.index] && problem_list[row.index].flags.length>1 && row.index==problem_index" class="fas fa-caret-down fa-fw"></i>
+                            <i v-if="solved[row.index]" class="fas fa-check-circle fa-fw"></i>
                             ${row.name}
                         </td>
                         <td v-if="!row.problem">
                             &nbsp;&nbsp;&nbsp;&nbsp;
-                            <i v-if="!has(solved_flags, row.pk)" class="far fa-circle"></i>
-                            <i v-if="has(solved_flags, row.pk)" class="fas fa-check-circle"></i>
+                            <i v-if="!has(solved_flags, row.pk)" class="far fa-circle fa-fw"></i>
+                            <i v-if="has(solved_flags, row.pk)" class="fas fa-check-circle fa-fw"></i>
                             ${row.name}
                         </td>
                         <td>${row.score}</td>
@@ -75,7 +77,7 @@
             <div><p v-html="problem.detail"></p></div>
             <form class="pure-form" method="post" :key="problem_index">
                 {% csrf_token %}
-                <a class="pure-button pure-input-rounded" target="_blank" :href="problem.url">打开题目</a>
+                <a class="pure-button pure-input-rounded" target="_blank" :href="problem.url" v-show="problem.url">打开题目</a>
                 <input type="hidden" name="problem" :value="problem.pk">
                 {% if user.is_authenticated %}
                     <input type="text" name="flag" class="pure-input-rounded" autocomplete="off" placeholder="flag{...}">
@@ -165,9 +167,6 @@
                     if (row.problem && row.index != this.problem_index) {
                         this.problem_index = row.index
                         location.hash = '#'+problem_list[row.index].pk
-                    } else {
-                        this.problem_index = -1
-                        location.hash = ''
                     }
                 }
             },
