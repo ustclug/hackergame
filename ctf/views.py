@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import UserPassesTestMixin
 from django.core.exceptions import PermissionDenied
 from django.db.transaction import atomic
 from django.views import generic
@@ -8,7 +8,7 @@ from django.shortcuts import redirect
 
 import otp
 from terms.mixins import TermsRequiredMixin
-from .models import TimerSwitch, Problem, Flag, Solve, Log, UserScoreCache
+from .models import TimerSwitch, Problem, Flag, Solve, Log, UserScoreCache, CtfInfo
 
 
 class Hub(TermsRequiredMixin, generic.ListView):
@@ -49,21 +49,24 @@ class Hub(TermsRequiredMixin, generic.ListView):
             return redirect('hub')
 
 
-class Board(PermissionRequiredMixin, generic.ListView):
-    permission_required = 'ctf.view_userscorecache'
+class Board(UserPassesTestMixin, generic.ListView):
     raise_exception = True
     template_name = settings.CTF_TEMPLATE_BOARD
+
+    def test_func(self):
+        if 'backend' not in self.kwargs:
+            return True
+        return self.kwargs['backend'] == CtfInfo(self.request.user).first_backend.id == 'ustc'
 
     def get_queryset(self):
         queryset = UserScoreCache.objects.filter(score__gt=0).order_by('-score', 'time')
         if 'backend' in self.kwargs:
             queryset = queryset.filter(user__device__backend=self.kwargs['backend'])
-        return queryset[:100]
+        return queryset[:50]
 
     def get_context_data(self, **kwargs):
         if 'backend' in self.kwargs:
             backend = otp.site.backends_dict[self.kwargs['backend']]
         else:
             backend = None
-        total_score = Problem.total_score
-        return super().get_context_data(backend=backend, total_score=total_score, **kwargs)
+        return super().get_context_data(backend=backend, **kwargs)

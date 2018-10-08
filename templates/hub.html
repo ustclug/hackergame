@@ -8,21 +8,16 @@
 
 {% block content %}
     {% if user.is_authenticated and ctf_info.score %}
-        {% if perms.ctf.view_userscorecache %}
-            <div class="msg-info">
-                您目前得分：{{ ctf_info.score }}；
-                <a href="{% url 'board' %}">总排名：{{ ctf_info.rank }} / {{ ctf_info.rank_total }}</a>；
-                您所属的参赛组：{{ ctf_info.first_backend.name }}；
-                <a href="{% url 'board' backend=ctf_info.first_backend.id %}">组内排名：{{ ctf_info.local_rank }} / {{ ctf_info.local_rank_total }}</a>；
-            </div>
-        {% else %}
-            <div class="msg-info">
-                您目前得分：{{ ctf_info.score }}；
-                总排名：{{ ctf_info.rank }} / {{ ctf_info.rank_total }}；
-                您所属的参赛组：{{ ctf_info.first_backend.name }}；
-                组内排名：{{ ctf_info.local_rank }} / {{ ctf_info.local_rank_total }}；
-            </div>
-        {% endif %}
+        <div class="msg-info">
+            您目前得分：{{ ctf_info.score }}；
+            <a href="{% url 'board' %}">总排名：{{ ctf_info.rank }}</a>；
+            您所属的参赛组：{{ ctf_info.first_backend.name }}；
+            {% if ctf_info.first_backend.id == 'ustc' %}
+                <a href="{% url 'board' backend=ctf_info.first_backend.id %}">组内排名：{{ ctf_info.local_rank }}</a>；
+            {% else %}
+                组内排名：{{ ctf_info.local_rank }}；
+            {% endif %}
+        </div>
     {% endif %}
     <div id="app">
         <div class="problems">
