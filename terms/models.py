@@ -3,6 +3,8 @@ from django.core.cache import cache
 from django.db import models
 from django.utils.timezone import now
 
+from utils.cache import timeout_at
+
 User = get_user_model()
 
 
@@ -28,13 +30,7 @@ class Terms(models.Model):
             time = now()
             cached = list(cls.objects.filter(~models.Q(replaced_by__begin__lte=time), begin__lte=time))
             next_time = cls.objects.filter(begin__gt=time).aggregate(models.Min('begin'))['begin__min']
-            if next_time is None:
-                timeout = cache.default_timeout
-            elif cache.default_timeout is None:
-                timeout = (next_time - time).total_seconds()
-            else:
-                timeout = min(cache.default_timeout, (next_time - time).total_seconds())
-            cache.set(key, cached, timeout)
+            cache.set(key, cached, timeout_at(next_time))
         return cached
 
     def _clear_cache(**kwargs):

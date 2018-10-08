@@ -10,6 +10,7 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 
 import otp
+from utils.cache import timeout_at
 from utils.models import DictMixin, NameMixin, SingletonMixin
 
 User = get_user_model()
@@ -49,14 +50,17 @@ class TimerSwitch(models.Model):
         key = 'timer_switch__is_on_now'
         cached = cache.get(key)
         if cached is None:
+            time = now()
             try:
-                obj = cls.objects.filter(time__lt=now()).latest('time')
+                obj = cls.objects.filter(time__lte=time).latest('time')
                 cached = obj.on_off, obj.note or ('比赛正在进行' if obj.on_off else '比赛暂时关闭')
             except cls.DoesNotExist:
                 cached = False, '比赛尚未开始'
-            except ProgrammingError:  # we are making migrations
-                return State(False, '')
-            cache.set(key, cached)
+            try:
+                next_time = cls.objects.filter(time__gt=time).earliest('time').time
+            except cls.DoesNotExist:
+                next_time = None
+            cache.set(key, cached, timeout_at(next_time))
         return State(*cached)
 
     def _clear_cache(**kwargs):
