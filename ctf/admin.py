@@ -62,7 +62,7 @@ class HaveScoreFilter(admin.SimpleListFilter):
 
 @admin.register(UserScoreCache)
 class UserScoreCache(admin.ModelAdmin):
-    list_display = ('user', 'backend', 'score', 'time')
+    list_display = ('user', 'backend', 'identity', 'score', 'time')
     list_filter = ('user__device__backend', HaveScoreFilter)
     search_fields = ('user',)
     ordering = ('-score', 'time')
@@ -83,6 +83,10 @@ class UserScoreCache(admin.ModelAdmin):
     @staticmethod
     def backend(obj):
         return obj.info.first_backend.name
+
+    @staticmethod
+    def identity(obj):
+        return obj.info.first_backend.identity
 
     @staticmethod
     def flag_(flag, obj):
