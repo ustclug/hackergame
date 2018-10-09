@@ -15,6 +15,7 @@ class Terms(models.Model):
     replace = models.ManyToManyField('self', blank=True, related_name='replaced_by', symmetrical=False,
                                      help_text='When in effect, obsolete these.')
     agreed = models.ManyToManyField(User, blank=True)
+    banned = models.ManyToManyField(User, blank=True, related_name='banned_terms')
 
     def __str__(self):
         if self.replaced_by.count():

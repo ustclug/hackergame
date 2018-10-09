@@ -8,6 +8,6 @@
             <input type="hidden" name="terms" value="{{ terms.pk }}">
             <div>{{ terms.content|safe }}</div>
         {% endfor %}
-        <button type="submit" class="pure-button pure-button-primary">我理解并同意以上规定</button>
+        <button type="submit" class="pure-button pure-button-primary"{% if user in terms.banned %} disabled="disabled"{% endif %}>我理解并同意以上规定</button>
     </form>
 {% endblock %}

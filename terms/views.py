@@ -14,5 +14,9 @@ class TermsList(LoginRequiredMixin, generic.ListView):
 
     @staticmethod
     def post(request):
+        for term in request.POST.getlist('terms'):
+            term_obj = Terms.objects.get(pk=term)
+            if request.user in term_obj.banned:
+                return redirect(settings.TERMS_REDIRECT_URL)
         request.user.terms_set.set(request.POST.getlist('terms'))
         return redirect(settings.TERMS_REDIRECT_URL)
