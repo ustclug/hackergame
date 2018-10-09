@@ -34,9 +34,9 @@ class MatchFilter(admin.SimpleListFilter):
 
     def queryset(self, request, queryset):
         if self.value() == 'true':
-            return queryset.filter(match__null=False)
+            return queryset.filter(match__is_null=False)
         if self.value() == 'false':
-            return queryset.filter(match__null=True)
+            return queryset.filter(match__is_null=True)
 
 
 @admin.register(Log)
