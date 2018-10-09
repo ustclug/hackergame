@@ -4,7 +4,7 @@ from django.contrib import admin
 
 from .models import Page, TimerSwitch, Problem, Flag, Solve, Log, UserScoreCache
 
-admin.site.register((Page, TimerSwitch, Solve, Log))
+admin.site.register((Page, TimerSwitch, Solve))
 
 
 @admin.register(Problem)
@@ -20,6 +20,30 @@ class FlagAdmin(admin.ModelAdmin):
     list_display = ('__str__', 'index', 'score')
     list_filter = ('problem',)
     ordering = ('problem', 'index')
+
+
+class MatchFilter(admin.SimpleListFilter):
+    title = 'match'
+    parameter_name = 'match'
+
+    def lookups(self, request, model_admin):
+        return (
+            ('true', 'true'),
+            ('false', 'false'),
+        )
+
+    def queryset(self, request, queryset):
+        if self.value() == 'true':
+            return queryset.filter(match__null=False)
+        if self.value() == 'false':
+            return queryset.filter(match__null=True)
+
+
+@admin.register(Log)
+class LogAdmin(admin.ModelAdmin):
+    list_display = ('user', 'problem', 'match', 'flag', 'time')
+    list_filter = ('problem', MatchFilter, 'user__device__backend')
+    ordering = ('-time',)
 
 
 class HaveScoreFilter(admin.SimpleListFilter):
