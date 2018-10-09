@@ -82,11 +82,17 @@ class UserScoreCache(admin.ModelAdmin):
 
     @staticmethod
     def backend(obj):
-        return obj.info.first_backend.name
+        try:
+            return obj.info.first_backend.name
+        except AttributeError:
+            return None
 
     @staticmethod
     def identity(obj):
-        return obj.info.first_backend.identity
+        try:
+            return obj.user.device_set.all()[0].identity
+        except IndexError:
+            return None
 
     @staticmethod
     def flag_(flag, obj):
