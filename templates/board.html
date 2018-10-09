@@ -17,11 +17,11 @@
         </thead>
         <tbody>
             {% for object in object_list %}
-                <tr style="position: relative">
+                <tr>
                     <td>{{ forloop.counter }}</td>
-                    <td>{{ object.user }}</td>
+                    <td style="word-break: break-all">{{ object.user }}</td>
                     <td>{{ object.score }}</td>
-                    <td>{{ object.time }}</td>
+                    <td style="word-break: keep-all">{{ object.time|date }}{{ object.time|time }}</td>
                 </tr>
             {% endfor %}
         </tbody>

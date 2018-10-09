@@ -3,13 +3,16 @@ import json
 from uuid import UUID
 
 from django.conf import settings
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import ValidationError
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views import generic
 
 
-class Nickname(generic.View):
+class Nickname(LoginRequiredMixin, generic.View):
+    raise_exception = True
+
     @staticmethod
     def get(request):
         try:
