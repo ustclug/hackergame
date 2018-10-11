@@ -1,6 +1,7 @@
 {% extends 'otp/console.html' %}
 
 {% block form %}
+    <div class="msg-info">部分学校邮箱邮件送达可能较慢，请耐心等待。</div>
     <h1>{{ backend.name }}邮箱登录</h1>
     <form id="app" class="pure-form pure-form-aligned" method="post">
         {% csrf_token %}

@@ -1,1 +1,1 @@
-登录验证码：{{ token }}
+您在 Hackergame 2018 ( https://hack.lug.ustc.edu.cn/ ) 比赛平台的登录验证码是：{{ token }}
