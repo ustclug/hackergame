@@ -16,6 +16,8 @@ class Hub(TermsRequiredMixin, generic.ListView):
 
     def get_queryset(self):
         queryset = Problem.open_objects
+        if not self.request.user.is_authenticated:
+            queryset = queryset.none()
         if not (TimerSwitch.is_on_now() or self.request.user.has_perm('ctf.view_problem')):
             queryset = queryset.none()
         return queryset.prefetch_related('flag_set')

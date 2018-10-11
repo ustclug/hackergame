@@ -50,7 +50,9 @@
                         <td>${row.user_solved}</td>
                     </tr>
                     <tr v-if="!table_rows.length">
-                        {% if ctf_switch %}
+                        {% if not user.is_authenticated %}
+                            <td colspan="3" class="center">（请先登录）</td>
+                        {% elif ctf_switch %}
                             <td colspan="3" class="center">（暂无题目）</td>
                         {% else %}
                             <td colspan="3" class="center">{{ ctf_switch }}</td>

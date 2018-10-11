@@ -1,5 +1,5 @@
 from django.contrib import messages
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ValidationError, PermissionDenied
 from django.shortcuts import redirect
 
 from .dummy import Dummy
@@ -33,6 +33,10 @@ class Login(Dummy.LoginView):
             messages.error(request, self.validation_error_message)
             return redirect(self.backend.login_url)
         return super().post(request)
+
+    @staticmethod
+    def create_user(device):
+        raise PermissionDenied
 
 
 class DummyEmail(Dummy):
