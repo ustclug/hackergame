@@ -64,6 +64,7 @@ class HaveScoreFilter(admin.SimpleListFilter):
 @admin.register(UserScoreCache)
 class UserScoreCache(admin.ModelAdmin):
     list_display = ('rank', 'user', 'backend', 'identity', 'score', 'time')
+    list_display_links = ('user',)
     list_filter = ('user__device__backend', HaveScoreFilter)
     search_fields = ('user__username',)
     ordering = ('-score', 'time')
