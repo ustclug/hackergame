@@ -43,6 +43,7 @@ class MatchFilter(admin.SimpleListFilter):
 class LogAdmin(admin.ModelAdmin):
     list_display = ('user', 'problem', 'match', 'flag', 'time')
     list_filter = ('problem', MatchFilter, 'user__device__backend')
+    search_fields = ('user__username',)
     ordering = ('-time',)
 
 
@@ -62,10 +63,14 @@ class HaveScoreFilter(admin.SimpleListFilter):
 
 @admin.register(UserScoreCache)
 class UserScoreCache(admin.ModelAdmin):
-    list_display = ('user', 'backend', 'identity', 'score', 'time')
+    list_display = ('rank', 'user', 'backend', 'identity', 'score', 'time')
     list_filter = ('user__device__backend', HaveScoreFilter)
-    search_fields = ('user',)
+    search_fields = ('user__username',)
     ordering = ('-score', 'time')
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.rank_counter = 0
 
     def __getattr__(self, item):
         if not item.startswith('flag_'):
@@ -73,12 +78,17 @@ class UserScoreCache(admin.ModelAdmin):
         flag = Flag.objects.get(pk=item[5:])
         p = partial(self.flag_, flag)
         p.__name__ = str(flag)
-        p.boolean = True
         return p
 
     def get_list_display(self, request):
         flags = tuple(f'flag_{flag.pk}' for flag in Flag.objects.order_by('problem__index', 'index'))
         return self.list_display + flags
+
+    def rank(self):
+        self.rank_counter += 1
+        return self.rank_counter
+
+    rank.short_description = '#'
 
     @staticmethod
     def backend(obj):
@@ -97,7 +107,6 @@ class UserScoreCache(admin.ModelAdmin):
     @staticmethod
     def flag_(flag, obj):
         try:
-            Solve.objects.get(user=obj.user, flag=flag)
-            return True
+            return Solve.objects.get(user=obj.user, flag=flag).time
         except Solve.DoesNotExist:
-            return False
+            return None
