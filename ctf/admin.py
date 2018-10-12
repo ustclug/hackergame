@@ -84,7 +84,7 @@ class UserScoreCache(admin.ModelAdmin):
         flags = tuple(f'flag_{flag.pk}' for flag in Flag.objects.order_by('problem__index', 'index'))
         return self.list_display + flags
 
-    def rank(self):
+    def rank(self, obj):
         self.rank_counter += 1
         return self.rank_counter
 
