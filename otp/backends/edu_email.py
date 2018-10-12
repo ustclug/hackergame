@@ -17,8 +17,9 @@ class EduEmailValidator(EmailValidator):
     def validate_domain_part(self, domain_part):
         if domain_part in self.blacklist:
             return False
-        return domain_part.lower().endswith('.edu.cn')
-
+        domain_part = domain_part.lower()
+        result = domain_part.endswith('.edu.cn') or domain_part.endswith('.edu.my')
+        return result
 
 class GetChallenge(Email.GetChallengeView):
     identity_validator = EduEmailValidator([
