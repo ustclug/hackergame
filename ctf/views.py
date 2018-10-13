@@ -66,7 +66,7 @@ class Board(UserPassesTestMixin, generic.ListView):
         queryset = UserScoreCache.objects.filter(score__gt=0).order_by('-score', 'time')
         if 'backend' in self.kwargs:
             queryset = queryset.filter(user__device__backend=self.kwargs['backend'])
-        return queryset[:50]
+        return queryset[:100]
 
     def get_context_data(self, **kwargs):
         if 'backend' in self.kwargs:
