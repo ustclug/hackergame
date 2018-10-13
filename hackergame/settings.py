@@ -70,6 +70,7 @@ TERMS_REDIRECT_URL = 'hub'
 
 INSTALLED_APPS = [
     'ctf.apps.CtfConfig',
+    'local.apps.LocalConfig',
     'logout.apps.LogoutConfig',
     'otp.apps.OtpConfig',
     'terms.apps.TermsConfig',
