@@ -18,13 +18,13 @@ class EduEmailValidator(EmailValidator):
         if domain_part in self.blacklist:
             return False
         domain_part = domain_part.lower()
-        result = domain_part.endswith([
+        result = domain_part.endswith((
             '.edu.cn',
             '.edu.hk',
             '.edu.mo',
             '.edu.tw',
             '.edu.my',
-        ])
+        ))
         return result
 
 

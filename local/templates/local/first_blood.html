@@ -12,8 +12,8 @@
         <tbody>
             {% for object in object_list %}
                 <tr>
-                    <td>{{ object.problem }}</td>
-                    <td style="word-break: break-all">{{ object.user }}</td>
+                    <td style="word-break: keep-all">{{ object.problem }}</td>
+                    <td style="word-break: break-all">{{ object.user|default:'' }}</td>
                 </tr>
             {% endfor %}
         </tbody>
