@@ -8,7 +8,8 @@ from django.shortcuts import redirect
 
 from .. import otp
 from ..terms.mixins import TermsRequiredMixin
-from .models import TimerSwitch, Problem, Flag, Solve, Log, UserScoreCache, CtfInfo
+from .models import (TimerSwitch, Problem, Flag, Solve, Log, UserFlagCache,
+                     UserScoreCache, CtfInfo)
 
 
 class Hub(TermsRequiredMixin, generic.ListView):
@@ -34,11 +35,8 @@ class Hub(TermsRequiredMixin, generic.ListView):
             except Problem.DoesNotExist:
                 messages.error(request, '题目不存在')
                 return redirect('hub')
-            try:
-                flag = problem.flag_set.get(flag=request.POST['flag'])
-            except Flag.DoesNotExist:
-                flag = None
             user = request.user if request.user.is_authenticated else None
+            flag = UserFlagCache.match(user, problem, request.POST['flag'].strip())
             Log.objects.create(user=user, problem=problem, flag=request.POST['flag'], match=flag)
             if flag:
                 if user:

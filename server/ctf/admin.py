@@ -2,9 +2,11 @@ from functools import partial
 
 from django.contrib import admin
 
-from .models import Page, TimerSwitch, Problem, Flag, Solve, Log, UserScoreCache
+from .models import (Page, TimerSwitch, Problem, Flag, Solve, Log,
+                     UserFlagViolation, UserFlagCache, UserScoreCache)
 
-admin.site.register((Page, TimerSwitch, Solve))
+admin.site.register((Page, TimerSwitch, Solve, UserFlagViolation,
+                     UserFlagCache))
 
 
 @admin.register(Problem)

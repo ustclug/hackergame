@@ -134,7 +134,14 @@ class Problem(DictMixin, NameMixin, models.Model):
 class Flag(DictMixin, models.Model):
     problem = models.ForeignKey(Problem, models.CASCADE)
     name = models.TextField(blank=True)
-    flag = models.TextField(unique=True)
+    flag = models.TextField(help_text=(
+        "如果为静态 flag，请直接填入 flag。"
+        "如果 flag 为 <code>'flag{' + "
+        "hashlib.sha256(b'secret' + token.encode()).hexdigest()[:16] + "
+        "'}'</code>，请填入 <code>flag{' + "
+        "hashlib.sha256(b'secret' + token.encode()).hexdigest()[:16] + "
+        "'}</code>（去掉最外侧的引号）。"
+    ))
     score = models.IntegerField(default=100)
     index = models.IntegerField(default=0, db_index=True)
 
@@ -189,6 +196,69 @@ class Log(models.Model):
 
     def __str__(self):
         return f'{self.problem} - {self.user}: {self.flag}'
+
+
+class UserFlagViolation(models.Model):
+    user = models.ForeignKey(User, models.CASCADE)
+    problem = models.ForeignKey(Problem, models.PROTECT)
+    flag = models.TextField()
+    match_flag = models.ForeignKey(Flag, models.PROTECT)
+    match_user = models.ForeignKey(User, models.PROTECT,
+                                   related_name='userflagviolated')
+    time = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f'{self.problem} - {self.user}: {self.flag}'
+
+
+class UserFlagCache(models.Model):
+    user = models.ForeignKey(User, models.CASCADE)
+    flag = models.ForeignKey(Flag, models.CASCADE)
+    flag_text = models.TextField(db_index=True)
+
+    def __str__(self):
+        return f'{self.flag} - {self.user}'
+
+    @classmethod
+    def match(cls, user, problem, flag):
+        if not cls.objects.filter(user=user).exists():
+            import base64, hashlib
+            with atomic():
+                for flag in Flag.objects.all():
+                    text = eval(f"'{flag.flag}'",
+                                {'base64': base64, 'hashlib': hashlib},
+                                {'token': user.token.token})
+                    cls.objects.create(user=user, flag=flag, flag_text=text)
+        try:
+            return cls.objects.get(user=user, flag__problem=problem,
+                                   flag_text=flag).flag
+        except UserFlagCache.DoesNotExist:
+            for o in cls.objects.filter(flag__problem=problem, flag_text=flag):
+                UserFlagViolation.objects.create(user, problem, flag, o.flag,
+                                                 o.user)
+            return None
+
+    @classmethod
+    def clear_cache(cls, user=None, **kwargs):
+        _ = kwargs
+        if user:
+            cls.objects.filter(user=user).delete()
+        else:
+            cls.objects.all().delete()
+
+    def _clear_cache_one(instance, **kwargs):
+        _ = kwargs
+        UserScoreCache.clear_cache(instance.user)
+
+    models.signals.post_save.connect(_clear_cache_one, sender='token.Token')
+    models.signals.post_delete.connect(_clear_cache_one, sender='token.Token')
+
+    def _clear_cache_all(**kwargs):
+        _ = kwargs
+        UserScoreCache.clear_cache()
+
+    models.signals.post_save.connect(_clear_cache_all, sender='ctf.Flag')
+    models.signals.post_delete.connect(_clear_cache_all, sender='ctf.Flag')
 
 
 class CtfInfo:
