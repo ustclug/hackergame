@@ -8,6 +8,7 @@ INSTALLED_APPS = [
     'server.logout.apps.LogoutConfig',
     'server.otp.apps.OtpConfig',
     'server.terms.apps.TermsConfig',
+    'server.token.apps.TokenConfig',
     'server.upload.apps.UploadConfig',
     'utils.apps.UtilsConfig',
     'django.contrib.admin',
@@ -99,6 +100,9 @@ OTP_BACKENDS = [
 # terms
 TERMS_URL = 'terms'
 TERMS_REDIRECT_URL = 'hub'
+
+# token
+TOKEN_REDIRECT_URL = 'hub'
 
 # upload
 UPLOAD_TEMPLATE_UPLOAD = 'upload.html'
