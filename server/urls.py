@@ -1,13 +1,13 @@
 from django.contrib import admin
 from django.urls import path
 
-import otp
-from ctf.views import Board, Hub
-from local.views import FirstBlood
-from logout.views import Logout
-from nickname.views import Nickname
-from terms.views import TermsList
-from upload.views import Upload
+from . import otp
+from .ctf.views import Board, Hub
+from .local.views import FirstBlood
+from .logout.views import Logout
+from .nickname.views import Nickname
+from .terms.views import TermsList
+from .upload.views import Upload
 
 urlpatterns = [
     path('', Hub.as_view(), name='hub'),

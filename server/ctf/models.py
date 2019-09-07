@@ -8,7 +8,7 @@ from django.utils.decorators import classproperty
 from django.utils.functional import cached_property
 from django.utils.timezone import now
 
-import otp
+from server import otp
 from utils.cache import timeout_at
 from utils.models import DictMixin, NameMixin, SingletonMixin
 

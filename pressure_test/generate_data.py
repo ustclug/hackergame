@@ -1,7 +1,7 @@
 from datetime import datetime
 from random import randrange, shuffle
 
-from ctf.models import Problem, Flag, User, Solve
+from server.ctf.models import Problem, Flag, User, Solve
 
 flag_pk = 0
 for i in range(1, 21):

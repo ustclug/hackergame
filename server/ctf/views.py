@@ -6,8 +6,8 @@ from django.db.transaction import atomic
 from django.views import generic
 from django.shortcuts import redirect
 
-import otp
-from terms.mixins import TermsRequiredMixin
+from .. import otp
+from ..terms.mixins import TermsRequiredMixin
 from .models import TimerSwitch, Problem, Flag, Solve, Log, UserScoreCache, CtfInfo
 
 

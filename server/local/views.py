@@ -1,7 +1,7 @@
 from django.contrib.auth.mixins import UserPassesTestMixin
 from django.views import generic
 
-from ctf.models import CtfInfo
+from server.ctf.models import CtfInfo
 from .models import UstcFirstBlood
 
 
