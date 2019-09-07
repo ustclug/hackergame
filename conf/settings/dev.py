@@ -3,8 +3,7 @@ from .base import *
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 HOST = 'https://non-exist.lug.ustc.edu.cn'
-MEDIA_ROOT = 'var/media'
-MEDIA_URL = ''
+UPLOAD_DIR = 'var/file'
 
 DATABASES = {
     'default': {
