@@ -95,6 +95,7 @@ OTP_BACKENDS = [
     'server.otp.backends.sjtu_email.Sjtu',
     'server.otp.backends.edu_email.EduEmail',
     'server.otp.backends.dummy_email.DummyEmail',
+    'server.otp.backends.sms.Sms',
 ]
 
 # terms

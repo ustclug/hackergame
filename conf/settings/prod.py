@@ -26,3 +26,5 @@ SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mail.s.ustclug.org'
+
+SMS_ACCESS_KEY_ID = 'LTAI4FmgeKHNWB7WbTwTP7d9'

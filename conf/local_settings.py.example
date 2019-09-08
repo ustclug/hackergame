@@ -5,3 +5,4 @@ openssl ecparam -name secp256k1 -genkey -noout
 CERTIFICATE = '''
 openssl req -x509 -key conf/local_settings.py -days 30
 '''
+SMS_ACCESS_KEY_SECRET = ''
