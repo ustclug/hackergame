@@ -72,7 +72,7 @@ class TimerSwitch(models.Model):
 
 
 class Problem(DictMixin, NameMixin, models.Model):
-    slug = models.SlugField(primary_key=True)
+    slug = models.SlugField(unique=True)
     is_open = models.BooleanField(default=False)
     name = models.TextField()
     detail = models.TextField(blank=True)
