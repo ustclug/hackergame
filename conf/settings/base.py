@@ -62,7 +62,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Email
 EMAIL_SUBJECT_PREFIX = '[Hackergame] '
-ADMINS = [('Admin', 'hackergame@ustclug.org')]
+ADMINS = [('Admin', 'hackergame@ustclug.org'), ('Hypercube', 'hypercube@0x01.me')]
 DEFAULT_FROM_EMAIL = 'hackergame@ustclug.org'
 SERVER_EMAIL = 'hackergame@ustclug.org'
 
