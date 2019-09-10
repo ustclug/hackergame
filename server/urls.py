@@ -7,7 +7,6 @@ from .local.views import FirstBlood
 from .logout.views import Logout
 from .nickname.views import Nickname
 from .terms.views import TermsList
-from .token.views import GetToken
 from .upload.views import Upload
 
 urlpatterns = [
@@ -20,6 +19,5 @@ urlpatterns = [
     path('otp/', otp.site.urls),
     path('terms/', TermsList.as_view(), name='terms'),
     path('upload/', Upload.as_view(), name='upload'),
-    path('token/', GetToken.as_view(), name='token'),
     path('admin/', admin.site.urls),
 ]

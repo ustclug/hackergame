@@ -17,12 +17,14 @@ class Token(models.Model):
     def __str__(self):
         return self.token
 
-    @classmethod
-    def get(cls, user):
+    def _update(instance, **kwargs):
+        _ = kwargs
         try:
-            return user.token
-        except cls.DoesNotExist:
-            id = str(user.pk)
+            instance.token
+        except Token.DoesNotExist:
+            id = str(instance.pk)
             sig = OpenSSL.crypto.sign(private_key, id.encode(), 'sha256')
             token = id + ':' + base64.b64encode(sig).decode()
-            return Token.objects.create(user=user, token=token)
+            Token.objects.create(user=instance, token=token)
+
+    models.signals.post_save.connect(_update, sender='auth.User')

@@ -25,9 +25,6 @@
             <ul class="pure-menu-list">
                 {% if user.is_authenticated %}
                     <li class="pure-menu-item">
-                        <a class="pure-menu-link" href="{% url 'token' %}">查看 token</a>
-                    </li>
-                    <li class="pure-menu-item">
                         <a class="pure-menu-link" href="{% url 'nickname' %}?force=y">修改昵称</a>
                     </li>
                     <li class="pure-menu-item">

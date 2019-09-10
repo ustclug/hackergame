@@ -7,6 +7,13 @@
 {% endblock %}
 
 {% block content %}
+    {% if user.is_authenticated %}
+        <div class="msg-info">
+            Token:
+            <input type="text" id="token" value="{{ user.token.token }}" readonly>
+            <button onclick="token_copy()">复制</button>
+        </div>
+    {% endif %}
     {% if user.is_authenticated and ctf_info.score %}
         <div class="msg-info">
             您目前得分：{{ ctf_info.score }}；
@@ -93,6 +100,12 @@
         <script id="solved-flags">[]</script>
     {% endif %}
     <script>
+        function token_copy() {
+            let copyText = document.getElementById("token");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+        }
         problem_list = JSON.parse(document.getElementById('problem-list').textContent)
         solved_flags = JSON.parse(document.getElementById('solved-flags').textContent)
         for (var i = 0; i < problem_list.length; i++) {
