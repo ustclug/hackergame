@@ -1,0 +1,23 @@
+server {
+    listen 80;
+
+    server_name hgtest.lug.ustc.edu.cn;
+
+    access_log /var/log/nginx/hgtest.log;
+    error_log /var/log/nginx/hgtest.error.log;
+
+    location ~ "^/file/(.*)/(.*)$" {
+        root /var/opt/hackergame;
+        try_files /file/$1/$2 =404;
+        add_header Content-Type application/octet-stream;
+        add_header Content-Disposition 'attachment; filename="$2"';
+    }
+    location /static {
+        root /var/opt/hackergame;
+    }
+    location / {
+        uwsgi_pass unix:///run/uwsgi/app/hgtest/socket;
+        client_max_body_size 500M;
+        include /etc/nginx/uwsgi_params;
+    }
+}
