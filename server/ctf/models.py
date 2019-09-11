@@ -138,9 +138,9 @@ class Flag(DictMixin, models.Model):
     flag = models.TextField(help_text=(
         "如果为静态 flag，请直接填入 flag。"
         "如果 flag 为 <code>'flag{' + "
-        "hashlib.sha256(b'secret' + token.encode()).hexdigest()[:16] + "
+        "sha256('secret' + token)[:16] + "
         "'}'</code>，请填入 <code>flag{' + "
-        "hashlib.sha256(b'secret' + token.encode()).hexdigest()[:16] + "
+        "sha256('secret' + token)[:16] + "
         "'}</code>（去掉最外侧的引号）。"
     ))
     score = models.IntegerField(default=100)
