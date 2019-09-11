@@ -33,17 +33,39 @@ class Login(generic.View):
         from ..models import Device
         if request.GET.get('ticket'):
             with urlopen(self.validate_url.format(ticket=request.GET['ticket'])) as req:
-                data = ElementTree.fromstring(req.read())
-            result = data.getchildren()[0]
-            if result.tag != '{http://www.yale.edu/tp/cas}authenticationSuccess':
+                result = ElementTree.fromstring(req.read())[0]
+            cas = '{http://www.yale.edu/tp/cas}'
+            if result.tag != cas + 'authenticationSuccess':
                 return HttpResponseForbidden()
-            identity = result.getchildren()[0].text
+            legacy_identity = result.find(cas + 'user').text.strip()
+            identity = result.find('attributes').find(cas + 'gid').text.strip()
             with atomic():
                 device, created = Device.objects.get_or_create(backend=self.backend.id, identity=identity)
+                try:
+                    legacy_device = Device.objects.get(
+                        backend=self.backend.id, identity=legacy_identity)
+                except Device.DoesNotExist:
+                    legacy_device = None
+                if legacy_device:
+                    if legacy_device.user in (None, device.user):
+                        # Remove useless legacy devices
+                        legacy_device.delete()
+                        legacy_device = None
+                if legacy_device:
+                    if not device.user:
+                        # Migrate legacy devices
+                        device.user = legacy_device.user
+                        device.save()
+                        legacy_device.delete()
+                        legacy_device = None
                 if not device.user:
                     device.user = self.create_user(device)
                     device.save()
-                login(request, device.user)
+                if legacy_device:
+                    # Log in legacy devices which cannot be migrated
+                    login(request, legacy_device.user)
+                else:
+                    login(request, device.user)
                 return redirect(settings.LOGIN_REDIRECT_URL)
         else:
             return HttpResponseRedirect(self.login_url)
