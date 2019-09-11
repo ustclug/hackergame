@@ -9,6 +9,7 @@ from django.utils.functional import cached_property
 from django.utils.timezone import now
 
 from server import otp
+from server.token.models import Token
 from utils.cache import timeout_at
 from utils.models import DictMixin, NameMixin, SingletonMixin
 
@@ -221,41 +222,48 @@ class UserFlagCache(models.Model):
 
     @classmethod
     def match(cls, user, problem, flag):
-        if not cls.objects.filter(user=user).exists():
-            import base64, hashlib
-            with atomic():
-                for flag in Flag.objects.all():
-                    text = eval(f"'{flag.flag}'",
-                                {'base64': base64, 'hashlib': hashlib},
-                                {'token': user.token.token})
-                    cls.objects.create(user=user, flag=flag, flag_text=text)
         try:
             return cls.objects.get(user=user, flag__problem=problem,
                                    flag_text=flag).flag
         except UserFlagCache.DoesNotExist:
             for o in cls.objects.filter(flag__problem=problem, flag_text=flag):
-                UserFlagViolation.objects.create(user, problem, flag, o.flag,
-                                                 o.user)
+                UserFlagViolation.objects.create(
+                    user=user,
+                    problem=problem,
+                    flag=flag,
+                    match_flag=o.flag,
+                    match_user=o.user,
+                )
             return None
 
     @classmethod
-    def clear_cache(cls, user=None, **kwargs):
+    def clear_cache(cls, token=None, **kwargs):
         _ = kwargs
-        if user:
-            cls.objects.filter(user=user).delete()
+        if token:
+            from .utils import functions
+            with atomic():
+                cls.objects.filter(user=token.user).delete()
+                for i in Flag.objects.all():
+                    cls.objects.create(
+                        user=token.user,
+                        flag=i,
+                        flag_text=eval(f"'{i.flag}'", functions,
+                                       {'token': token.token}),
+                    )
         else:
-            cls.objects.all().delete()
+            for i in Token.objects.all():
+                cls.clear_cache(i)
 
     def _clear_cache_one(instance, **kwargs):
         _ = kwargs
-        UserScoreCache.clear_cache(instance.user)
+        UserFlagCache.clear_cache(instance)
 
     models.signals.post_save.connect(_clear_cache_one, sender='token.Token')
     models.signals.post_delete.connect(_clear_cache_one, sender='token.Token')
 
     def _clear_cache_all(**kwargs):
         _ = kwargs
-        UserScoreCache.clear_cache()
+        UserFlagCache.clear_cache()
 
     models.signals.post_save.connect(_clear_cache_all, sender='ctf.Flag')
     models.signals.post_delete.connect(_clear_cache_all, sender='ctf.Flag')
