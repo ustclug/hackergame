@@ -41,11 +41,13 @@ class Login(generic.View):
             identity = result.find('attributes').find(cas + 'gid').text.strip()
             with atomic():
                 device, created = Device.objects.get_or_create(backend=self.backend.id, identity=identity)
-                try:
-                    legacy_device = Device.objects.get(
-                        backend=self.backend.id, identity=legacy_identity)
-                except Device.DoesNotExist:
-                    legacy_device = None
+                legacy_device = None
+                if legacy_identity != identity:
+                    try:
+                        legacy_device = Device.objects.get(
+                            backend=self.backend.id, identity=legacy_identity)
+                    except Device.DoesNotExist:
+                        pass
                 if legacy_device:
                     if legacy_device.user in (None, device.user):
                         # Remove useless legacy devices
