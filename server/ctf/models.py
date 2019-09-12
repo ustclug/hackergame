@@ -259,7 +259,6 @@ class UserFlagCache(models.Model):
         UserFlagCache.clear_cache(instance)
 
     models.signals.post_save.connect(_clear_cache_one, sender='token.Token')
-    models.signals.post_delete.connect(_clear_cache_one, sender='token.Token')
 
     def _clear_cache_all(**kwargs):
         _ = kwargs

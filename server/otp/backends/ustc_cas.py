@@ -10,6 +10,7 @@ from django.shortcuts import redirect
 from django.urls import reverse, path
 from django.views import generic
 
+from server.profile.utils import postfix
 from .base import Backend
 
 
@@ -37,37 +38,17 @@ class Login(generic.View):
             cas = '{http://www.yale.edu/tp/cas}'
             if result.tag != cas + 'authenticationSuccess':
                 return HttpResponseForbidden()
-            legacy_identity = result.find(cas + 'user').text.strip()
+            login_name = result.find(cas + 'user').text.strip()
             identity = result.find('attributes').find(cas + 'gid').text.strip()
             with atomic():
-                device, created = Device.objects.get_or_create(backend=self.backend.id, identity=identity)
-                legacy_device = None
-                if legacy_identity != identity:
-                    try:
-                        legacy_device = Device.objects.get(
-                            backend=self.backend.id, identity=legacy_identity)
-                    except Device.DoesNotExist:
-                        pass
-                if legacy_device:
-                    if legacy_device.user in (None, device.user):
-                        # Remove useless legacy devices
-                        legacy_device.delete()
-                        legacy_device = None
-                if legacy_device:
-                    if not device.user:
-                        # Migrate legacy devices
-                        device.user = legacy_device.user
-                        device.save()
-                        legacy_device.delete()
-                        legacy_device = None
+                device, created = Device.objects.get_or_create(
+                    backend=self.backend.id, identity=identity)
                 if not device.user:
                     device.user = self.create_user(device)
+                    device.user.profile.sno = login_name
+                    device.user.profile.save()
                     device.save()
-                if legacy_device:
-                    # Log in legacy devices which cannot be migrated
-                    login(request, legacy_device.user)
-                else:
-                    login(request, device.user)
+                login(request, device.user)
                 return redirect(settings.LOGIN_REDIRECT_URL)
         else:
             return HttpResponseRedirect(self.login_url)

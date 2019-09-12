@@ -25,7 +25,7 @@
             <ul class="pure-menu-list">
                 {% if user.is_authenticated %}
                     <li class="pure-menu-item">
-                        <a class="pure-menu-link" href="{% url 'nickname' %}?force=y">修改昵称</a>
+                        <a class="pure-menu-link" href="{% url 'profile' %}?force=y">修改资料</a>
                     </li>
                     <li class="pure-menu-item">
                         <form action="{% url 'logout' %}" method="post">

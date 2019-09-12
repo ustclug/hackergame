@@ -8,11 +8,12 @@ from django.shortcuts import redirect
 
 from .. import otp
 from ..terms.mixins import TermsRequiredMixin
+from ..profile.mixins import ProfileRequiredMixin
 from .models import (TimerSwitch, Problem, Flag, Solve, Log, UserFlagCache,
                      UserScoreCache, CtfInfo)
 
 
-class Hub(TermsRequiredMixin, generic.ListView):
+class Hub(ProfileRequiredMixin, TermsRequiredMixin, generic.ListView):
     template_name = settings.CTF_TEMPLATE_HUB
 
     def get_queryset(self):

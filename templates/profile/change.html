@@ -12,13 +12,34 @@
 {% endblock %}
 
 {% block content %}
-    <h1>修改昵称</h1>
+    <h1>修改资料</h1>
     <form id="app" class="pure-form pure-form-aligned" @submit.prevent="submit()">
         {% csrf_token %}
         <div class="pure-control-group">
             <label for="prefix">昵称</label>
             <input type="text" id="prefix" name="prefix" v-model="prefix" required="required">
         </div>
+        {% if ctf_info.first_backend.id == 'ustc' %}
+            <div class="msg-info">
+                请正确填写以下信息以便赛后联系、颁奖
+            </div>
+            <div class="pure-control-group">
+                <label for="name">姓名</label>
+                <input type="text" id="name" name="name" v-model="name" required>
+            </div>
+            <div class="pure-control-group">
+                <label for="sno">学号</label>
+                <input type="text" id="sno" name="sno" v-model="sno" required>
+            </div>
+            <div class="pure-control-group">
+                <label for="tel">电话</label>
+                <input type="tel" id="tel" name="tel" v-model="tel" required>
+            </div>
+            <div class="pure-control-group">
+                <label for="email">邮箱</label>
+                <input type="email" id="email" name="email" v-model="email" required>
+            </div>
+        {% endif %}
         <div class="pure-controls">
             <button type="submit" class="pure-button pure-button-primary" :disabled="submit_disabled">确认</button>
         </div>
@@ -31,6 +52,10 @@
             delimiters: ['${', '}'],
             data: {
                 prefix: context.prefix,
+                name: context.name,
+                sno: context.sno,
+                tel: context.tel,
+                email: context.email,
                 submit_disabled: false,
             },
             computed: {
@@ -41,7 +66,13 @@
             methods: {
                 submit: function () {
                     this.submit_disabled = true
-                    axios.post('.', {prefix: this.prefix})
+                    axios.post('.', {
+                        prefix: this.prefix,
+                        name: this.name,
+                        sno: this.sno,
+                        tel: this.tel,
+                        email: this.email,
+                    })
                         .then(function (response) {
                             location = '/'
                         })

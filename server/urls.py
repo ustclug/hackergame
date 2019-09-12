@@ -5,7 +5,7 @@ from . import otp
 from .ctf.views import Board, Hub
 from .local.views import FirstBlood
 from .logout.views import Logout
-from .nickname.views import Nickname
+from .profile.views import Profile
 from .terms.views import TermsList
 from .upload.views import Upload
 
@@ -15,7 +15,7 @@ urlpatterns = [
     path('board/<backend>/', Board.as_view(), name='board'),
     path('first_blood/', FirstBlood.as_view(), name='first_blood'),
     path('logout/', Logout.as_view(), name='logout'),
-    path('nickname/', Nickname.as_view(), name='nickname'),
+    path('profile/', Profile.as_view(), name='profile'),
     path('otp/', otp.site.urls),
     path('terms/', TermsList.as_view(), name='terms'),
     path('upload/', Upload.as_view(), name='upload'),

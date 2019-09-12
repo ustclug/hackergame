@@ -7,6 +7,7 @@ INSTALLED_APPS = [
     'server.local.apps.LocalConfig',
     'server.logout.apps.LogoutConfig',
     'server.otp.apps.OtpConfig',
+    'server.profile.apps.ProfileConfig',
     'server.terms.apps.TermsConfig',
     'server.token.apps.TokenConfig',
     'server.upload.apps.UploadConfig',
@@ -80,11 +81,8 @@ CTF_TEMPLATE_BOARD = 'board.html'
 # logout
 LOGOUT_REDIRECT_URL = 'hub'
 
-# nickname
-NICKNAME_REDIRECT_URL = 'hub'
-
 # otp
-LOGIN_REDIRECT_URL = 'nickname'
+LOGIN_REDIRECT_URL = 'profile'
 OTP_BACKENDS = [
     'server.otp.backends.ustc_cas.Ustc',
     'server.otp.backends.zju_email.Zju',
@@ -97,6 +95,9 @@ OTP_BACKENDS = [
     'server.otp.backends.dummy_email.DummyEmail',
     'server.otp.backends.sms.Sms',
 ]
+
+# profile
+PROFILE_REDIRECT_URL = 'hub'
 
 # terms
 TERMS_URL = 'terms'
