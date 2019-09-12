@@ -5,8 +5,7 @@ from django.contrib import admin
 from .models import (Page, TimerSwitch, Problem, Flag, Solve, Log,
                      UserFlagViolation, UserFlagCache, UserScoreCache)
 
-admin.site.register((Page, TimerSwitch, Solve, UserFlagViolation,
-                     UserFlagCache))
+admin.site.register((Page, TimerSwitch, Solve, UserFlagCache))
 
 
 @admin.register(Problem)
@@ -61,6 +60,13 @@ class HaveScoreFilter(admin.SimpleListFilter):
     def queryset(self, request, queryset):
         if self.value() == 'true':
             return queryset.filter(score__gt=0)
+
+
+@admin.register(UserFlagViolation)
+class UserFlagViolationAdmin(admin.ModelAdmin):
+    list_display = ('user', 'problem', 'match_user', 'match_flag', 'time')
+    list_display_links = ('user', 'problem', 'match_user', 'match_flag')
+    list_filter = ('problem',)
 
 
 @admin.register(UserScoreCache)
