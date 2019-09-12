@@ -13,4 +13,6 @@ class FirstBlood(UserPassesTestMixin, generic.ListView):
     def test_func(self):
         if not self.request.user.is_authenticated:
             return False
+        if self.request.user.is_staff:
+            return True
         return CtfInfo(self.request.user).first_backend.id == 'ustc'
