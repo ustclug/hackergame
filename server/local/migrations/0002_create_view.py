@@ -35,7 +35,7 @@ create view ustc_first_blood as
 
         group by q.id
     ) as q2 on q2.id = ctf_problem.id
-    order by "ctf_problem.index";
+    order by ctf_problem."index";
         '''], reverse_sql=['''
 drop view ustc_first_blood;
         ''']),
