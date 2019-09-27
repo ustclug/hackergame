@@ -1,0 +1,139 @@
+/*  Basic
+ * * * * * * * * * * * * * * */
+*,
+*:before,
+*:after {
+    box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+}
+html,
+button,
+input,
+select,
+textarea,
+.pure-g [class *= "pure-u"] {
+    font-family: -apple-system,
+    BlinkMacSystemFont,
+    Helvetica Neue,
+    PingFang SC,
+    Microsoft YaHei,
+    Source Han Sans SC,
+    Noto Sans CJK SC,
+    WenQuanYi Micro Hei,
+    sans-serif;
+    letter-spacing: 0.01em;
+}
+body {
+    background-color: #fff;
+    color: #333;
+    line-height: 1.6;
+}
+a {
+    color: #39c;
+    text-decoration: none;
+}
+.float-right {
+    float: right;
+}
+.pure-form select {
+    height: auto !important;
+}
+.little-pure:not(form),
+form.little-pure input:not(.normal-pure),
+form.little-pure select:not(.normal-pure) {
+    padding: 0.25em 0.5em !important;
+    height: auto !important;
+}
+.tiny-pure:not(form),
+form.tiny-pure input:not(.normal-pure),
+form.tiny-pure select:not(.normal-pure) {
+    padding: 0 0.5em !important;
+    height: auto !important;
+}
+table {
+    width: 100%;
+    margin: 1em 0;
+}
+.content {
+    margin: 0 auto 2em;
+    padding: 0 1em;
+    max-width: 1000px;
+}
+@media screen and (min-width: 48em) {
+    .content {
+        padding-left: 2em;
+        padding-right: 2em;
+    }
+}
+.msg-error, .msg-info, .msg-success, .msg-fail {
+    margin: 1em 0;
+    padding: 1em;
+    border: 1px solid;
+    border-radius: 5px;
+}
+.msg-error {color: #a94442; background-color: #f2dede; border-color: #ebccd1;}
+.msg-info {color: #31708f; background-color: #d9edf7; border-color: #bce8f1;}
+.msg-success {color: #3c763d; background-color: #dff0d8; border-color: #d6e9c6;}
+.msg-fail {color: #8a6d3b; background-color: #fcf8e3; border-color: #faebcc;}
+.msg-error a,
+.msg-info a,
+.msg-success a,
+.msg-fail a {
+    color: inherit;
+    text-decoration: underline;
+}
+
+/*  Layout
+ * * * * * * * * * * * * * * */
+.banner {
+    background-color: #222;
+}
+.nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 3.5625em;
+}
+.banner .content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0 auto;
+}
+.title {
+    font-size: 1.25em;
+    color: #aaa;
+}
+h1 {
+    font-size: 1.75em;
+}
+.challenges {
+    float: right;
+    width: 100%;
+}
+@media screen and (min-width: 48em) {
+    .challenges {
+        max-width: 30em;
+        margin-left: 1em;
+    }
+}
+.challenge,
+.flag {
+    cursor: pointer;
+}
+.challenge:hover {
+    background-color: #ddf;
+}
+.challenge-highlight,
+.challenge-highlight:hover,
+.flag {
+    background-color: #eef;
+}
+.challenge i,
+.flag i {
+    color: #888;
+}
+.center {
+    text-align: center;
+}

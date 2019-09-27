@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <form method="post">
+        {% csrf_token %}
+        {% for obj in terms %}
+            <h1>{{ obj.name }}</h1>
+            <input type="hidden" name="terms" value="{{ obj.pk }}">
+            <div>{{ obj.content|safe }}</div>
+        {% endfor %}
+        {% if user_ %}
+            <button type="submit" class="pure-button pure-button-primary">我理解并同意以上条款</button>
+        {% endif %}
+    </form>
+{% endblock %}

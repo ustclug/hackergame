@@ -1,0 +1,131 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+    {% verbatim %}
+    <div id="content-main">
+        <ul class="object-tools">
+            <li><a href="#" @click.prevent="refresh">刷新</a></li>
+            <li><a href="#" class="addlink" @click.prevent="open(null)">新增</a></li>
+        </ul>
+        <form v-if="opened" @submit.prevent="opened_save">
+            <fieldset class="module aligned" :disabled="opened_disabled">
+                <h2 v-if="opened.pk">正在编辑 #{{ opened.pk }}</h2>
+                <h2 v-else>正在创建</h2>
+                <div class="form-row">
+                    <label class="required" for="form-time">时间:</label>
+                    <input class="vTextField" type="text" id="form-time" name="time" v-model="opened.time" required>
+                    <div class="help" v-if="isNaN(new Date(opened.time).valueOf())"><strong>格式错误！</strong></div>
+                    <div class="help" v-else>本地时间: {{ new Date(opened.time).toLocaleString() }}<br>UTC 时间: {{ new Date(opened.time).toJSON() }}</div>
+                </div>
+                <div class="form-row">
+                    <input type="checkbox" id="form-state" name="state" v-model="opened.state">
+                    <label class="vCheckboxLabel required" for="form-state">状态</label>
+                </div>
+                <div class="form-row">
+                    <label for="form-note">说明:</label>
+                    <input class="vTextField" type="text" id="form-note" name="note" v-model="opened.note">
+                </div>
+            </fieldset>
+            <div class="submit-row" v-show="!opened_disabled">
+                <input type="submit" class="default" value="保存">
+                <p class="deletelink-box">
+                    <a v-if="opened.pk" href="#" class="deletelink" @click.prevent="opened_delete">删除</a>
+                    <a v-else href="#" class="deletelink" @click.prevent="opened=undefined">放弃</a>
+                </p>
+            </div>
+        </form>
+        <div class="module" id="changelist">
+            <div class="results">
+                <table id="result_list">
+                    <thead>
+                    <tr>
+                        <th scope="col"><div class="text"><span>#</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>时间</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>状态</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>说明</span></div><div class="clear"></div></th>
+                    </tr>
+                    </thead>
+                    <tbody v-if="objs">
+                    <tr v-for="obj in objs" @click="open(obj)">
+                        <td>{{ obj.pk }}</td>
+                        <td>{{ new Date(obj.time).toLocaleString() }}</td>
+                        <td><img v-if="obj.state" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
+                        <td>{{ obj.note }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p v-if="!objs">（正在加载）</p>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
+    <script>
+    app = new Vue({
+        el: '#content-main',
+        data: {
+            objs: undefined,
+            opened: undefined,
+            opened_disabled: false,
+        },
+        created() {
+            this.refresh();
+        },
+        methods: {
+            refresh() {
+                axios.post('.', {method: 'get_all'})
+                    .then(({data: {value}}) => {
+                        this.objs = value;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                    });
+            },
+            open(obj) {
+                if (!obj) {
+                    this.opened = {
+                        pk: null,
+                        time: new Date().toJSON(),
+                        state: false,
+                        note: '',
+                    };
+                } else {
+                    this.opened = {...obj};
+                }
+            },
+            opened_save() {
+                this.opened_disabled = true;
+                let time = new Date(this.opened.time);
+                if (isNaN(time.valueOf())) {
+                    alert('时间格式错误');
+                    this.opened_disabled = false;
+                    return;
+                }
+                this.opened.time = time.toJSON();
+                axios.post('.', {method: 'save', args: this.opened})
+                    .then(({data: {value}}) => {
+                        this.opened = undefined;
+                        this.refresh();
+                        this.opened_disabled = false;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                        this.opened_disabled = false;
+                    });
+            },
+            opened_delete() {
+                this.opened_disabled = true;
+                axios.post('.', {method: 'delete', args: this.opened})
+                    .then(({data: {value}}) => {
+                        this.opened = undefined;
+                        this.refresh();
+                        this.opened_disabled = false;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                        this.opened_disabled = false;
+                    });
+            },
+        },
+    });
+    </script>
+{% endblock %}

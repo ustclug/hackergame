@@ -1,0 +1,119 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+    {% verbatim %}
+    <div id="content-main">
+        <ul class="object-tools">
+            <li><a href="#" @click.prevent="refresh">刷新</a></li>
+        </ul>
+        <form v-if="opened" @submit.prevent="opened_save">
+            <fieldset class="module aligned" :disabled="opened_disabled">
+                <h2 v-if="opened.pk">正在编辑 #{{ opened.pk }}</h2>
+                <h2 v-else>正在创建</h2>
+                <div class="form-row">
+                    <label class="required" for="form-group">用户组:</label>
+                    <select id="form-group" name="group" v-model="opened.group" required>
+                        <option v-for="(name, key) in groups" :value="key">{{ name }}</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label class="required" for="form-nickname">昵称:</label>
+                    <input class="vTextField" type="text" id="form-nickname" name="nickname" v-model="opened.nickname" required>
+                </div>
+                <div class="form-row">
+                    <label for="form-name">姓名:</label>
+                    <input class="vTextField" type="text" id="form-name" name="name" v-model="opened.name">
+                </div>
+                <div class="form-row">
+                    <label for="form-sno">学号:</label>
+                    <input class="vTextField" type="text" id="form-sno" name="sno" v-model="opened.sno">
+                </div>
+                <div class="form-row">
+                    <label for="form-tel">电话:</label>
+                    <input class="vTextField" type="tel" id="form-tel" name="tel" v-model="opened.tel">
+                </div>
+                <div class="form-row">
+                    <label for="form-email">邮箱:</label>
+                    <input class="vTextField" type="email" id="form-email" name="email" v-model="opened.email">
+                </div>
+            </fieldset>
+            <div class="submit-row" v-show="!opened_disabled">
+                <input type="submit" class="default" value="保存">
+            </div>
+        </form>
+        <div class="module" id="changelist">
+            <div class="results">
+                <table id="result_list">
+                    <thead>
+                    <tr>
+                        <th scope="col"><div class="text"><span>#</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>用户组</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>显示名</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>个人信息</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>姓名</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>学号</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>电话</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>邮箱</span></div><div class="clear"></div></th>
+                    </tr>
+                    </thead>
+                    <tbody v-if="objs">
+                    <tr v-for="obj in objs" @click="open(obj)">
+                        <td>{{ obj.pk }}</td>
+                        <td>{{ groups[obj.group] }}</td>
+                        <td>{{ obj.display_name }}</td>
+                        <td><img v-if="obj.profile_ok" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
+                        <td>{{ obj.name }}</td>
+                        <td>{{ obj.sno }}</td>
+                        <td>{{ obj.tel }}</td>
+                        <td>{{ obj.email }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p v-if="!objs">（正在加载）</p>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
+    {{ groups|json_script:'json-groups' }}
+    <script>
+    app = new Vue({
+        el: '#content-main',
+        data: {
+            groups: JSON.parse(document.getElementById('json-groups').textContent),
+            objs: undefined,
+            opened: undefined,
+            opened_disabled: false,
+        },
+        created() {
+            this.refresh();
+        },
+        methods: {
+            refresh() {
+                axios.post('.', {method: 'get_all'})
+                    .then(({data: {value}}) => {
+                        this.objs = value;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                    });
+            },
+            open(obj) {
+                this.opened = {...obj};
+            },
+            opened_save() {
+                this.opened_disabled = true;
+                axios.post('.', {method: 'save', args: this.opened})
+                    .then(({data: {value}}) => {
+                        this.opened = undefined;
+                        this.refresh();
+                        this.opened_disabled = false;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                        this.opened_disabled = false;
+                    });
+            },
+        },
+    });
+    </script>
+{% endblock %}

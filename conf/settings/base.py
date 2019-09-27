@@ -1,17 +1,15 @@
 from ..local_settings import *
 
-ROOT_URLCONF = 'server.urls'
-WSGI_APPLICATION = 'server.wsgi.application'
+ROOT_URLCONF = 'frontend.urls'
+WSGI_APPLICATION = 'frontend.wsgi.application'
 INSTALLED_APPS = [
-    'server.ctf.apps.CtfConfig',
-    'server.local.apps.LocalConfig',
-    'server.logout.apps.LogoutConfig',
-    'server.otp.apps.OtpConfig',
-    'server.profile.apps.ProfileConfig',
+    'frontend.apps.FrontendConfig',
+    'server.challenge.apps.ChallengeConfig',
+    'server.submission.apps.SubmissionConfig',
     'server.terms.apps.TermsConfig',
-    'server.token.apps.TokenConfig',
-    'server.upload.apps.UploadConfig',
-    'utils.apps.UtilsConfig',
+    'server.trigger.apps.TriggerConfig',
+    'server.user.apps.UserConfig',
+    'apps.otp.apps.OtpConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -29,20 +27,21 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+# Database
+ATOMIC_REQUESTS = True
+
 # Static
 STATIC_URL = '/static/'
-STATICFILES_DIRS = ['static']
 
 # Template
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
-                'server.ctf.context_processors.ctf',
-                'server.otp.context_processors.otp',
+                'frontend.context_processors.frontend',
+                'apps.otp.context_processors.otp',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.request',
@@ -51,14 +50,6 @@ TEMPLATES = [
             ],
         },
     },
-]
-
-# Auth
-AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Email
@@ -74,37 +65,17 @@ USE_TZ = True
 TIME_ZONE = 'Asia/Shanghai'
 LANGUAGE_CODE = 'zh-Hans'
 
-# ctf
-CTF_TEMPLATE_HUB = 'hub.html'
-CTF_TEMPLATE_BOARD = 'board.html'
-
-# logout
-LOGOUT_REDIRECT_URL = 'hub'
-
 # otp
-LOGIN_REDIRECT_URL = 'profile'
+LOGIN_REDIRECT_URL = 'hub'
 OTP_BACKENDS = [
-    'server.otp.backends.ustc_cas.Ustc',
-    'server.otp.backends.zju_email.Zju',
-    'server.otp.backends.nju_email.Nju',
-    'server.otp.backends.njust_email.Njust',
-    'server.otp.backends.hnu_email.Hnu',
-    'server.otp.backends.uestc_email.Uestc',
-    'server.otp.backends.sjtu_email.Sjtu',
-    'server.otp.backends.edu_email.EduEmail',
-    'server.otp.backends.dummy_email.DummyEmail',
-    'server.otp.backends.sms.Sms',
+    'apps.otp.backends.ustc_cas.Ustc',
+    'apps.otp.backends.zju_email.Zju',
+    'apps.otp.backends.nju_email.Nju',
+    'apps.otp.backends.njust_email.Njust',
+    'apps.otp.backends.hnu_email.Hnu',
+    'apps.otp.backends.uestc_email.Uestc',
+    'apps.otp.backends.sjtu_email.Sjtu',
+    'apps.otp.backends.edu_email.EduEmail',
+    'apps.otp.backends.dummy_email.DummyEmail',
+    'apps.otp.backends.sms.Sms',
 ]
-
-# profile
-PROFILE_REDIRECT_URL = 'hub'
-
-# terms
-TERMS_URL = 'terms'
-TERMS_REDIRECT_URL = 'hub'
-
-# token
-TOKEN_REDIRECT_URL = 'hub'
-
-# upload
-UPLOAD_TEMPLATE_UPLOAD = 'upload.html'

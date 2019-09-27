@@ -1,0 +1,81 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'axios.min.js' %}"></script>
+    <script>
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h1>修改资料</h1>
+    {% verbatim %}
+    <form id="app" class="pure-form pure-form-aligned" @submit.prevent="submit()">
+        {% endverbatim %}{% csrf_token %}{% verbatim %}
+        <div class="pure-control-group">
+            <label for="nickname">昵称</label>
+            <input type="text" id="nickname" name="nickname" v-model="nickname" required>
+        </div>
+        <template v-if="user.group==='ustc'">
+            <div class="msg-info">
+                请正确填写以下信息以便赛后联系、颁奖
+            </div>
+            <div class="pure-control-group">
+                <label for="name">姓名</label>
+                <input type="text" id="name" name="name" v-model="name" required>
+            </div>
+            <div class="pure-control-group">
+                <label for="sno">学号</label>
+                <input type="text" id="sno" name="sno" v-model="sno" required>
+            </div>
+            <div class="pure-control-group">
+                <label for="tel">电话</label>
+                <input type="tel" id="tel" name="tel" v-model="tel" required>
+            </div>
+            <div class="pure-control-group">
+                <label for="email">邮箱</label>
+                <input type="email" id="email" name="email" v-model="email" required>
+            </div>
+        </template>
+        <div class="pure-controls">
+            <button type="submit" class="pure-button pure-button-primary" :disabled="submit_disabled">确认</button>
+        </div>
+    </form>
+    {% endverbatim %}
+    {{ user_.json|json_script:'user' }}
+    <script>
+        user = JSON.parse(document.getElementById('user').textContent);
+        app = new Vue({
+            el: '#app',
+            data: {
+                nickname: user.nickname,
+                name: user.name,
+                sno: user.sno,
+                tel: user.tel,
+                email: user.email,
+                submit_disabled: false,
+            },
+            methods: {
+                submit: function () {
+                    this.submit_disabled = true;
+                    axios.post('.', {
+                        nickname: this.nickname,
+                        name: this.name,
+                        sno: this.sno,
+                        tel: this.tel,
+                        email: this.email,
+                    }).then(function (response) {
+                        location = '/';
+                    }).catch(function (error) {
+                        alert(error.response.data.error.message);
+                        app.submit_disabled = false;
+                    });
+                },
+            },
+        });
+    </script>
+{% endblock %}

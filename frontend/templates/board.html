@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'axios.min.js' %}"></script>
+    <script>
+    axios.defaults.xsrfCookieName = 'csrftoken';
+    axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% verbatim %}
+    <div id="app">
+        <h1>{{ filters.category?`${filters.category} 类`:'' }}{{ filters.group?groups[filters.group]:'总' }}排名</h1>
+        <table class="pure-table pure-table-horizontal center">
+            <thead>
+            <tr class="center">
+                <td>名次</td>
+                <td>昵称</td>
+                <td>分数</td>
+                <td>时间</td>
+            </tr>
+            </thead>
+            <tbody v-if="objs">
+            <tr v-for="(obj, obj_index) in objs">
+                <td>{{ obj_index + 1 }}</td>
+                <td style="word-break: break-all">{{ users[obj.user] }}</td>
+                <td>{{ obj.score }}</td>
+                <td style="word-break: keep-all">{{ new Date(obj.time).toLocaleString() }}</td>
+            </tr>
+            </tbody>
+        </table>
+        <p v-if="!objs">（正在加载）</p>
+    </div>
+    {% endverbatim %}
+    {{ filters|json_script:'json-filters' }}
+    {{ groups|json_script:'json-groups' }}
+    {{ users|json_script:'json-users' }}
+    <script>
+    app = new Vue({
+        el: '#app',
+        data: {
+            filters: JSON.parse(document.getElementById('json-filters').textContent),
+            groups: JSON.parse(document.getElementById('json-groups').textContent),
+            users: JSON.parse(document.getElementById('json-users').textContent),
+            objs: undefined,
+        },
+        created() {
+            this.refresh();
+        },
+        methods: {
+            refresh() {
+                axios.post('/admin/submission/', {method: 'get_board', args: {limit: 100, ...this.filters}})
+                    .then(({data: {value}}) => {
+                        this.objs = value;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                    });
+            },
+        },
+    });
+    </script>
+{% endblock %}

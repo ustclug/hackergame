@@ -1,0 +1,3 @@
+{{ token }}
+
+请使用该验证码登录 Hackergame ( https://hack.lug.ustc.edu.cn/ ) 比赛平台

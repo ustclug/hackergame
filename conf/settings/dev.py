@@ -3,7 +3,6 @@ from .base import *
 DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', '[::1]']
 HOST = 'https://non-exist.lug.ustc.edu.cn'
-UPLOAD_DIR = 'var/file'
 
 DATABASES = {
     'default': {
@@ -12,6 +11,31 @@ DATABASES = {
     },
 }
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'loggers': {
+        'django.server': {
+            'handlers': ['databaselog'],
+            'propagate': True,
+        },
+        'django.db.backends': {
+            'level': 'DEBUG',
+            'handlers': ['databaselog'],
+        },
+    },
+    'handlers': {
+        'databaselog': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'var/database.log',
+            'mode': 'w',
+        },
+    },
+}
+
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 SMS_ACCESS_KEY_ID = 'LTAI4FmgeKHNWB7WbTwTP7d9'
+
+OTP_BACKENDS.append('apps.otp.backends.console.Console')

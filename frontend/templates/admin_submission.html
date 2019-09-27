@@ -1,0 +1,64 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+    {% verbatim %}
+    <div id="content-main">
+        <ul class="object-tools">
+            <li><a href="#" @click.prevent="refresh">刷新</a></li>
+        </ul>
+        <div class="module" id="changelist">
+            <div class="results">
+                <table id="result_list">
+                    <thead>
+                    <tr>
+                        <th scope="col"><div class="text"><span>#</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>用户</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>题目</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>文本</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>时间</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>匹配的 flag</span></div><div class="clear"></div></th>
+                    </tr>
+                    </thead>
+                    <tbody v-if="objs">
+                    <tr v-for="obj in objs">
+                        <td>{{ obj.pk }}</td>
+                        <td>{{ users[obj.user]||obj.user }}</td>
+                        <td>{{ challenges.find(i=>i.pk===obj.challenge).name }}</td>
+                        <td>{{ obj.text }}</td>
+                        <td>{{ new Date(obj.time).toLocaleString() }}</td>
+                        <td>{{ challenges.find(i=>i.pk===obj.challenge).flags[obj.flag] }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p v-if="!objs">（正在加载）</p>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
+    {{ users|json_script:'json-users' }}
+    {{ challenges|json_script:'json-challenges' }}
+    <script>
+    app = new Vue({
+        el: '#content-main',
+        data: {
+            users: JSON.parse(document.getElementById('json-users').textContent),
+            challenges: JSON.parse(document.getElementById('json-challenges').textContent),
+            objs: undefined,
+        },
+        created() {
+            this.refresh();
+        },
+        methods: {
+            refresh() {
+                axios.post('.', {method: 'get_log', args: {limit: 100}})
+                    .then(({data: {value}}) => {
+                        this.objs = value;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                    });
+            },
+        },
+    });
+    </script>
+{% endblock %}

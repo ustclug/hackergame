@@ -1,0 +1,196 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+    {% verbatim %}
+    <div id="content-main">
+        <ul class="object-tools">
+            <li><a href="#" @click.prevent="refresh">刷新</a></li>
+            <li><a href="#" class="addlink" @click.prevent="open(null)">新增</a></li>
+        </ul>
+        <form v-if="opened" @submit.prevent="opened_save">
+            <fieldset class="module aligned" :disabled="opened_disabled">
+                <h2 v-if="opened.pk">正在编辑 #{{ opened.pk }}</h2>
+                <h2 v-else>正在创建</h2>
+                <div class="form-row">
+                    <label class="required" for="form-name">名称:</label>
+                    <input class="vTextField" type="text" id="form-name" name="name" v-model="opened.name" required>
+                </div>
+                <div class="form-row">
+                    <label class="required" for="form-category">分类:</label>
+                    <input class="vTextField" type="text" id="form-category" name="category" v-model="opened.category" required>
+                </div>
+                <div class="form-row">
+                    <label class="required" for="form-detail">内容:</label>
+                    <textarea class="vLargeTextField" id="form-detail" name="detail" v-model="opened.detail" rows="10" cols="40" required></textarea>
+                    <div class="help">会被放入 <code>div</code> 的 HTML</div>
+                </div>
+                <div class="form-row">
+                    <label for="form-url">链接:</label>
+                    <input class="vTextField" type="text" id="form-url" name="url" v-model="opened.url">
+                </div>
+                <div class="form-row">
+                    <label for="form-prompt">提示:</label>
+                    <input class="vTextField" type="text" id="form-prompt" name="prompt" v-model="opened.prompt">
+                </div>
+                <div class="form-row">
+                    <label class="required" for="form-index">顺序:</label>
+                    <input class="vIntegerField" type="number" id="form-index" name="index" v-model="opened.index" required>
+                </div>
+                <div class="form-row">
+                    <input type="checkbox" id="form-enabled" name="enabled" v-model="opened.enabled">
+                    <label class="vCheckboxLabel required" for="form-enabled">有效</label>
+                    <div class="help">
+                        设为无效的题目不会被看到，也不会产生任何分数。
+                        将题目改为无效时，它产生的分数会被移除，但并不删除此前的提交记录。
+                        将题目改为有效时，此前的提交记录会重新产生分数。
+                        <strong>注意：在比赛开始后修改此项信息会重算排行榜，产生较大开销。</strong>
+                    </div>
+                </div>
+            </fieldset>
+            <fieldset v-for="(flag, i) in opened.flags" class="module aligned" :disabled="opened_disabled">
+                <h2>Flag <a href="#" @click.prevent="opened.flags.splice(i, 1)">删除此项</a></h2>
+                <div class="form-row">
+                    <label :for="'form-flag-'+i+'-name'">名称:</label>
+                    <input class="vTextField" type="text" :id="'form-flag-'+i+'-name'" name="name" v-model="flag.name">
+                    <div class="help">若只有一个 flag 则不填</div>
+                </div>
+                <div class="form-row">
+                    <label class="required" :for="'form-flag-'+i+'-score'">分数:</label>
+                    <input class="vIntegerField" type="number" :id="'form-flag-'+i+'-score'" name="score" v-model="flag.score" required>
+                    <div class="help"><strong>注意：在比赛开始后增减 flag 或调整分数会重算排行榜，产生较大开销。（若只修改其他信息则不会重算排行榜）</strong></div>
+                </div>
+                <div class="form-row">
+                    <label class="required" :for="'form-flag-'+i+'-type'">类型:</label>
+                    <select :id="'form-flag-'+i+'-type'" name="type" v-model="flag.type" required>
+                        <option value="text">文本</option>
+                        <option value="expr">表达式</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label class="required" :for="'form-flag-'+i+'-flag'">flag:</label>
+                    <input class="vTextField" type="text" :id="'form-flag-'+i+'-flag'" name="flag" v-model="flag.flag" required>
+                    <div v-if="flag.type==='expr'" class="help">
+                        填写一个 Python 表达式，其计算结果为 flag。
+                        示例：<code>'flag{' + md5('secret' + token)[:16] + '}'</code>。
+                        可以使用的变量及函数：
+                        <code>token</code>, <code>base64</code>, <code>md5</code>, <code>sha1</code>,
+                        <code>sha224</code>, <code>sha256</code>, <code>sha384</code>, <code>sha512</code>,
+                        <code>sha3_224</code>, <code>sha3_256</code>, <code>sha3_384</code>, <code>sha3_512</code>
+                    </div>
+                    <div class="help">注意：用户输入的 flag 不能超过 100 字符</div>
+                </div>
+            </fieldset>
+            <fieldset class="module aligned" :disabled="opened_disabled">
+                <h2>Flag <a href="#" @click.prevent="opened.flags.push({name: '', score: 100, type: 'text', flag: 'flag{}'})">增加一项</a></h2>
+            </fieldset>
+            <div class="submit-row" v-show="!opened_disabled">
+                <input type="submit" class="default" value="保存">
+                <p class="deletelink-box">
+                    <a v-if="opened.pk" href="#" class="deletelink" @click.prevent="opened_delete">删除</a>
+                    <a v-else href="#" class="deletelink" @click.prevent="opened=undefined">放弃</a>
+                </p>
+            </div>
+        </form>
+        <div class="module" id="changelist">
+            <div class="results">
+                <table id="result_list">
+                    <thead>
+                    <tr>
+                        <th scope="col"><div class="text"><span>#</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>顺序</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>名称</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>分类</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>有效</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>flags</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>分数</span></div><div class="clear"></div></th>
+                    </tr>
+                    </thead>
+                    <tbody v-if="objs">
+                    <tr v-for="obj in objs" @click="open(obj)">
+                        <td>{{ obj.pk }}</td>
+                        <td>{{ obj.index }}</td>
+                        <td>{{ obj.name }}</td>
+                        <td>{{ obj.category }}</td>
+                        <td><img v-if="obj.enabled" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
+                        <td>{{ obj.flags.map(f=>f.score).join('+') }}</td>
+                        <td>{{ obj.score }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p v-if="!objs">（正在加载）</p>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
+    <script>
+    app = new Vue({
+        el: '#content-main',
+        data: {
+            objs: undefined,
+            opened: undefined,
+            opened_disabled: false,
+        },
+        created() {
+            this.refresh();
+        },
+        methods: {
+            refresh() {
+                axios.post('.', {method: 'get_all'})
+                    .then(({data: {value}}) => {
+                        this.objs = value;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                    });
+            },
+            open(obj) {
+                if (!obj) {
+                    this.opened = {
+                        pk: null,
+                        enabled: false,
+                        name: '',
+                        detail: '',
+                        url: '',
+                        prompt: 'flag{...}',
+                        index: 0,
+                        flags: [{
+                            name: '',
+                            score: 100,
+                            type: 'text',
+                            flag: 'flag{}',
+                        }],
+                    };
+                } else {
+                    this.opened = {...obj};
+                }
+            },
+            opened_save() {
+                this.opened_disabled = true;
+                axios.post('.', {method: 'save', args: this.opened})
+                    .then(({data: {value}}) => {
+                        this.opened = undefined;
+                        this.refresh();
+                        this.opened_disabled = false;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                        this.opened_disabled = false;
+                    });
+            },
+            opened_delete() {
+                this.opened_disabled = true;
+                axios.post('.', {method: 'delete', args: this.opened})
+                    .then(({data: {value}}) => {
+                        this.opened = undefined;
+                        this.refresh();
+                        this.opened_disabled = false;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                        this.opened_disabled = false;
+                    });
+            },
+        },
+    });
+    </script>
+{% endblock %}

@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'axios.min.js' %}"></script>
+    <script>
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% block form %}
+        <h1>测试登录</h1>
+        <form id="app" class="pure-form pure-form-aligned" method="post">
+            {% csrf_token %}
+            <div class="pure-control-group">
+                <label for="identity">用户名</label>
+                <input type="text" id="identity" name="identity" v-model="identity" required="required">
+                <button type="button" class="pure-button pure-button" @click="get_challenge()" :disabled="get_challenge_disabled">${get_challenge_text}</button>
+            </div>
+            <div class="pure-control-group">
+                <label for="token">验证码</label>
+                <input type="tel" id="token" name="token" autocomplete="off" required="required">
+            </div>
+            <div class="pure-controls">
+                <button type="submit" class="pure-button pure-button-primary">登录</button>
+            </div>
+        </form>
+    {% endblock %}
+    <script>
+        app = new Vue({
+            el: '#app',
+            delimiters: ['${', '}'],
+            data: {
+                identity: '',
+                get_challenge_disabled: false,
+                get_challenge_text: '获取验证码',
+            },
+            methods: {
+                get_challenge: function () {
+                    this.get_challenge_disabled = true
+                    axios.post('get_challenge/', {identity: this.identity})
+                        .then(() => {
+                            this.get_challenge_text = '验证码已发送';
+                        })
+                        .catch(function (error) {
+                            switch (error.response.data.error) {
+                                case 'wrong identity':
+                                    alert('格式错误')
+                                    break
+                                case 'too many':
+                                    alert('发送太频繁，请稍后再试')
+                                    break
+                                case 'fail':
+                                    alert('发送失败')
+                                    break
+                                default:
+                                    alert(error.response.data.error)
+                            }
+                            app.get_challenge_disabled = false
+                        })
+                },
+            },
+        })
+    </script>
+{% endblock %}

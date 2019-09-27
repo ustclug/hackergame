@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    {% verbatim %}
+    <div id="app">
+        <div v-if="user" class="msg-info">
+            <label for="token">Token:</label>
+            <input type="text" id="token" :value="user.token" readonly>
+            <button onclick="token_copy()">复制</button>
+        </div>
+        <div v-if="user" class="msg-info">
+            <a :href="`/board/?group=${user.group}`">用户组：{{ groups[user.group] }}</a>
+        </div>
+        <div class="challenges">
+            <table class="pure-table pure-table-horizontal">
+                <thead>
+                    <tr>
+                        <th>分类</th>
+                        <th>题目</th>
+                        <th>分数</th>
+                        <th>完成人数</th>
+                    </tr>
+                </thead>
+                <tbody v-if="challenges_error">
+                    <tr><td colspan="4" class="center">（{{ challenges_error.message }}）</td></tr>
+                    <tr v-if="user.is_staff">
+                        <td colspan="4" class="center"><a href="/admin/">管理</a></td>
+                    </tr>
+                </tbody>
+                <tbody v-else>
+                    <template v-for="challenge in challenges">
+                        <tr class="challenge" :class="{'challenge-highlight': challenge===opened}" @click="open(challenge)">
+                            <td>{{ challenge.category }}</td>
+                            <td>
+                                <i v-if="progress.challenges.some(i=>i.challenge===challenge.pk)" class="fas fa-check-circle fa-fw"></i>
+                                <i v-else-if="challenge.flags.length<=1" class="far fa-circle fa-fw"></i>
+                                <i v-else-if="challenge===opened" class="fas fa-caret-down fa-fw"></i>
+                                <i v-else class="fas fa-caret-right fa-fw"></i>
+                                {{ challenge.name }}
+                            </td>
+                            <td>{{ challenge.score }}</td>
+                            <td>{{ (clear_count.challenges.find(i=>i.challenge===challenge.pk)||{count:0}).count }}</td>
+                        </tr>
+                        <tr v-if="challenge===opened && challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags" class="flag">
+                            <td></td>
+                            <td>
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                                <i v-if="progress.flags.some(i=>i.challenge===challenge.pk&&i.flag===flag_index)" class="fas fa-check-circle fa-fw"></i>
+                                <i v-else class="far fa-circle fa-fw"></i>
+                                {{ flag.name }}
+                            </td>
+                            <td>{{ flag.score }}</td>
+                            <td>{{ (clear_count.flags.find(i=>i.challenge===challenge.pk&&i.flag===flag_index)||{count:0}).count }}</td>
+                        </tr>
+                    </template>
+                    <tr v-if="user.is_staff">
+                        <td colspan="4" class="center"><a href="/admin/">管理</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div v-if="opened">
+            <h1>{{ opened.name }}</h1>
+            <div><p v-html="opened.detail"></p></div>
+            <form class="pure-form" method="post" :key="opened.pk">
+                {% endverbatim %}{% csrf_token %}{% verbatim %}
+                <a v-if="opened.url" class="pure-button pure-input-rounded" target="_blank" :href="opened.url.replace('{token}', user.token)">打开题目</a>
+                <input type="hidden" name="challenge" :value="opened.pk">
+                <input type="text" name="flag" class="pure-input-rounded" maxlength="100" autocomplete="off" :placeholder="opened.prompt">
+                <button type="submit" class="pure-button pure-button-primary pure-input-rounded">提交</button>
+            </form>
+        </div>
+        <div v-else>
+            <p v-html="page_content"></p>
+        </div>
+    </div>
+    {% endverbatim %}
+    {{ challenges|json_script:'json-challenges' }}
+    {{ page.content|json_script:'json-page_content' }}
+    {{ user_.json|json_script:'json-user' }}
+    {{ groups|json_script:'json-groups' }}
+    {{ progress|json_script:'json-progress' }}
+    {{ clear_count|json_script:'json-clear_count' }}
+    <script>
+        function token_copy() {
+            let copyText = document.getElementById("token");
+            copyText.select();
+            copyText.setSelectionRange(0, 99999);
+            document.execCommand("copy");
+        }
+        let {value: challenges = [], error: challenges_error} =
+            JSON.parse(document.getElementById('json-challenges').textContent);
+        let name = decodeURIComponent(location.hash.slice(1));
+        let opened = undefined;
+        for (let challenge of challenges) {
+            if (challenge.name === name) {
+                opened = challenge;
+                break;
+            }
+        }
+        app = new Vue({
+            el: '#app',
+            data: {
+                challenges,
+                challenges_error,
+                page_content: JSON.parse(document.getElementById('json-page_content').textContent),
+                user: JSON.parse(document.getElementById('json-user').textContent),
+                groups: JSON.parse(document.getElementById('json-groups').textContent),
+                progress: JSON.parse(document.getElementById('json-progress').textContent),
+                clear_count: JSON.parse(document.getElementById('json-clear_count').textContent),
+                opened,
+            },
+            methods: {
+                open(challenge) {
+                    this.opened = challenge;
+                    // We must prepend '#' in case the name itself
+                    // starts with '#'.
+                    // We only need to replace '%'. The browser will
+                    // take care of encoding Unicode characters.
+                    // To decode this:
+                    // decodeURIComponent(location.hash.slice(1))
+                    location.hash = '#' + challenge.name.replace('%', '%25');
+                },
+            },
+        });
+    </script>
+{% endblock %}
