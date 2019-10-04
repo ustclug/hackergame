@@ -125,12 +125,12 @@ class Submission:
             'challenges': list(
                 models.ChallengeClear.objects
                 .filter(user=user)
-                .values('challenge')
+                .values('challenge', 'time')
             ),
             'flags': list(
                 models.FlagClear.objects
                 .filter(user=user)
-                .values('challenge', 'flag')
+                .values('challenge', 'flag', 'time')
             ),
         }
 
