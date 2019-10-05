@@ -38,6 +38,7 @@ class User:
                    'email', 'token')
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email')
     groups = {k: v.name for k, v in otp.site.backends_dict.items()}
+    groups['staff'] = '管理员'
     subscribers = []
     _validators = {
         'group': group_validator,

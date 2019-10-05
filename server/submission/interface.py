@@ -34,12 +34,13 @@ class Submission:
                 flag=flag,
                 time=context.time,
             )
-            models.FlagFirst.objects.get_or_create(
-                challenge=challenge.pk,
-                flag=flag,
-                group=None,
-                defaults={'user': user.pk, 'time': context.time},
-            )
+            if user.group != 'staff':
+                models.FlagFirst.objects.get_or_create(
+                    challenge=challenge.pk,
+                    flag=flag,
+                    group=None,
+                    defaults={'user': user.pk, 'time': context.time},
+                )
             models.FlagFirst.objects.get_or_create(
                 challenge=challenge.pk,
                 flag=flag,
@@ -60,11 +61,12 @@ class Submission:
                     challenge=challenge.pk,
                     time=context.time,
                 )
-                models.ChallengeFirst.objects.get_or_create(
-                    challenge=challenge.pk,
-                    group=None,
-                    defaults={'user': user.pk, 'time': context.time},
-                )
+                if user.group != 'staff':
+                    models.ChallengeFirst.objects.get_or_create(
+                        challenge=challenge.pk,
+                        group=None,
+                        defaults={'user': user.pk, 'time': context.time},
+                    )
                 models.ChallengeFirst.objects.get_or_create(
                     challenge=challenge.pk,
                     group=user.group,
@@ -134,19 +136,24 @@ class Submission:
             ),
         }
 
+    @classmethod
+    def _filter_group(cls, queryset, group):
+        if group is None:
+            return queryset.exclude(group='staff')
+        else:
+            return queryset.filter(group=group)
+
     # noinspection PyUnusedLocal
     @classmethod
     def get_clear_count(cls, context, *, group=None):
         return {
             'challenges': list(
-                models.ChallengeClear.objects
-                .filter(**({} if group is None else {'group': group}))
+                cls._filter_group(models.ChallengeClear.objects, group)
                 .values('challenge')
                 .annotate(count=models.models.Count('user'))
             ),
             'flags': list(
-                models.FlagClear.objects
-                .filter(**({} if group is None else {'group': group}))
+                cls._filter_group(models.FlagClear.objects, group)
                 .values('challenge', 'flag')
                 .annotate(count=models.models.Count('user'))
             ),
@@ -173,9 +180,8 @@ class Submission:
     def get_board(cls, context, *, limit=None,
                   category=None, group=None):
         return list(
-            models.Score.objects
+            cls._filter_group(models.Score.objects, group)
             .filter(category=category)
-            .filter(**({} if group is None else {'group': group}))
             .order_by('-score', 'time')
             .values('user', 'score', 'time')
             [slice(limit)]
@@ -191,10 +197,11 @@ class Submission:
                 .values_list('group', flat=True)
             ):
                 try:
-                    first = models.ChallengeClear.objects.filter(
-                        challenge=challenge.pk,
-                        **({} if group is None else {'group': group}),
-                    ).earlist('time')
+                    first = (
+                        cls._filter_group(models.ChallengeClear.objects, group)
+                        .filter(challenge=challenge.pk)
+                        .earlist('time')
+                    )
                     models.ChallengeFirst.objects.create(
                         challenge=challenge.pk,
                         group=group,
@@ -210,11 +217,11 @@ class Submission:
                     .values_list('group', flat=True)
                 ):
                     try:
-                        first = models.FlagClear.objects.filter(
-                            challenge=challenge.pk,
-                            flag=flag,
-                            **({} if group is None else {'group': group}),
-                        ).earlist('time')
+                        first = (
+                            cls._filter_group(models.FlagClear.objects, group)
+                            .filter(challenge=challenge.pk, flag=flag)
+                            .earlist('time')
+                        )
                         models.FlagFirst.objects.create(
                             challenge=challenge.pk,
                             flag=flag,
@@ -295,11 +302,9 @@ class Submission:
                 .update(group=new['group'])
             models.FlagClear.objects.filter(user=old['pk']) \
                 .update(group=new['group'])
-            models.ChallengeFirst.objects.filter(user=old['pk'],
-                                                 group=old['group']).delete()
+            models.ChallengeFirst.objects.filter(user=old['pk']).delete()
             models.ChallengeFirst.objects.filter(group=new['group']).delete()
-            models.FlagFirst.objects.filter(user=old['pk'],
-                                            group=old['group']).delete()
+            models.FlagFirst.objects.filter(user=old['pk']).delete()
             models.FlagFirst.objects.filter(group=new['group']).delete()
             cls._refill_first()
             models.Score.objects.filter(user=old['pk']) \

@@ -79,3 +79,4 @@ class Score(models.Model):
 
     class Meta:
         default_permissions = ()
+        unique_together = ('user', 'category')
