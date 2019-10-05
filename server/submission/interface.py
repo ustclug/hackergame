@@ -1,8 +1,15 @@
+from datetime import timedelta
+
 from server.challenge.interface import Challenge
 from server.user.interface import User
 from server.context import Context
-from server.exceptions import WrongFormat
+from server.exceptions import Error, WrongFormat
 from . import models
+
+
+class SlowDown(Error):
+    code = 'slow_down'
+    message = '提交过于频繁'
 
 
 class Submission:
@@ -14,6 +21,17 @@ class Submission:
             raise WrongFormat('Flag 不应超过 100 个字符')
         user = User.get(context, user)
         challenge = Challenge.get(context, challenge)
+        try:
+            latest = (
+                models.Submission.objects
+                .filter(user=user.pk, challenge=challenge.pk)
+                .latest('time')
+            )
+        except models.Submission.DoesNotExist:
+            pass
+        else:
+            if latest.time + timedelta(seconds=10) > context.time:
+                raise SlowDown()
         obj = models.Submission.objects.create(
             user=user.pk,
             challenge=challenge.pk,
