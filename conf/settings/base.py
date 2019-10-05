@@ -4,6 +4,7 @@ ROOT_URLCONF = 'frontend.urls'
 WSGI_APPLICATION = 'frontend.wsgi.application'
 INSTALLED_APPS = [
     'frontend.apps.FrontendConfig',
+    'server.announcement.apps.AnnouncementConfig',
     'server.challenge.apps.ChallengeConfig',
     'server.submission.apps.SubmissionConfig',
     'server.terms.apps.TermsConfig',

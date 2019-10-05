@@ -28,7 +28,7 @@ class ProfileRequired(Error):
 
 
 def group_validator(group):
-    if group not in otp.site.backends_dict:
+    if group not in User.groups:
         raise ValidationError('用户组不存在')
 
 

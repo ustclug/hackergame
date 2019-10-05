@@ -1,5 +1,6 @@
 from django.contrib import admin
 
+from server.announcement.models import Announcement
 from server.challenge.models import Challenge
 from server.submission.models import Submission
 from server.terms.models import Terms
@@ -14,7 +15,7 @@ admin.site.register(Page)
 # I also replaced template `admin/index.html`, so that these entries
 # show up on the admin page, while low-level models still kept
 # inaccessible.
-@admin.register(Challenge, Submission, Terms, Trigger, User)
+@admin.register(Announcement, Challenge, Submission, Terms, Trigger, User)
 class FakeAdmin(admin.ModelAdmin):
     def get_model_perms(self, request):
         return {None: True}
