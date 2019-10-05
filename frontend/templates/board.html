@@ -59,6 +59,7 @@
                 axios.post('/admin/submission/', {method: 'get_board', args: {limit: 100, ...this.filters}})
                     .then(({data: {value}}) => {
                         this.objs = value;
+                        drawchart();
                     })
                     .catch(({response: {data: {error}}}) => {
                         alert(error && error.message);

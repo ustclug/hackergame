@@ -1,6 +1,6 @@
 "use strict";
 
-window.onload = function () {
+var drawchart = function () {
   var reqs = [];
   const n = app.objs.length < 10 ? app.objs.length : 10;
   for (var i = 0; i < n; i++) {
