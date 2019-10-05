@@ -1,0 +1,111 @@
+{% extends "admin_base.html" %}
+
+{% block content %}
+    {% verbatim %}
+    <div id="content-main">
+        <ul class="object-tools">
+            <li><a href="#" @click.prevent="refresh">刷新</a></li>
+            <li><a href="#" class="addlink" @click.prevent="open(null)">新增</a></li>
+        </ul>
+        <form v-if="opened" @submit.prevent="opened_save">
+            <fieldset class="module aligned" :disabled="opened_disabled">
+                <h2 v-if="opened.pk">正在查看 #{{ opened.pk }}</h2>
+                <h2 v-else>正在创建</h2>
+                <div class="form-row">
+                    <label class="required" for="form-content">内容:</label>
+                    <textarea class="vLargeTextField" id="form-content" name="content" v-model="opened.content" rows="10" cols="40" required></textarea>
+                    <div class="help">会被放入 <code>div</code> 的 HTML</div>
+                </div>
+            </fieldset>
+            <div class="submit-row" v-show="!opened_disabled">
+                <input v-if="!opened.pk" type="submit" class="default" value="保存">
+                <p class="deletelink-box">
+                    <a v-if="opened.pk" href="#" class="deletelink" @click.prevent="opened_delete">删除</a>
+                    <a v-else href="#" class="deletelink" @click.prevent="opened=undefined">放弃</a>
+                </p>
+            </div>
+        </form>
+        <div class="module" id="changelist">
+            <div class="results">
+                <table id="result_list">
+                    <thead>
+                    <tr>
+                        <th scope="col"><div class="text"><span>#</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>内容</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>时间</span></div><div class="clear"></div></th>
+                    </tr>
+                    </thead>
+                    <tbody v-if="objs">
+                    <tr v-for="obj in objs" @click="open(obj)">
+                        <td>{{ obj.pk }}</td>
+                        <td>{{ obj.content.slice(0, 30) }}{{ obj.content.length>30?'...':'' }}</td>
+                        <td>{{ new Date(obj.time).toLocaleString() }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <p v-if="!objs">（正在加载）</p>
+            </div>
+        </div>
+    </div>
+    {% endverbatim %}
+    <script>
+    app = new Vue({
+        el: '#content-main',
+        data: {
+            objs: undefined,
+            opened: undefined,
+            opened_disabled: false,
+        },
+        created() {
+            this.refresh();
+        },
+        methods: {
+            refresh() {
+                axios.post('.', {method: 'get_all'})
+                    .then(({data: {value}}) => {
+                        this.objs = value;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                    });
+            },
+            open(obj) {
+                if (!obj) {
+                    this.opened = {
+                        pk: null,
+                        content: '',
+                    };
+                } else {
+                    this.opened = {...obj};
+                }
+            },
+            opened_save() {
+                this.opened_disabled = true;
+                axios.post('.', {method: 'save', args: this.opened})
+                    .then(({data: {value}}) => {
+                        this.opened = undefined;
+                        this.refresh();
+                        this.opened_disabled = false;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                        this.opened_disabled = false;
+                    });
+            },
+            opened_delete() {
+                this.opened_disabled = true;
+                axios.post('.', {method: 'delete', args: this.opened})
+                    .then(({data: {value}}) => {
+                        this.opened = undefined;
+                        this.refresh();
+                        this.opened_disabled = false;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                        this.opened_disabled = false;
+                    });
+            },
+        },
+    });
+    </script>
+{% endblock %}

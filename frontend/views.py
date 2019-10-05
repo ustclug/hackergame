@@ -8,13 +8,14 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.views import View
 
+from server.announcement.interface import Announcement
 from server.challenge.interface import Challenge
 from server.submission.interface import Submission
 from server.terms.interface import Terms, TermsRequired
 from server.trigger.interface import Trigger
 from server.user.interface import User, LoginRequired, ProfileRequired
 from server.context import Context
-from server.exceptions import Error, WrongFormat
+from server.exceptions import Error, NotFound, WrongFormat
 
 
 # noinspection PyMethodMayBeStatic
@@ -32,7 +33,12 @@ class HubView(View):
             return redirect('terms')
         except Error as e:
             challenges = {'error': e.json}
+        try:
+            announcement = Announcement.get_latest(context).json
+        except NotFound:
+            announcement = None
         return TemplateResponse(request, 'hub.html', {
+            'announcement': announcement,
             'challenges': challenges,
             'groups': User.groups,
             'progress': Submission.get_user_progress(context, request.user.pk),
@@ -52,6 +58,15 @@ class HubView(View):
         except Error as e:
             messages.info(request, e.message)
         return redirect('hub')
+
+
+# noinspection PyMethodMayBeStatic
+class AnnouncementsView(View):
+    def get(self, request):
+        context = Context.from_request(request)
+        return TemplateResponse(request, 'announcements.html', {
+            'announcements': Announcement.get_all(context),
+        })
 
 
 # noinspection PyMethodMayBeStatic
@@ -149,6 +164,27 @@ class BaseAdminView(View):
             return JsonResponse({'value': value})
         except Error as e:
             return JsonResponse({'error': e.json}, status=500)
+
+
+# noinspection PyMethodMayBeStatic
+class AnnouncementAdminView(BaseAdminView):
+    title = 'Announcement'
+    template = 'admin_announcement.html'
+
+    def do_get_all(self, context):
+        return [obj.json for obj in Announcement.get_all(context)]
+
+    def do_save(self, context, pk, **kwargs):
+        kwargs = {k: kwargs[k] for k in kwargs
+                  if k in Announcement.update_fields}
+        if pk is None:
+            return Announcement.create(context, **kwargs).json
+        else:
+            return Announcement.get(context, pk).update(**kwargs)
+
+    # noinspection PyUnusedLocal
+    def do_delete(self, context, pk, **kwargs):
+        return Announcement.get(context, pk).delete()
 
 
 # noinspection PyMethodMayBeStatic

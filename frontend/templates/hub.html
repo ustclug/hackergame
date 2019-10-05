@@ -17,6 +17,10 @@
         <div v-if="user" class="msg-info">
             <a :href="`/board/?group=${user.group}`">用户组：{{ groups[user.group] }}</a>
         </div>
+        <div v-if="announcement" class="msg-info">
+            <div><p v-html="announcement.content"></p></div>
+            <a href="/announcements/">查看所有公告</a>
+        </div>
         <div class="challenges">
             <table class="pure-table pure-table-horizontal">
                 <thead>
@@ -87,6 +91,7 @@
     {{ groups|json_script:'json-groups' }}
     {{ progress|json_script:'json-progress' }}
     {{ clear_count|json_script:'json-clear_count' }}
+    {{ announcement|json_script:'json-announcement' }}
     <script>
         function token_copy() {
             let copyText = document.getElementById("token");
@@ -114,6 +119,7 @@
                 groups: JSON.parse(document.getElementById('json-groups').textContent),
                 progress: JSON.parse(document.getElementById('json-progress').textContent),
                 clear_count: JSON.parse(document.getElementById('json-clear_count').textContent),
+                announcement: JSON.parse(document.getElementById('json-announcement').textContent),
                 opened,
             },
             methods: {

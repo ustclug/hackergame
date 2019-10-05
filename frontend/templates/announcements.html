@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    {% for announcement in announcements %}
+        <div v-if="announcement" class="msg-info">
+            <small>{{ announcement.time|date }}{{ announcement.time|time }}</small>
+            <div>{{ announcement.content|safe }}</div>
+        </div>
+    {% endfor %}
+{% endblock %}
