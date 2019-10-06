@@ -137,3 +137,10 @@ h1 {
 .center {
     text-align: center;
 }
+.category {
+    font-size: .75em;
+    color: #fff;
+    vertical-align: middle;
+    padding: 0 .5em;
+    border-radius: 100em;
+}

@@ -4,6 +4,8 @@
 {% block js %}
     {{ block.super }}
     <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'color.js' %}"></script>
+    <script src="{% static 'seedrandom.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -25,34 +27,32 @@
             <table class="pure-table pure-table-horizontal">
                 <thead>
                     <tr>
-                        <th>分类</th>
                         <th>题目</th>
                         <th>分数</th>
                         <th>完成人数</th>
                     </tr>
                 </thead>
                 <tbody v-if="challenges_error">
-                    <tr><td colspan="4" class="center">（{{ challenges_error.message }}）</td></tr>
+                    <tr><td colspan="3" class="center">（{{ challenges_error.message }}）</td></tr>
                     <tr v-if="user.is_staff">
-                        <td colspan="4" class="center"><a href="/admin/">管理</a></td>
+                        <td colspan="3" class="center"><a href="/admin/">管理</a></td>
                     </tr>
                 </tbody>
                 <tbody v-else>
                     <template v-for="challenge in challenges">
                         <tr class="challenge" :class="{'challenge-highlight': challenge===opened}" @click="open(challenge)">
-                            <td>{{ challenge.category }}</td>
                             <td>
                                 <i v-if="progress.challenges.some(i=>i.challenge===challenge.pk)" class="fas fa-check-circle fa-fw"></i>
                                 <i v-else-if="challenge.flags.length<=1" class="far fa-circle fa-fw"></i>
                                 <i v-else-if="challenge===opened" class="fas fa-caret-down fa-fw"></i>
                                 <i v-else class="fas fa-caret-right fa-fw"></i>
+                                <span class="category" :style="{backgroundColor: category_color(challenge.category)}">{{ challenge.category }}</span>
                                 {{ challenge.name }}
                             </td>
                             <td>{{ challenge.score }}</td>
                             <td>{{ (clear_count.challenges.find(i=>i.challenge===challenge.pk)||{count:0}).count }}</td>
                         </tr>
                         <tr v-if="challenge===opened && challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags" class="flag">
-                            <td></td>
                             <td>
                                 &nbsp;&nbsp;&nbsp;&nbsp;
                                 <i v-if="progress.flags.some(i=>i.challenge===challenge.pk&&i.flag===flag_index)" class="fas fa-check-circle fa-fw"></i>
@@ -64,7 +64,7 @@
                         </tr>
                     </template>
                     <tr v-if="user.is_staff">
-                        <td colspan="4" class="center"><a href="/admin/">管理</a></td>
+                        <td colspan="3" class="center"><a href="/admin/">管理</a></td>
                     </tr>
                 </tbody>
             </table>
@@ -132,6 +132,18 @@
                     // To decode this:
                     // decodeURIComponent(location.hash.slice(1))
                     location.hash = '#' + challenge.name.replace('%', '%25');
+                },
+                category_color(category) {
+                    let random = new Math.seedrandom(category);
+                    let color;
+                    do {
+                        color = new CIELUV(
+                            random() * 50,
+                            random() * 400 - 200,
+                            random() * 400 - 200,
+                        ).sRGB();
+                    } while (!color.valid());
+                    return color.hex();
                 },
             },
         });
