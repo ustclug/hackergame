@@ -5,6 +5,7 @@ import sys
 
 import django
 from django.db.transaction import atomic
+from django.utils import timezone
 
 assert sys.path[0].endswith('/scripts')
 sys.path[0] = sys.path[0][:-8]
@@ -18,6 +19,14 @@ from server.trigger.interface import Trigger
 from server.user.interface import User
 from server.context import Context
 from server.exceptions import NotFound
+from server.submission.interface import SlowDown
+
+
+fake_complex_challenges = 10
+fake_simple_challenges = 29
+fake_users = 1000
+fake_submissions = 5000
+game_started_seconds = 3600 * 24 * 7
 
 
 with atomic():
@@ -46,7 +55,7 @@ with atomic():
     )
     Submission.submit(Context(root), root.pk, c1.pk, 'flag{hackergame}')
 
-    for i in range(1, 11):
+    for i in range(1, fake_complex_challenges + 1):
         Challenge.create(
             Context(root),
             name=f'复杂题 {i}',
@@ -66,7 +75,7 @@ with atomic():
             } for j in range(random.randrange(1, 4))],
         )
 
-    for i in range(1, 30):
+    for i in range(1, fake_simple_challenges + 1):
         Challenge.create(
             Context(root),
             name=f'简单题 {i}',
@@ -88,9 +97,16 @@ with atomic():
     terms = Terms.create(Context(root), name='条款', content='1 2 3 ...',
                          enabled=True)
 
-    Trigger.create(Context(root), time=Context(root).time, state=True)
+    now = timezone.now()
+    timestamps = []
+    for i in range(fake_submissions):
+        delta = random.randrange(game_started_seconds)
+        timestamps.append(now - timezone.timedelta(seconds=delta))
+    timestamps.sort()
 
-    for i in range(1000):
+    Trigger.create(Context(root), time=min(timestamps), state=True)
+
+    for i in range(fake_users):
         print('user', i, end='\r')
         u = User.create(
             Context(root),
@@ -105,17 +121,26 @@ with atomic():
 
     users = [i.pk for i in User.get_all(Context(root))]
     challenges = [i.pk for i in Challenge.get_all(Context(root))]
-    for i in range(5000):
+
+    for i in range(fake_submissions):
         print('submission', i, end='\r')
         try:
             u = random.choice(users)
             c = random.choice(challenges)
             fs = len(Challenge.get(Context(root), c).flags)
-            Submission.submit(Context(User.get(Context(root), u).user), u, c,
-                              f'flag{{{random.choice(range(fs))}:{u}}}')
-            Submission.submit(Context(User.get(Context(root), u).user), u, c,
-                              f'flag{{{random.choice(range(fs))}}}')
-        except NotFound:
+            Submission.submit(
+                Context(
+                    User.get(Context(root), u).user,
+                    timestamps[i]
+                ), u, c, f'flag{{{random.choice(range(fs))}:{u}}}'
+            )
+            Submission.submit(
+                Context(
+                    User.get(Context(root), u).user,
+                    timestamps[i] + timezone.timedelta(seconds=20)
+                ), u, c, f'flag{{{random.choice(range(fs))}}}'
+            )
+        except (NotFound, SlowDown):
             pass
 
     Challenge.create(

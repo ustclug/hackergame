@@ -155,6 +155,17 @@ class Submission:
         }
 
     @classmethod
+    def get_user_history(cls, context, user):
+        challenges = Challenge.get_all(context.copy(elevated=True))
+        flags = {i.pk: i.flags for i in challenges}
+        score = 0
+        history = []
+        for i in models.FlagClear.objects.filter(user=user).order_by('time'):
+            score += flags[i.challenge][i.flag]['score']
+            history.append({'time': i.time, 'score': score})
+        return history
+
+    @classmethod
     def _filter_group(cls, queryset, group):
         if group is None:
             return queryset.exclude(group='staff')
