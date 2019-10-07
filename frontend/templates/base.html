@@ -23,6 +23,9 @@
         <a class="title" href="{% url 'hub' %}">{{ page.title }}</a>
         <div class="pure-menu pure-menu-horizontal" style="width: auto">
             <ul class="pure-menu-list">
+                <li class="pure-menu-item">
+                    <a class="pure-button" href="{% url 'announcements' %}">公告</a>
+                </li>
                 {% if user_ %}
                     <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
                         <span class="pure-button">排行榜</span>
