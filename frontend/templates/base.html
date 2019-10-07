@@ -23,9 +23,34 @@
         <a class="title" href="{% url 'hub' %}">{{ page.title }}</a>
         <div class="pure-menu pure-menu-horizontal" style="width: auto">
             <ul class="pure-menu-list">
+                <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                    <span class="pure-button">排行榜</span>
+                    <ul class="pure-menu-children">
+                        <li class="pure-menu-item"><a href="/board/" class="pure-menu-link">总排名</a></li>
+                        {% if user_ %}
+                            {% if user_.group == 'staff' %}
+                                {% for group, group_name in groups.items %}
+                                    <li class="pure-menu-item"><a href="/board/?group={{ group|urlencode }}" class="pure-menu-link">{{ group_name }}排名</a></li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="pure-menu-item"><a href="/board/?group={{ user_.group|urlencode }}" class="pure-menu-link">组内排名</a></li>
+                            {% endif %}
+                        {% endif %}
+                        <li class="pure-menu-item"><a href="/first/" class="pure-menu-link">一血榜</a></li>
+                        {% if user_ %}
+                            {% if user_.group == 'staff' %}
+                                {% for group, group_name in groups.items %}
+                                    <li class="pure-menu-item"><a href="/first/?group={{ group|urlencode }}" class="pure-menu-link">{{ group_name }}一血榜</a></li>
+                                {% endfor %}
+                            {% else %}
+                                <li class="pure-menu-item"><a href="/first/?group={{ user_.group|urlencode }}" class="pure-menu-link">组内一血榜</a></li>
+                            {% endif %}
+                        {% endif %}
+                    </ul>
+                </li>
                 {% if user_ %}
                     <li class="pure-menu-item">
-                        <a class="pure-menu-link" href="{% url 'profile' %}">修改个人信息</a>
+                        <a class="pure-button" href="{% url 'profile' %}">修改个人信息</a>
                     </li>
                     <li class="pure-menu-item">
                         <form action="{% url 'logout' %}" method="post">

@@ -11,4 +11,5 @@ def frontend(request):
             User.get(Context.from_request(request), request.user.pk)
             if request.user.is_authenticated else None
         ),
+        'groups': User.groups,
     }

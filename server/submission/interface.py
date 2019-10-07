@@ -152,6 +152,33 @@ class Submission:
                 .filter(user=user)
                 .values('challenge', 'flag', 'time')
             ),
+            'scores': list(
+                models.Score.objects
+                .filter(user=user)
+                .values('category', 'score', 'time')
+            ),
+        }
+
+    @classmethod
+    def get_user_ranking(cls, context, user, *, category=None, group=None):
+        try:
+            obj = models.Score.objects.get(user=user, category=category)
+            score, time = obj.score, obj.time
+        except models.Score.DoesNotExist:
+            score, time = 0, context.time
+        return {
+            'ranking': (
+                cls._filter_group(models.Score.objects, group)
+                .filter(category=category)
+                .filter(models.models.Q(score__gt=score)
+                        | models.models.Q(score=score, time__lt=time))
+                .count() + 1
+            ),
+            'total': (
+                cls._filter_group(models.Score.objects, group)
+                .filter(category=category)
+                .count()
+            ),
         }
 
     @classmethod

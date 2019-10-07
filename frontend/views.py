@@ -37,11 +37,13 @@ class HubView(View):
             announcement = Announcement.get_latest(context).json
         except NotFound:
             announcement = None
+        user = User.get(context, request.user.pk)
         return TemplateResponse(request, 'hub.html', {
             'announcement': announcement,
             'challenges': challenges,
-            'groups': User.groups,
-            'progress': Submission.get_user_progress(context, request.user.pk),
+            'progress': Submission.get_user_progress(context, user.pk),
+            'ranking': Submission.get_user_ranking(context, user.pk,
+                                                   group=user.group),
             'clear_count': Submission.get_clear_count(context),
         })
 
@@ -78,7 +80,6 @@ class BoardView(View):
                 'category': request.GET.get('category', None),
                 'group': request.GET.get('group', None),
             },
-            'groups': User.groups,
             'users': {u.pk: u.display_name for u in User.get_all(context)},
         })
 
@@ -91,7 +92,6 @@ class FirstView(View):
             'filters': {
                 'group': request.GET.get('group', None),
             },
-            'groups': User.groups,
             'users': {u.pk: u.display_name for u in User.get_all(context)},
             'challenges': [c.json for c in Challenge.get_enabled(context)],
         })
@@ -284,9 +284,6 @@ class TriggerAdminView(BaseAdminView):
 class UserAdminView(BaseAdminView):
     title = 'User'
     template = 'admin_user.html'
-
-    def get_extra_context(self, context):
-        return {'groups': User.groups}
 
     def do_get_all(self, context):
         return [obj.json for obj in User.get_all(context)]

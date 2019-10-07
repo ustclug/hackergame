@@ -16,8 +16,17 @@
             <input type="text" id="token" :value="user.token" readonly>
             <button onclick="token_copy()">复制</button>
         </div>
-        <div v-if="user" class="msg-info">
-            <a :href="`/board/?group=${user.group}`">用户组：{{ groups[user.group] }}</a>
+        <div v-if="user&&progress.scores.find(i=>i.category===null)" class="msg-info">
+            <a :href="`/board/?group=${encodeURIComponent(user.group)}`">
+                当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
+                {{ groups[user.group] }}组内排名：{{ ranking.ranking }} / {{ ranking.total }}
+            </a><br>
+            <template v-for="(category, category_index) in categories">
+                {{ category_index ? '，' : '' }}
+                <a :href="`/board/?category=${encodeURIComponent(category)}`">
+                    {{ category }}：{{ (progress.scores.find(i=>i.category===category)||{score:0}).score }}
+                </a>
+            </template>
         </div>
         <div v-if="announcement" class="msg-info">
             <div><p v-html="announcement.content"></p></div>
@@ -90,6 +99,7 @@
     {{ user_.json|json_script:'json-user' }}
     {{ groups|json_script:'json-groups' }}
     {{ progress|json_script:'json-progress' }}
+    {{ ranking|json_script:'json-ranking' }}
     {{ clear_count|json_script:'json-clear_count' }}
     {{ announcement|json_script:'json-announcement' }}
     <script>
@@ -118,9 +128,15 @@
                 user: JSON.parse(document.getElementById('json-user').textContent),
                 groups: JSON.parse(document.getElementById('json-groups').textContent),
                 progress: JSON.parse(document.getElementById('json-progress').textContent),
+                ranking: JSON.parse(document.getElementById('json-ranking').textContent),
                 clear_count: JSON.parse(document.getElementById('json-clear_count').textContent),
                 announcement: JSON.parse(document.getElementById('json-announcement').textContent),
                 opened,
+            },
+            computed: {
+                categories() {
+                    return [...new Set(this.challenges.map(i => i.category))].sort();
+                },
             },
             methods: {
                 open(challenge) {
