@@ -37,13 +37,17 @@ class HubView(View):
             announcement = Announcement.get_latest(context).json
         except NotFound:
             announcement = None
-        user = User.get(context, request.user.pk)
+        if request.user.is_authenticated:
+            user = User.get(context, request.user.pk)
+            ranking = Submission.get_user_ranking(context, request.user.pk,
+                                                  group=user.group)
+        else:
+            ranking = {}
         return TemplateResponse(request, 'hub.html', {
             'announcement': announcement,
             'challenges': challenges,
-            'progress': Submission.get_user_progress(context, user.pk),
-            'ranking': Submission.get_user_ranking(context, user.pk,
-                                                   group=user.group),
+            'progress': Submission.get_user_progress(context, request.user.pk),
+            'ranking': ranking,
             'clear_count': Submission.get_clear_count(context),
         })
 
