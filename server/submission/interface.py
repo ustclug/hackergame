@@ -34,6 +34,7 @@ class Submission:
                 raise SlowDown()
         obj = models.Submission.objects.create(
             user=user.pk,
+            group=user.group,
             challenge=challenge.pk,
             text=text,
             time=context.time,
@@ -354,6 +355,8 @@ class Submission:
             models.Score.objects.filter(user=old['pk']).delete()
             return
         if new['group'] != old['group']:
+            models.Submission.objects.filter(user=old['pk']) \
+                .update(group=new['group'])
             models.ChallengeClear.objects.filter(user=old['pk']) \
                 .update(group=new['group'])
             models.FlagClear.objects.filter(user=old['pk']) \
