@@ -71,7 +71,7 @@
         </div>
         <div v-if="opened">
             <h1>{{ opened.name }}</h1>
-            <div><p v-html="opened.detail"></p></div>
+            <div><p v-html="opened.detail.replace('{token}', encodeURIComponent(user.token))"></p></div>
             <form class="pure-form" method="post" :key="opened.pk">
                 {% endverbatim %}{% csrf_token %}{% verbatim %}
                 <a v-if="opened.url" class="pure-button pure-input-rounded" target="_blank" :href="opened.url.replace('{token}', encodeURIComponent(user.token))">打开题目</a>

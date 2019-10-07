@@ -22,11 +22,12 @@
                 <div class="form-row">
                     <label class="required" for="form-detail">内容:</label>
                     <textarea class="vLargeTextField" id="form-detail" name="detail" v-model="opened.detail" rows="10" cols="40" required></textarea>
-                    <div class="help">会被放入 <code>div</code> 的 HTML</div>
+                    <div class="help">会被放入 <code>div</code> 的 HTML，其中的 <code>{token}</code> 会被替换为 URL encode 后的用户 token</div>
                 </div>
                 <div class="form-row">
                     <label for="form-url">链接:</label>
                     <input class="vTextField" type="text" id="form-url" name="url" v-model="opened.url">
+                    <div class="help">其中的 <code>{token}</code> 会被替换为 URL encode 后的用户 token</div>
                 </div>
                 <div class="form-row">
                     <label for="form-prompt">提示:</label>
