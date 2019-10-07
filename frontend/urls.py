@@ -1,5 +1,6 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
+from allauth.account.views import confirm_email
 
 from apps import otp
 from . import views
@@ -22,4 +23,6 @@ urlpatterns = [
     path('admin/user/', views.UserAdminView.as_view()),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.socialaccount.providers.google.urls')),
+    path('accounts/', include('allauth.socialaccount.providers.microsoft.urls')),
+    re_path(r'^accounts/confirm-email/(?P<key>[-:\w]+)/$', confirm_email, name='account_confirm_email'),
 ]
