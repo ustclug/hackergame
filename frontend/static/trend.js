@@ -11,8 +11,9 @@ function drawchart() {
     axios.post('/admin/trigger/', {method: 'get_all'}),
   ]).then(([user_reqs, {data: {value: triggers}}]) => {
     let starttime = new Date(triggers.find(i => i.state).time);
-    let endtime = new Date([...triggers].reverse().find(i => !i.state));
-    if (!endtime || endtime > new Date()) {
+    let endtime = [...triggers].reverse().find(i => !i.state);
+    endtime = endtime ? new Date(endtime.time) : new Date();
+    if (endtime > new Date()) {
       endtime = new Date();
     }
     let data = user_reqs.map(({data: {value: history}}, i) => {
