@@ -153,7 +153,7 @@ class User:
     def profile_ok(self):
         if self.nickname is None:
             return False
-        if self.group != 'ustc':
+        if self.group not in {'ustc', 'nankai'}:
             return True
         if self.name is None:
             return False

@@ -70,13 +70,6 @@ LANGUAGE_CODE = 'zh-Hans'
 LOGIN_REDIRECT_URL = 'hub'
 OTP_BACKENDS = [
     'apps.otp.backends.ustc_cas.Ustc',
-    'apps.otp.backends.zju_email.Zju',
-    'apps.otp.backends.nju_email.Nju',
-    'apps.otp.backends.njust_email.Njust',
-    'apps.otp.backends.hnu_email.Hnu',
-    'apps.otp.backends.uestc_email.Uestc',
-    'apps.otp.backends.sjtu_email.Sjtu',
-    'apps.otp.backends.edu_email.EduEmail',
-    'apps.otp.backends.dummy_email.DummyEmail',
+    'apps.otp.backends.nankai_email.Nankai',
     'apps.otp.backends.sms.Sms',
 ]
