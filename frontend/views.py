@@ -227,6 +227,9 @@ class SubmissionAdminView(BaseAdminView):
     def do_get_user_progress(self, context, **kwargs):
         return Submission.get_user_progress(context, **kwargs)
 
+    def do_get_user_history(self, context, **kwargs):
+        return Submission.get_user_history(context, **kwargs)
+
     def do_get_clear_count(self, context, **kwargs):
         return Submission.get_clear_count(context, **kwargs)
 

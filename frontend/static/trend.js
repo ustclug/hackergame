@@ -4,31 +4,21 @@ function drawchart() {
   axios.all([
     axios.all(app.objs.slice(0, 10).map(i => (
       axios.post('/admin/submission/', {
-        method: 'get_user_progress',
+        method: 'get_user_history',
         args: {user: i.user},
       })
     ))),
-    axios.post('/admin/challenge/', {method: 'get_all'}),
     axios.post('/admin/trigger/', {method: 'get_all'}),
-  ]).then(([users, challenges, triggers]) => {
-    triggers = triggers.data.value;
-    triggers.sort((a, b) => new Date(a.time) - new Date(b.time));
-    challenges = challenges.data.value;
+  ]).then(([user_reqs, {data: {value: triggers}}]) => {
     let starttime = triggers.find(i => i.state);
     let endtime = [...triggers].reverse().find(i => !i.state);
     if (!endtime || endtime > new Date()) {
       endtime = new Date();
     }
-    let data = users.map((req, i) => {
-      let points = [];
-      let score = 0;
-      points.push({x: starttime, y: score});
-      for (let flag of req.data.value.flags) {
-        let challenge = challenges.find(i => i.pk === flag.challenge);
-        score += challenge.flags[flag.flag].score;
-        points.push({x: new Date(flag.time), y: score});
-      }
-      points.push({x: endtime, y: score});
+    let data = user_reqs.map(({data: {value: history}}, i) => {
+      let points = history.map(i => ({x: i.time, y: i.score}));
+      points.unshift({x: starttime, y: 0});
+      points.push({x: endtime, y: points[points.length-1].y});
       return {
         type: 'stepLine',
         name: app.users[app.objs[i].user],

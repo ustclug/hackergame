@@ -51,8 +51,11 @@ class Trigger:
 
     @classmethod
     def get_all(cls, context):
-        User.test_permission(context, 'trigger.full')
         queryset = models.Trigger.objects.order_by('time')
+        try:
+            User.test_permission(context, 'trigger.full')
+        except PermissionRequired:
+            queryset = queryset.filter(time__lte=context.time)
         return [cls(context, obj) for obj in queryset]
 
     def update(self, **kwargs):
