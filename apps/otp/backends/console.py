@@ -31,7 +31,7 @@ class Login(generic.TemplateView):
                 if not token.device.user:
                     token.device.user = self.create_user(request, device)
                     token.device.save()
-                login(request, token.device.user)
+                login(request, token.device.user, 'django.contrib.auth.backends.ModelBackend')
                 return redirect(settings.LOGIN_REDIRECT_URL)
             else:
                 messages.error(request, '验证码错误')

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 
 from apps import otp
 from . import views
@@ -21,4 +21,5 @@ urlpatterns = [
     path('admin/trigger/', views.TriggerAdminView.as_view()),
     path('admin/user/', views.UserAdminView.as_view()),
     path('admin/', admin.site.urls),
+    path('accounts/', include('allauth.socialaccount.providers.google.urls')),
 ]
