@@ -119,7 +119,7 @@ class ProfileView(View):
             user.update(**json.loads(request.body))
             return JsonResponse({})
         except WrongFormat as e:
-            return JsonResponse({'error': e.json}, status=500)
+            return JsonResponse({'error': e.json}, status=400)
 
 
 # noinspection PyMethodMayBeStatic
@@ -163,7 +163,7 @@ class BaseAdminView(View):
             value = method(Context.from_request(request), **args)
             return JsonResponse({'value': value})
         except Error as e:
-            return JsonResponse({'error': e.json}, status=500)
+            return JsonResponse({'error': e.json}, status=400)
 
 
 # noinspection PyMethodMayBeStatic
