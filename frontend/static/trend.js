@@ -10,13 +10,13 @@ function drawchart() {
     ))),
     axios.post('/admin/trigger/', {method: 'get_all'}),
   ]).then(([user_reqs, {data: {value: triggers}}]) => {
-    let starttime = triggers.find(i => i.state);
-    let endtime = [...triggers].reverse().find(i => !i.state);
+    let starttime = new Date(triggers.find(i => i.state).time);
+    let endtime = new Date([...triggers].reverse().find(i => !i.state));
     if (!endtime || endtime > new Date()) {
       endtime = new Date();
     }
     let data = user_reqs.map(({data: {value: history}}, i) => {
-      let points = history.map(i => ({x: i.time, y: i.score}));
+      let points = history.map(i => ({x: new Date(i.time), y: i.score}));
       points.unshift({x: starttime, y: 0});
       points.push({x: endtime, y: points[points.length-1].y});
       return {
