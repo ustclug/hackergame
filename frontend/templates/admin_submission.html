@@ -26,7 +26,7 @@
                         <td>{{ challenges.find(i=>i.pk===obj.challenge).name }}</td>
                         <td>{{ obj.text }}</td>
                         <td>{{ new Date(obj.time).toLocaleString() }}</td>
-                        <td v-if="obj.flag">{{ challenges.find(i=>i.pk===obj.challenge).flags[obj.flag].name||challenges.find(i=>i.pk===obj.challenge).name }}</td>
+                        <td v-if="obj.flag!==null">{{ challenges.find(i=>i.pk===obj.challenge).flags[obj.flag].name||challenges.find(i=>i.pk===obj.challenge).name }}</td>
                         <td v-else></td>
                     </tr>
                     </tbody>
