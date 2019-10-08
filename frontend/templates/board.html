@@ -28,7 +28,7 @@
             </tr>
             </thead>
             <tbody v-if="objs">
-            <tr v-for="(obj, obj_index) in objs">
+            <tr v-for="(obj, obj_index) in objs" :class="{'highlight-row': obj.user===user.pk}">
                 <td>{{ obj_index + 1 }}</td>
                 <td style="word-break: break-all">{{ users[obj.user] }}</td>
                 <td>{{ obj.score }}</td>
@@ -42,6 +42,7 @@
     {{ filters|json_script:'json-filters' }}
     {{ groups|json_script:'json-groups' }}
     {{ users|json_script:'json-users' }}
+    {{ user_.json|json_script:'json-user' }}
     <script>
     app = new Vue({
         el: '#app',
@@ -49,6 +50,7 @@
             filters: JSON.parse(document.getElementById('json-filters').textContent),
             groups: JSON.parse(document.getElementById('json-groups').textContent),
             users: JSON.parse(document.getElementById('json-users').textContent),
+            user: JSON.parse(document.getElementById('json-user').textContent),
             objs: undefined,
         },
         created() {

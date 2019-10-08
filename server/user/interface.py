@@ -8,7 +8,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, EmailValidator
 
 from apps import otp
-from server.exceptions import Error, WrongArguments, WrongFormat
+from server.exceptions import Error, NotFound, WrongArguments, WrongFormat
 from . import models
 
 
@@ -81,7 +81,7 @@ class User:
     @classmethod
     def create(cls, context, group, **kwargs):
         user = get_user_model().objects.create_user(str(uuid4()))
-        self = cls.get(context.copy(user=user), user.pk)
+        self = cls(context.copy(user=user), models.User(user=user.pk))
         pk = str(user.pk)
         sig = base64.b64encode(OpenSSL.crypto.sign(
             self._private_key, pk.encode(), 'sha256')).decode()
@@ -96,8 +96,10 @@ class User:
     def get(cls, context, pk):
         if pk is None:
             raise WrongArguments()
-        obj, created = models.User.objects.get_or_create(user=pk)
-        return cls(context, obj)
+        try:
+            return cls(context, models.User.objects.get(user=pk))
+        except models.User.DoesNotExist:
+            raise NotFound('用户不存在')
 
     @classmethod
     def get_all(cls, context):
@@ -183,7 +185,7 @@ class User:
 
     @property
     def display_name(self):
-        return f'{self.nickname}.{self._obj.hash}'
+        return self.nickname
 
     @property
     def nickname(self):

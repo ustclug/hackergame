@@ -38,7 +38,7 @@ class GetChallenge(Console.GetChallengeView):
         try:
             EmailMessage(subject=subject, body=body, to=[token.device.identity]).send()
         except SMTPException:
-            return JsonResponse({'error': 'fail'}, status=500)
+            return JsonResponse({'error': 'fail'}, status=400)
         return JsonResponse({})
 
 

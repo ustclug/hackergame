@@ -3,6 +3,7 @@ from django.db import models
 
 class Submission(models.Model):
     user = models.IntegerField()
+    group = models.TextField()
     challenge = models.IntegerField()
     text = models.TextField()
     time = models.DateTimeField()

@@ -11,6 +11,7 @@ DATABASES = {
         'NAME': 'hgtest',
         'USER': 'hgtest',
         'CONN_MAX_AGE': 60,
+        'ATOMIC_REQUESTS': True,
     },
 }
 CACHES = {

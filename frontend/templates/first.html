@@ -25,14 +25,14 @@
             </thead>
             <tbody v-if="objs">
             <template v-for="challenge in challenges">
-                <tr>
+                <tr :class="{'highlight-row': objs.challenges[challenge.pk].user===user.pk}">
                     <td>{{ challenge.name }}</td>
-                    <td style="word-break: break-all">{{ objs.challenges[challenge.pk].user }}</td>
+                    <td style="word-break: break-all">{{ users[objs.challenges[challenge.pk].user] }}</td>
                     <td style="word-break: keep-all">{{ objs.challenges[challenge.pk].time }}</td>
                 </tr>
-                <tr v-if="challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags">
+                <tr v-if="challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags" :class="{'highlight-row': objs.flags[[challenge.pk, flag_index]].user===user.pk}">
                     <td>{{ challenge.name }}/{{ flag.name }}</td>
-                    <td style="word-break: break-all">{{ objs.flags[[challenge.pk, flag_index]].user }}</td>
+                    <td style="word-break: break-all">{{ users[objs.flags[[challenge.pk, flag_index]].user] }}</td>
                     <td style="word-break: keep-all">{{ objs.flags[[challenge.pk, flag_index]].time }}</td>
                 </tr>
             </template>
@@ -44,6 +44,7 @@
     {{ filters|json_script:'json-filters' }}
     {{ groups|json_script:'json-groups' }}
     {{ users|json_script:'json-users' }}
+    {{ user_.json|json_script:'json-user' }}
     {{ challenges|json_script:'json-challenges' }}
     <script>
     app = new Vue({
@@ -52,6 +53,7 @@
             filters: JSON.parse(document.getElementById('json-filters').textContent),
             groups: JSON.parse(document.getElementById('json-groups').textContent),
             users: JSON.parse(document.getElementById('json-users').textContent),
+            user: JSON.parse(document.getElementById('json-user').textContent),
             challenges: JSON.parse(document.getElementById('json-challenges').textContent),
             objs: undefined,
         },
@@ -72,13 +74,13 @@
                         }
                         for (let i of challenges) {
                             objs.challenges[i.challenge] = {
-                                user: this.users[i.user],
+                                user: i.user,
                                 time: new Date(i.time).toLocaleString(),
                             };
                         }
                         for (let i of flags) {
                             objs.flags[[i.challenge, i.flag]] = {
-                                user: this.users[i.user],
+                                user: i.user,
                                 time: new Date(i.time).toLocaleString(),
                             };
                         }

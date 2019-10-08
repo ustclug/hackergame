@@ -15,6 +15,7 @@
             <label for="token">Token:</label>
             <input type="text" id="token" :value="user.token" readonly>
             <button onclick="token_copy()">复制</button>
+            Token 是一些题目的登录凭证，禁止分享，否则视为作弊
         </div>
         <div v-if="user&&progress.scores.find(i=>i.category===null)" class="msg-info">
             <a :href="`/board/?group=${encodeURIComponent(user.group)}`">

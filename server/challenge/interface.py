@@ -194,6 +194,24 @@ class Challenge:
             } for flag in flags]
 
     @classmethod
+    def regen_all(cls, context):
+        """重算所有缓存，只有通过命令行提权后才能调用"""
+        User.test_permission(context)
+        models.User.objects.all().delete()
+        models.Expr.objects.all().delete()
+        models.ExprFlag.objects.all().delete()
+        for challenge in cls.get_all(context):
+            for i, flag in enumerate(challenge.flags):
+                if flag['type'] != 'expr':
+                    continue
+                challenge._obj.expr_set.create(flag_index=i, expr=flag['flag'])
+        for user in User.get_all(context):
+            if not user.token:
+                continue
+            cls._add_user(user.pk)
+            models.User.objects.create(user=user.pk)
+
+    @classmethod
     def _add_expr(cls, expr):
         from .expr_flags import expr_flag
         if models.Expr.objects.filter(expr=expr).exists():
