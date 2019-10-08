@@ -51,7 +51,7 @@ class GetChallenge(Console.GetChallengeView):
         if response['Code'] == 'OK':
             return JsonResponse({})
         else:
-            return JsonResponse({'error': 'fail'}, status=500)
+            return JsonResponse({'error': 'fail'}, status=400)
 
 
 class Sms(Console):
