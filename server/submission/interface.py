@@ -3,7 +3,7 @@ from datetime import timedelta
 from server.challenge.interface import Challenge
 from server.user.interface import User
 from server.context import Context
-from server.exceptions import Error, WrongFormat
+from server.exceptions import Error, NotFound, WrongFormat
 from . import models
 
 
@@ -245,6 +245,33 @@ class Submission:
         )
 
     @classmethod
+    def regen_all(cls, context):
+        """重算所有缓存，只有通过命令行提权后才能调用"""
+        User.test_permission(context)
+        for obj in models.Submission.objects.all():
+            try:
+                obj.group = User.get(context, obj.user).group
+                obj.save()
+            except NotFound:
+                pass
+        for obj in models.FlagClear.objects.all():
+            try:
+                user = User.get(context, obj.user)
+                obj.group = user.group
+                challenge = Challenge.get(context, obj.challenge)
+                if obj.flag not in range(len(challenge.flags)):
+                    raise NotFound
+                obj.save()
+            except NotFound:
+                obj.delete()
+        for challenge in Challenge.get_all(context):
+            cls._regen_challenge_clear(challenge)
+        models.ChallengeFirst.objects.all().delete()
+        models.FlagFirst.objects.all().delete()
+        cls._refill_first()
+        cls._regen_score()
+
+    @classmethod
     def _refill_first(cls):
         """尝试把 ChallengeFirst 和 FlagFirst 中的空位都填上"""
         for challenge in Challenge.get_all(Context(elevated=True)):
@@ -300,7 +327,22 @@ class Submission:
                                cs[i.challenge]['category'])
 
     @classmethod
+    def _regen_challenge_clear(cls, challenge: Challenge):
+        models.ChallengeClear.objects.filter(challenge=challenge.pk).delete()
+        for i in (
+            models.FlagClear.objects
+            .filter(challenge=challenge.pk)
+            .values('user', 'group')
+            .annotate(count=models.models.Count('flag'),
+                      time=models.models.Max('time'))
+        ):
+            if i.pop('count') == len(challenge.flags):
+                models.ChallengeClear.objects.create(challenge=challenge.pk,
+                                                     **i)
+
+    @classmethod
     def _challenge_event(cls, old, new):
+        context = Context(elevated=True)
         if old is None:
             return
         if new is None:
@@ -312,19 +354,9 @@ class Submission:
                 cls._regen_score()
             return
         if len(new['flags']) != len(old['flags']):
-            models.ChallengeClear.objects.filter(challenge=old['pk']).delete()
             models.FlagClear.objects.filter(
                 challenge=old['pk'], flag__gte=len(new['flags'])).delete()
-            for i in (
-                models.FlagClear.objects
-                .filter(challenge=old['pk'])
-                .values('user', 'group')
-                .annotate(count=models.models.Count('flag'),
-                          time=models.models.Max('time'))
-            ):
-                if i.pop('count') == len(new['flags']):
-                    models.ChallengeClear.objects.create(challenge=old['pk'],
-                                                         **i)
+            cls._regen_challenge_clear(Challenge.get(context, old['pk']))
             models.ChallengeFirst.objects.filter(challenge=old['pk']).delete()
             models.FlagFirst.objects.filter(challenge=old['pk']).delete()
             cls._refill_first()
