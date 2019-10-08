@@ -28,9 +28,6 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Database
-ATOMIC_REQUESTS = True
-
 # Static
 STATIC_URL = '/static/'
 

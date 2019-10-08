@@ -257,7 +257,7 @@ class Submission:
                     first = (
                         cls._filter_group(models.ChallengeClear.objects, group)
                         .filter(challenge=challenge.pk)
-                        .earlist('time')
+                        .earliest('time')
                     )
                     models.ChallengeFirst.objects.create(
                         challenge=challenge.pk,
@@ -277,7 +277,7 @@ class Submission:
                         first = (
                             cls._filter_group(models.FlagClear.objects, group)
                             .filter(challenge=challenge.pk, flag=flag)
-                            .earlist('time')
+                            .earliest('time')
                         )
                         models.FlagFirst.objects.create(
                             challenge=challenge.pk,

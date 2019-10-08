@@ -11,6 +11,7 @@ DATABASES = {
         'NAME': 'hackergame',
         'USER': 'hackergame',
         'CONN_MAX_AGE': 60,
+        'ATOMIC_REQUESTS': True,
     },
 }
 CACHES = {
