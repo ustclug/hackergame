@@ -28,7 +28,7 @@
             </tr>
             </thead>
             <tbody v-if="objs">
-            <tr v-for="(obj, obj_index) in objs" v-bind:class="{ 'highlight-row': obj.user==user.pk }">
+            <tr v-for="(obj, obj_index) in objs" :class="{'highlight-row': obj.user===user.pk}">
                 <td>{{ obj_index + 1 }}</td>
                 <td style="word-break: break-all">{{ users[obj.user] }}</td>
                 <td>{{ obj.score }}</td>

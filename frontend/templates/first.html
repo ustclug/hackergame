@@ -25,13 +25,12 @@
             </thead>
             <tbody v-if="objs">
             <template v-for="challenge in challenges">
-                <tr v-bind:class="{ 'highlight-row': objs.challenges[challenge.pk].user==user.pk }">
+                <tr :class="{'highlight-row': objs.challenges[challenge.pk].user===user.pk}">
                     <td>{{ challenge.name }}</td>
                     <td style="word-break: break-all">{{ users[objs.challenges[challenge.pk].user] }}</td>
                     <td style="word-break: keep-all">{{ objs.challenges[challenge.pk].time }}</td>
                 </tr>
-                <tr v-if="challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags"
-                        v-bind:class="{ 'highlight-row': objs.flags[[challenge.pk, flag_index]].user==user.pk }">
+                <tr v-if="challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags" :class="{'highlight-row': objs.flags[[challenge.pk, flag_index]].user===user.pk}">
                     <td>{{ challenge.name }}/{{ flag.name }}</td>
                     <td style="word-break: break-all">{{ users[objs.flags[[challenge.pk, flag_index]].user] }}</td>
                     <td style="word-break: keep-all">{{ objs.flags[[challenge.pk, flag_index]].time }}</td>
