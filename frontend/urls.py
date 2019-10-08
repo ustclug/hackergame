@@ -23,6 +23,8 @@ urlpatterns = [
     path('admin/user/', views.UserAdminView.as_view()),
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.socialaccount.providers.google.urls')),
-    path('accounts/', include('allauth.socialaccount.providers.microsoft.urls')),
-    re_path(r'^accounts/confirm-email/(?P<key>[-:\w]+)/$', confirm_email, name='account_confirm_email'),
+    path('accounts/',
+         include('allauth.socialaccount.providers.microsoft.urls')),
+    re_path(r'^accounts/confirm-email/(?P<key>[-:\w]+)/$', confirm_email,
+            name='account_confirm_email'),
 ]

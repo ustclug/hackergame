@@ -43,6 +43,9 @@ AUTHENTICATION_BACKENDS = [
 # Database
 ATOMIC_REQUESTS = True
 
+# Site
+SITE_ID = 1
+
 # Static
 STATIC_URL = '/static/'
 
