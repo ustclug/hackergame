@@ -183,7 +183,7 @@ class User:
 
     @property
     def display_name(self):
-        return f'{self.nickname}.{self._obj.hash}'
+        return self.nickname
 
     @property
     def nickname(self):
