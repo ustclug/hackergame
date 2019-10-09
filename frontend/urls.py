@@ -19,8 +19,6 @@ urlpatterns = [
     path('accounts/', include('frontend.auth_providers.sms')),
     path('accounts/', include('allauth.socialaccount.providers.google.urls')),
     path('accounts/', include('allauth.socialaccount.providers.microsoft.urls')),
-    path('accounts/confirm-email/<key>/', allauth.account.views.confirm_email,
-         name='account_confirm_email'),
 
     path('admin/announcement/', views.AnnouncementAdminView.as_view()),
     path('admin/challenge/', views.ChallengeAdminView.as_view()),
