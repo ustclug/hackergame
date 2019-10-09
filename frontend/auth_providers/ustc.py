@@ -43,7 +43,6 @@ class LoginView(View):
             account.user = User.create(
                 Context.from_request(request),
                 group='ustc',
-                nickname=identity,
                 sno=result.find(cas + 'user').text.strip(),
             ).user
             account.save()

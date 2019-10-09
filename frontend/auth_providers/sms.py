@@ -44,7 +44,6 @@ class LoginView(View):
             account.user = User.create(
                 Context.from_request(request),
                 group='other',
-                nickname=identity,
                 tel=identity,
             ).user
             account.save()

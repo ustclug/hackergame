@@ -38,7 +38,6 @@ class LoginView(View):
             account.user = User.create(
                 Context.from_request(request),
                 group='nankai',
-                nickname=identity.partition('@')[0],
                 email=identity,
             ).user
             account.save()

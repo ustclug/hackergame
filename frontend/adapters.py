@@ -8,5 +8,5 @@ class SocialAccountAdapter(DefaultSocialAccountAdapter):
         super().save_user(request, sociallogin, form)
         user = sociallogin.user
         User.create(Context.from_request(request), 'other', user,
-                    nickname=user.username, email=user.email)
+                    email=user.email)
         return user
