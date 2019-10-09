@@ -1,8 +1,7 @@
 from django.contrib import admin
-from django.urls import path, include, re_path
-from allauth.account.views import confirm_email
+from django.urls import path, include
+import allauth.account.views
 
-from apps import otp
 from . import views
 
 urlpatterns = [
@@ -14,7 +13,14 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('terms/', views.TermsView.as_view(), name='terms'),
-    path('otp/', otp.site.urls),
+
+    path('accounts/', include('frontend.auth_providers.ustc')),
+    path('accounts/', include('frontend.auth_providers.nankai')),
+    path('accounts/', include('frontend.auth_providers.sms')),
+    path('accounts/', include('allauth.socialaccount.providers.google.urls')),
+    path('accounts/', include('allauth.socialaccount.providers.microsoft.urls')),
+    path('accounts/confirm-email/<key>/', allauth.account.views.confirm_email),
+
     path('admin/announcement/', views.AnnouncementAdminView.as_view()),
     path('admin/challenge/', views.ChallengeAdminView.as_view()),
     path('admin/submission/', views.SubmissionAdminView.as_view()),
@@ -22,9 +28,4 @@ urlpatterns = [
     path('admin/trigger/', views.TriggerAdminView.as_view()),
     path('admin/user/', views.UserAdminView.as_view()),
     path('admin/', admin.site.urls),
-    path('accounts/', include('allauth.socialaccount.providers.google.urls')),
-    path('accounts/',
-         include('allauth.socialaccount.providers.microsoft.urls')),
-    re_path(r'^accounts/confirm-email/(?P<key>[-:\w]+)/$', confirm_email,
-            name='account_confirm_email'),
 ]

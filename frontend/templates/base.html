@@ -63,9 +63,16 @@
                     <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
                         <span class="pure-button pure-button-primary">注册/登录</span>
                         <ul class="pure-menu-children">
-                            {% for backend in otp_backends %}
-                                <li class="pure-menu-item"><a href="{{ backend.login_url }}" class="pure-menu-link">{{ backend.name }}</a></li>
-                            {% endfor %}
+                            <li class="pure-menu-item"><a href="/accounts/ustc/login/" class="pure-menu-link">中国科学技术大学</a></li>
+                            <li class="pure-menu-item"><a href="/accounts/nankai/login/" class="pure-menu-link">南开大学</a></li>
+                            <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
+                                <a href="#" class="pure-menu-link">其他选手</a>
+                                <ul class="pure-menu-children">
+                                    <li class="pure-menu-item"><a href="/accounts/sms/login/" class="pure-menu-link">手机号码登录</a></li>
+                                    <li class="pure-menu-item"><a href="/accounts/google/login/" class="pure-menu-link">Google 账号登录</a></li>
+                                    <li class="pure-menu-item"><a href="/accounts/microsoft/login/" class="pure-menu-link">Microsoft 账号登录</a></li>
+                                </ul>
+                            </li>
                         </ul>
                     </li>
                 {% endif %}

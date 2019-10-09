@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'axios.min.js' %}"></script>
+    <script>
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+    </script>
+{% endblock %}
+
+{% block content %}
+    {% block form %}
+        {% block info %}{% endblock %}
+        <h1>{% block heading %}登录{% endblock %}</h1>
+        <form id="app" class="pure-form pure-form-aligned" method="post">
+            {% csrf_token %}
+            <div class="pure-control-group">
+                {% block identity %}
+                    <label for="identity">用户名</label>
+                    <input type="text" id="identity" name="identity" v-model="identity" required>
+                {% endblock %}
+                {% verbatim %}
+                    <button type="button" class="pure-button pure-button" @click="get_code()" :disabled="get_code_disabled">{{ get_code_text }}</button>
+                {% endverbatim %}
+            </div>
+            <div class="pure-control-group">
+                <label for="code">校验码</label>
+                <input type="tel" id="code" name="code" autocomplete="off" required>
+            </div>
+            <div class="pure-controls">
+                <button type="submit" class="pure-button pure-button-primary">登录</button>
+            </div>
+        </form>
+    {% endblock %}
+    <script>
+        app = new Vue({
+            el: '#app',
+            data: {
+                identity: '',
+                get_code_disabled: false,
+                get_code_text: '获取校验码',
+            },
+            methods: {
+                get_code() {
+                    this.get_code_disabled = true;
+                    axios.post('../get_code/', {identity: this.identity})
+                        .then(() => {
+                            this.get_code_text = '校验码已发送';
+                        })
+                        .catch(({response: {data: {error}}}) => {
+                            alert(error);
+                            this.get_code_disabled = false;
+                        });
+                },
+            },
+        });
+    </script>
+{% endblock %}

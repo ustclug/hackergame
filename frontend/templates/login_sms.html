@@ -1,0 +1,10 @@
+{% extends 'login_base.html' %}
+
+{% block info %}<div class="msg-info">只支持中国大陆手机号码</div>{% endblock %}
+
+{% block heading %}手机号码登录{% endblock %}
+
+{% block identity %}
+<label for="identity">手机号码</label>
+<input type="tel" id="identity" name="identity" minlength="11" maxlength="11" v-model="identity" required>
+{% endblock %}

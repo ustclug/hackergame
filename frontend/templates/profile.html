@@ -20,7 +20,7 @@
             <label for="nickname">昵称</label>
             <input type="text" id="nickname" name="nickname" v-model="nickname" required>
         </div>
-        <template v-if="user.group==='ustc'">
+        <template v-if="['ustc', 'nankai'].includes(user.group)">
             <div class="msg-info">
                 请正确填写以下信息以便赛后联系、颁奖
             </div>

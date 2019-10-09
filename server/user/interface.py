@@ -7,7 +7,6 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, EmailValidator
 
-from apps import otp
 from server.exceptions import Error, NotFound, WrongArguments, WrongFormat
 from . import models
 
@@ -37,8 +36,12 @@ class User:
                    'display_name', 'nickname', 'name', 'sno', 'tel',
                    'email', 'token')
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email')
-    groups = {k: v.name for k, v in otp.site.backends_dict.items()}
-    groups['staff'] = '管理员'
+    groups = {
+        'staff': '管理员',
+        'ustc': '中国科学技术大学',
+        'nankai': '南开大学',
+        'other': '其他选手',
+    }
     subscribers = []
     _validators = {
         'group': group_validator,
@@ -79,8 +82,9 @@ class User:
             raise ProfileRequired()
 
     @classmethod
-    def create(cls, context, group, **kwargs):
-        user = get_user_model().objects.create_user(str(uuid4()))
+    def create(cls, context, group, user=None, **kwargs):
+        if user is None:
+            user = get_user_model().objects.create_user(str(uuid4()))
         self = cls(context.copy(user=user), models.User(user=user.pk))
         pk = str(user.pk)
         sig = base64.b64encode(OpenSSL.crypto.sign(

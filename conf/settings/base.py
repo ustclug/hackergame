@@ -10,7 +10,6 @@ INSTALLED_APPS = [
     'server.terms.apps.TermsConfig',
     'server.trigger.apps.TriggerConfig',
     'server.user.apps.UserConfig',
-    'apps.otp.apps.OtpConfig',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -54,7 +53,6 @@ TEMPLATES = [
         'OPTIONS': {
             'context_processors': [
                 'frontend.context_processors.frontend',
-                'apps.otp.context_processors.otp',
                 'django.template.context_processors.debug',
                 'django.template.context_processors.i18n',
                 'django.template.context_processors.request',
@@ -78,13 +76,7 @@ USE_TZ = True
 TIME_ZONE = 'Asia/Shanghai'
 LANGUAGE_CODE = 'zh-Hans'
 
-# otp
-LOGIN_REDIRECT_URL = 'hub'
-OTP_BACKENDS = [
-    'apps.otp.backends.ustc_cas.Ustc',
-    'apps.otp.backends.nankai_email.Nankai',
-    'apps.otp.backends.sms.Sms',
-]
-
 # allauth
+LOGIN_REDIRECT_URL = 'hub'
 SOCIALACCOUNT_QUERY_EMAIL = True
+SOCIALACCOUNT_ADAPTER = 'frontend.adapters.SocialAccountAdapter'
