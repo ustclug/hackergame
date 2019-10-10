@@ -4,7 +4,7 @@
 <html lang="{{ LANGUAGE_CODE }}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=600, initial-scale=1">
     <title>{% block title %}{{ page.title }}{% endblock %}</title>
     <meta name="description" content="{% block description %}{{ page.description }}{% endblock %}">
     <meta name="keywords" content="{% block keywords %}{{ page.keywords }}{% endblock %}">
@@ -51,7 +51,7 @@
                 {% endif %}
                 {% if user_ %}
                     <li class="pure-menu-item">
-                        <a class="pure-button" href="{% url 'profile' %}">修改个人信息</a>
+                        <a class="pure-button" href="{% url 'profile' %}">个人信息</a>
                     </li>
                     <li class="pure-menu-item">
                         <form action="{% url 'logout' %}" method="post">
