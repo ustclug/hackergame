@@ -39,14 +39,15 @@
                 <thead>
                     <tr>
                         <th>题目</th>
-                        <th>分数</th>
-                        <th>完成人数</th>
+                        <th></th>
+                        <th class="center narrow">分数</th>
+                        <th class="center narrow">完成人数</th>
                     </tr>
                 </thead>
                 <tbody v-if="challenges_error">
-                    <tr><td colspan="3" class="center">（{{ challenges_error.message }}）</td></tr>
+                    <tr><td colspan="4" class="center">（{{ challenges_error.message }}）</td></tr>
                     <tr v-if="user.is_staff">
-                        <td colspan="3" class="center"><a href="/admin/">管理</a></td>
+                        <td colspan="4" class="center"><a href="/admin/">管理</a></td>
                     </tr>
                 </tbody>
                 <tbody v-else>
@@ -57,11 +58,11 @@
                                 <i v-else-if="challenge.flags.length<=1" class="far fa-circle fa-fw"></i>
                                 <i v-else-if="challenge===opened" class="fas fa-caret-down fa-fw"></i>
                                 <i v-else class="fas fa-caret-right fa-fw"></i>
-                                <span class="category" :style="{backgroundColor: category_color(challenge.category)}">{{ challenge.category }}</span>
                                 {{ challenge.name }}
                             </td>
-                            <td>{{ challenge.score }}</td>
-                            <td>{{ (clear_count.challenges.find(i=>i.challenge===challenge.pk)||{count:0}).count }}</td>
+                            <td class="center narrow"><span class="category" :style="{backgroundColor: category_color(challenge.category)}">{{ challenge.category }}</span></td>
+                            <td class="center narrow">{{ challenge.score }}</td>
+                            <td class="center narrow">{{ (clear_count.challenges.find(i=>i.challenge===challenge.pk)||{count:0}).count }}</td>
                         </tr>
                         <tr v-if="challenge===opened && challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags" class="flag">
                             <td>
@@ -70,12 +71,13 @@
                                 <i v-else class="far fa-circle fa-fw"></i>
                                 {{ flag.name }}
                             </td>
-                            <td>{{ flag.score }}</td>
-                            <td>{{ (clear_count.flags.find(i=>i.challenge===challenge.pk&&i.flag===flag_index)||{count:0}).count }}</td>
+                            <td></td>
+                            <td class="center narrow">{{ flag.score }}</td>
+                            <td class="center narrow">{{ (clear_count.flags.find(i=>i.challenge===challenge.pk&&i.flag===flag_index)||{count:0}).count }}</td>
                         </tr>
                     </template>
                     <tr v-if="user.is_staff">
-                        <td colspan="3" class="center"><a href="/admin/">管理</a></td>
+                        <td colspan="4" class="center"><a href="/admin/">管理</a></td>
                     </tr>
                 </tbody>
             </table>
