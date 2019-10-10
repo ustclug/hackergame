@@ -28,6 +28,7 @@ class LoginView(View):
             account.user = User.create(
                 Context.from_request(request),
                 group={
+                    'debug': 'other',
                     'ustc': 'ustc',
                     'nankai': 'nankai',
                     'sms': 'other',

@@ -4,7 +4,6 @@ from django.core.management.base import BaseCommand
 from django.db.transaction import atomic
 from django.utils import timezone
 
-from apps.otp.models import Device
 from server.challenge.interface import Challenge
 from server.submission.interface import Submission
 from server.terms.interface import Terms
@@ -13,6 +12,7 @@ from server.user.interface import User
 from server.context import Context
 from server.exceptions import NotFound
 from server.submission.interface import SlowDown
+from ...models import Account
 
 
 class Command(BaseCommand):
@@ -34,12 +34,12 @@ class Command(BaseCommand):
     def handle(self, fake_complex_challenges, fake_simple_challenges,
                fake_users, fake_submissions, game_started_seconds,
                **options):
-        root = User.create(Context(), group='console', nickname='root').user
+        root = User.create(Context(), group='other', nickname='root').user
         root.is_staff = True
         root.is_superuser = True
         root.save()
         root.refresh_from_db()
-        Device.objects.create(backend='console', identity='root', user=root)
+        Account.objects.create(provider='debug', identity='root', user=root)
 
         c1 = Challenge.create(
             Context(root),
@@ -120,8 +120,11 @@ class Command(BaseCommand):
                 sno='PB11111111',
                 tel='123456789',
                 email='foo@example.com',
+                gender=random.choice(('female', 'male')),
             )
             Terms.get(Context(u.user), terms.pk).agree(u.pk)
+            Account.objects.create(provider='debug', identity=f'{i}',
+                                   user=u.user)
 
         users = [i.pk for i in User.get_all(Context(root))]
         challenges = [i.pk for i in Challenge.get_all(Context(root))]
