@@ -1,10 +1,28 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+{% endblock %}
 
 {% block content %}
-    {% for announcement in announcements %}
-        <div v-if="announcement" class="msg-info">
-            <small>{{ announcement.time|date }}{{ announcement.time|time }}</small>
-            <div>{{ announcement.content|safe }}</div>
+    <h1>公告</h1>
+    {% verbatim %}
+    <div id="app">
+        <div v-for="announcement in announcements" class="msg-info">
+            <div v-html="announcement.content"></div>
+            <small>{{ new Date(announcement.time).toLocaleString() }}</small>
         </div>
-    {% endfor %}
+    </div>
+    {% endverbatim %}
+    {{ announcements|json_script:'json-announcements' }}
+    <script>
+        app = new Vue({
+            el: '#app',
+            data: {
+                announcements: JSON.parse(document.getElementById('json-announcements').textContent),
+            },
+        });
+    </script>
 {% endblock %}

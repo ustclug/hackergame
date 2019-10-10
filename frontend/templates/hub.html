@@ -11,27 +11,28 @@
 {% block content %}
     {% verbatim %}
     <div id="app">
+        <div v-if="announcement" class="msg-info">
+            <div v-html="announcement.content"></div>
+            <small>{{ new Date(announcement.time).toLocaleString() }}</small>
+            <a href="/announcements/">查看所有公告</a>
+        </div>
         <div v-if="user" class="msg-info">
             <label for="token">Token:</label>
             <input type="text" id="token" :value="user.token" readonly>
             <button onclick="token_copy()">复制</button>
             Token 是一些题目的登录凭证，禁止分享，否则视为作弊
-        </div>
-        <div v-if="user&&progress.scores.find(i=>i.category===null)" class="msg-info">
-            <a :href="`/board/?group=${encodeURIComponent(user.group)}`">
+            <a v-if="progress.scores.find(i=>i.category===null)" :href="`/board/?group=${encodeURIComponent(user.group)}`">
+                <br>
                 当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
                 {{ groups[user.group] }}组内排名：{{ ranking.ranking }} / {{ ranking.total }}
-            </a><br>
-            <template v-for="(category, category_index) in categories">
+            </a>
+            <template v-if="progress.scores.find(i=>i.category===null)" v-for="(category, category_index) in categories">
+                <br>
                 {{ category_index ? '，' : '' }}
                 <a :href="`/board/?category=${encodeURIComponent(category)}`">
                     {{ category }}：{{ (progress.scores.find(i=>i.category===category)||{score:0}).score }}
                 </a>
             </template>
-        </div>
-        <div v-if="announcement" class="msg-info">
-            <div><p v-html="announcement.content"></p></div>
-            <a href="/announcements/">查看所有公告</a>
         </div>
         <div class="challenges">
             <table class="pure-table pure-table-horizontal">
@@ -81,7 +82,7 @@
         </div>
         <div v-if="opened">
             <h1>{{ opened.name }}</h1>
-            <div><p v-html="opened.detail.replace('{token}', encodeURIComponent(user.token))"></p></div>
+            <div v-html="opened.detail.replace('{token}', encodeURIComponent(user.token))"></div>
             <form class="pure-form" method="post" :key="opened.pk">
                 {% endverbatim %}{% csrf_token %}{% verbatim %}
                 <a v-if="opened.url" class="pure-button pure-input-rounded" target="_blank" :href="opened.url.replace('{token}', encodeURIComponent(user.token))">打开题目</a>
@@ -90,9 +91,7 @@
                 <button type="submit" class="pure-button pure-button-primary pure-input-rounded">提交</button>
             </form>
         </div>
-        <div v-else>
-            <p v-html="page_content"></p>
-        </div>
+        <div v-else v-html="page_content"></div>
     </div>
     {% endverbatim %}
     {{ challenges|json_script:'json-challenges' }}

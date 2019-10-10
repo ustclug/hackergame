@@ -71,7 +71,7 @@ class AnnouncementsView(View):
     def get(self, request):
         context = Context.from_request(request)
         return TemplateResponse(request, 'announcements.html', {
-            'announcements': Announcement.get_all(context),
+            'announcements': [i.json for i in Announcement.get_all(context)],
         })
 
 
