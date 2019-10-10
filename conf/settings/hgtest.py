@@ -2,7 +2,7 @@ from .base import *
 
 DEBUG = False
 ALLOWED_HOSTS = ['hgtest.lug.ustc.edu.cn']
-STATIC_ROOT = '/var/opt/hackergame/static'
+STATIC_ROOT = '/var/opt/hgtest/static'
 
 DATABASES = {
     'default': {
