@@ -7,7 +7,7 @@ server {
     error_log /var/log/nginx/hgtest.error.log;
 
     location /static {
-        root /var/opt/hackergame;
+        root /var/opt/hgtest;
     }
     location / {
         uwsgi_pass unix:///run/uwsgi/app/hgtest/socket;
