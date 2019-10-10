@@ -34,13 +34,20 @@ def group_validator(group):
 class User:
     json_fields = ('pk', 'is_staff', 'group', 'profile_ok',
                    'display_name', 'nickname', 'name', 'sno', 'tel',
-                   'email', 'token')
-    update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email')
+                   'email', 'gender', 'token')
+    update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email',
+                     'gender')
     groups = {
         'staff': '管理员',
         'ustc': '中国科学技术大学',
         'nankai': '南开大学',
         'other': '其他选手',
+    }
+    profile_required = {
+        'staff': ['nickname'],
+        'ustc': ['nickname', 'name', 'sno', 'tel', 'email', 'gender'],
+        'nankai': ['nickname', 'name', 'sno', 'tel', 'email'],
+        'other': ['nickname'],
     }
     subscribers = []
     _validators = {
@@ -50,6 +57,8 @@ class User:
         'sno': RegexValidator(r'^[a-zA-Z0-9]{4,10}$', '学号格式错误'),
         'tel': RegexValidator(r'^.{5,20}$', '电话格式错误'),
         'email': EmailValidator('邮箱格式错误'),
+        'gender': RegexValidator(r'^(female|male|other)$',
+                                 '性别应为 female，male，other 之一'),
     }
     _private_key = OpenSSL.crypto.load_privatekey(
         OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
@@ -120,7 +129,8 @@ class User:
 
     def _update(self, **kwargs):
         for k, v in kwargs.items():
-            if k in {'group', 'nickname', 'name', 'sno', 'tel', 'email'}:
+            if k in {'group', 'nickname', 'name', 'sno', 'tel', 'email',
+                     'gender'}:
                 v = v or None
                 try:
                     v is None or self._validators[k](v)
@@ -157,18 +167,9 @@ class User:
 
     @property
     def profile_ok(self):
-        if self.nickname is None:
-            return False
-        if self.group not in {'ustc', 'nankai'}:
-            return True
-        if self.name is None:
-            return False
-        if self.sno is None:
-            return False
-        if self.tel is None:
-            return False
-        if self.email is None:
-            return False
+        for field in self.profile_required[self.group]:
+            if getattr(self, field) is None:
+                return False
         return True
 
     @property
@@ -218,6 +219,12 @@ class User:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full')
         return self._obj.email
+
+    @property
+    def gender(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full')
+        return self._obj.gender
 
     @property
     def token(self):

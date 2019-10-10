@@ -115,7 +115,9 @@ class ProfileView(View):
             User.test_authenticated(Context.from_request(request))
         except LoginRequired:
             return redirect('hub')
-        return TemplateResponse(request, 'profile.html')
+        return TemplateResponse(request, 'profile.html', {
+            'profile_required': User.profile_required,
+        })
 
     def post(self, request):
         try:

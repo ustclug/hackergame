@@ -14,66 +14,67 @@
 {% block content %}
     <h1>修改资料</h1>
     {% verbatim %}
-    <form id="app" class="pure-form pure-form-aligned" @submit.prevent="submit()">
-        {% endverbatim %}{% csrf_token %}{% verbatim %}
-        <div class="pure-control-group">
+    <form id="app" class="pure-form pure-form-aligned" @submit.prevent="submit">
+        <div v-if="user.hasOwnProperty('nickname')" class="pure-control-group">
             <label for="nickname">昵称</label>
-            <input type="text" id="nickname" name="nickname" v-model="nickname" required>
+            <input type="text" id="nickname" name="nickname" v-model="user.nickname" required>
         </div>
-        <template v-if="['ustc', 'nankai'].includes(user.group)">
-            <div class="msg-info">
-                请正确填写以下信息以便赛后联系、颁奖
-            </div>
-            <div class="pure-control-group">
-                <label for="name">姓名</label>
-                <input type="text" id="name" name="name" v-model="name" required>
-            </div>
-            <div class="pure-control-group">
-                <label for="sno">学号</label>
-                <input type="text" id="sno" name="sno" v-model="sno" required>
-            </div>
-            <div class="pure-control-group">
-                <label for="tel">电话</label>
-                <input type="tel" id="tel" name="tel" v-model="tel" required>
-            </div>
-            <div class="pure-control-group">
-                <label for="email">邮箱</label>
-                <input type="email" id="email" name="email" v-model="email" required>
-            </div>
-        </template>
+        <div v-if="user.hasOwnProperty('name')" class="pure-control-group">
+            <label for="name">姓名</label>
+            <input type="text" id="name" name="name" v-model="user.name" required>
+        </div>
+        <div v-if="user.hasOwnProperty('sno')" class="pure-control-group">
+            <label for="sno">学号</label>
+            <input type="text" id="sno" name="sno" v-model="user.sno" required>
+        </div>
+        <div v-if="user.hasOwnProperty('tel')" class="pure-control-group">
+            <label for="tel">电话</label>
+            <input type="tel" id="tel" name="tel" v-model="user.tel" required>
+        </div>
+        <div v-if="user.hasOwnProperty('email')" class="pure-control-group">
+            <label for="email">邮箱</label>
+            <input type="email" id="email" name="email" v-model="user.email" required>
+        </div>
+        <div v-if="user.hasOwnProperty('gender')" class="pure-control-group">
+            <label for="gender">性别</label>
+            <select id="gender" name="gender" v-model="user.gender" required>
+                <option value=""></option>
+                <option value="male">男</option>
+                <option value="female">女</option>
+                <option value="other">其他</option>
+            </select>
+        </div>
         <div class="pure-controls">
             <button type="submit" class="pure-button pure-button-primary" :disabled="submit_disabled">确认</button>
         </div>
     </form>
     {% endverbatim %}
-    {{ user_.json|json_script:'user' }}
+    {{ user_.json|json_script:'json-user' }}
+    {{ profile_required|json_script:'json-profile_required' }}
     <script>
-        user = JSON.parse(document.getElementById('user').textContent);
+        let _user = JSON.parse(document.getElementById('json-user').textContent);
+        let profile_required = JSON.parse(document.getElementById('json-profile_required').textContent);
+        let user = {};
+        for (let field of profile_required[_user.group]) {
+            user[field] = _user[field];
+        }
         app = new Vue({
             el: '#app',
             data: {
-                nickname: user.nickname,
-                name: user.name,
-                sno: user.sno,
-                tel: user.tel,
-                email: user.email,
+                user,
                 submit_disabled: false,
             },
             methods: {
-                submit: function () {
+                submit() {
                     this.submit_disabled = true;
-                    axios.post('.', {
-                        nickname: this.nickname,
-                        name: this.name,
-                        sno: this.sno,
-                        tel: this.tel,
-                        email: this.email,
-                    }).then(function (response) {
-                        location = '/';
-                    }).catch(function (error) {
-                        alert(error.response.data.error.message);
-                        app.submit_disabled = false;
-                    });
+                    axios.post('.', user)
+                        .then(() => {
+                            location.href = '/';
+                        })
+                        .catch(({response: {data: {error}}}) => {
+                            alert(error && error.message);
+                            this.submit_disabled = false;
+                        });
                 },
             },
         });
