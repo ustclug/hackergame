@@ -3,51 +3,42 @@ from urllib.request import urlopen
 from xml.etree import ElementTree
 
 from django.contrib import messages
-from django.contrib.auth import login
 from django.shortcuts import redirect
 from django.urls import path
-from django.views import View
 
-from server.user.interface import User
-from server.context import Context
-from ..models import Account
-
-backend = 'django.contrib.auth.backends.ModelBackend'
-cas_login_url = 'https://passport.ustc.edu.cn/login?'
-cas_validate_url = 'https://passport.ustc.edu.cn/serviceValidate?'
-service_path = '/accounts/ustc/login/'
+from .base import BaseLoginView
 
 
-# noinspection PyMethodMayBeStatic
-class LoginView(View):
+class LoginView(BaseLoginView):
+    provider = 'ustc'
+    group = 'ustc'
+    service: str
+    ticket: str
+    sno: str
+
     def get(self, request):
-        service = request.build_absolute_uri(service_path)
-        ticket = request.GET.get('ticket')
-        if not ticket:
-            url = cas_login_url + urlencode({'service': service})
-            return redirect(url)
-        url = cas_validate_url + urlencode({'service': service,
-                                            'ticket': ticket})
-        with urlopen(url) as req:
-            result = ElementTree.fromstring(req.read())[0]
-        cas = '{http://www.yale.edu/tp/cas}'
-        if result.tag != cas + 'authenticationSuccess':
-            messages.error(request, '登录失败')
-            return redirect('hub')
-        identity = result.find('attributes').find(cas + 'gid').text.strip()
-        account, created = Account.objects.get_or_create(
-            provider='ustc',
-            identity=identity,
-        )
-        if not account.user:
-            account.user = User.create(
-                Context.from_request(request),
-                group='ustc',
-                sno=result.find(cas + 'user').text.strip(),
-            ).user
-            account.save()
-        login(request, account.user, backend)
+        self.service = request.build_absolute_uri('/accounts/ustc/login/')
+        self.ticket = request.GET.get('ticket')
+        if not self.ticket:
+            return redirect('https://passport.ustc.edu.cn/login?' +
+                            urlencode({'service': self.service}))
+        if self.check_ticket():
+            self.login(sno=self.sno)
         return redirect('hub')
+
+    def check_ticket(self):
+        with urlopen(
+            'https://passport.ustc.edu.cn/serviceValidate?' +
+            urlencode({'service': self.service, 'ticket': self.ticket})
+        ) as req:
+            tree = ElementTree.fromstring(req.read())[0]
+        cas = '{http://www.yale.edu/tp/cas}'
+        if tree.tag != cas + 'authenticationSuccess':
+            messages.error(self.request, '登录失败')
+            return False
+        self.identity = tree.find('attributes').find(cas + 'gid').text.strip()
+        self.sno = tree.find(cas + 'user').text.strip()
+        return True
 
 
 urlpatterns = [

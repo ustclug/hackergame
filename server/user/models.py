@@ -10,6 +10,7 @@ class User(models.Model):
     tel = models.TextField(null=True)
     email = models.TextField(null=True)
     gender = models.TextField(null=True)
+    qq = models.TextField(null=True)
     token = models.TextField()
 
     class Meta:

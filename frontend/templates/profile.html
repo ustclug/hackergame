@@ -15,34 +15,41 @@
     <h1>修改资料</h1>
     {% verbatim %}
     <form id="app" class="pure-form pure-form-aligned" @submit.prevent="submit">
-        <div v-if="user.hasOwnProperty('nickname')" class="pure-control-group">
+        <div v-if="info.length" class="msg-info">
+            <div v-for="i in info">{{ i }}</div>
+        </div>
+        <div v-if="fields.nickname!==undefined" class="pure-control-group">
             <label for="nickname">昵称</label>
-            <input type="text" id="nickname" name="nickname" v-model="user.nickname" required>
+            <input type="text" id="nickname" name="nickname" v-model="user.nickname" :required="fields.nickname">
         </div>
-        <div v-if="user.hasOwnProperty('name')" class="pure-control-group">
+        <div v-if="fields.name!==undefined" class="pure-control-group">
             <label for="name">姓名</label>
-            <input type="text" id="name" name="name" v-model="user.name" required>
+            <input type="text" id="name" name="name" v-model="user.name" :required="fields.name">
         </div>
-        <div v-if="user.hasOwnProperty('sno')" class="pure-control-group">
+        <div v-if="fields.sno!==undefined" class="pure-control-group">
             <label for="sno">学号</label>
-            <input type="text" id="sno" name="sno" v-model="user.sno" required>
+            <input type="text" id="sno" name="sno" v-model="user.sno" :required="fields.sno">
         </div>
-        <div v-if="user.hasOwnProperty('tel')" class="pure-control-group">
+        <div v-if="fields.tel!==undefined" class="pure-control-group">
             <label for="tel">电话</label>
-            <input type="tel" id="tel" name="tel" v-model="user.tel" required>
+            <input type="tel" id="tel" name="tel" v-model="user.tel" :required="fields.tel">
         </div>
-        <div v-if="user.hasOwnProperty('email')" class="pure-control-group">
+        <div v-if="fields.email!==undefined" class="pure-control-group">
             <label for="email">邮箱</label>
-            <input type="email" id="email" name="email" v-model="user.email" required>
+            <input type="email" id="email" name="email" v-model="user.email" :required="fields.email">
         </div>
-        <div v-if="user.hasOwnProperty('gender')" class="pure-control-group">
+        <div v-if="fields.gender!==undefined" class="pure-control-group">
             <label for="gender">性别</label>
-            <select id="gender" name="gender" v-model="user.gender" required>
+            <select id="gender" name="gender" v-model="user.gender" :required="fields.gender">
                 <option value=""></option>
                 <option value="male">男</option>
                 <option value="female">女</option>
                 <option value="other">其他</option>
             </select>
+        </div>
+        <div v-if="fields.qq!==undefined" class="pure-control-group">
+            <label for="qq">QQ</label>
+            <input type="text" id="qq" name="qq" v-model="user.qq" :required="fields.qq">
         </div>
         <div class="pure-controls">
             <button type="submit" class="pure-button pure-button-primary" :disabled="submit_disabled">确认</button>
@@ -52,16 +59,35 @@
     {{ user_.json|json_script:'json-user' }}
     {{ profile_required|json_script:'json-profile_required' }}
     <script>
-        let _user = JSON.parse(document.getElementById('json-user').textContent);
+        let user = JSON.parse(document.getElementById('json-user').textContent);
         let profile_required = JSON.parse(document.getElementById('json-profile_required').textContent);
-        let user = {};
-        for (let field of profile_required[_user.group]) {
-            user[field] = _user[field];
+        let fields_required = {};
+        let info = [];
+        for (let field of profile_required[user.group]) {
+            if (field.startsWith('/')) {
+                let fields = field.slice(1).split('/');
+                let minimum = Number(fields.pop());
+                fields.forEach(i => (fields_required[i] = false));
+                const names = {
+                    nickname: '昵称',
+                    name: '姓名',
+                    sno: '学号',
+                    tel: '电话',
+                    email: '邮箱',
+                    gender: '性别',
+                    qq: 'QQ',
+                };
+                info.push(fields.map(i => names[i]).join('、') + ` 至少填 ${minimum} 项`);
+            } else {
+                fields_required[field] = true;
+            }
         }
         app = new Vue({
             el: '#app',
             data: {
                 user,
+                fields: fields_required,
+                info,
                 submit_disabled: false,
             },
             methods: {

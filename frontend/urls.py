@@ -15,7 +15,12 @@ urlpatterns = [
 
     path('accounts/', include('frontend.auth_providers.debug')),
     path('accounts/', include('frontend.auth_providers.ustc')),
+    path('accounts/', include('frontend.auth_providers.jlu')),
     path('accounts/', include('frontend.auth_providers.nankai')),
+    path('accounts/', include('frontend.auth_providers.bupt')),
+    path('accounts/', include('frontend.auth_providers.cqu')),
+    path('accounts/', include('frontend.auth_providers.hit')),
+    path('accounts/', include('frontend.auth_providers.neu')),
     path('accounts/', include('frontend.auth_providers.sms')),
     path('accounts/', include('allauth.socialaccount.providers.google.urls')),
     path('accounts/', include('allauth.socialaccount.providers.microsoft.urls')),

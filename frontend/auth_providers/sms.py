@@ -1,23 +1,16 @@
 import json
 
 from django.conf import settings
-from django.contrib import messages
-from django.contrib.auth import login
-from django.http.response import JsonResponse
+from django.core.validators import RegexValidator
 from django.shortcuts import redirect
-from django.template.response import TemplateResponse
 from django.urls import path
-from django.views import View
 
 import aliyunsdkcore.acs_exception.exceptions
 import aliyunsdkcore.client
 import aliyunsdkcore.request
 
-from server.user.interface import User
-from server.context import Context
-from ..models import Account, Code
+from .base import BaseLoginView, BaseGetCodeView
 
-backend = 'django.contrib.auth.backends.ModelBackend'
 client = aliyunsdkcore.client.AcsClient(
     settings.SMS_ACCESS_KEY_ID,
     settings.SMS_ACCESS_KEY_SECRET,
@@ -25,47 +18,22 @@ client = aliyunsdkcore.client.AcsClient(
 )
 
 
-# noinspection PyMethodMayBeStatic
-class LoginView(View):
-    def get(self, request):
-        return TemplateResponse(request, 'login_sms.html')
+class LoginView(BaseLoginView):
+    template_name = 'login_sms.html'
+    provider = 'sms'
+    group = 'other'
 
     def post(self, request):
-        identity = request.POST.get('identity')
-        code = request.POST.get('code')
-        if not Code.authenticate('sms', identity, code):
-            messages.error(request, '校验码错误')
-            return redirect('hub')
-        account, created = Account.objects.get_or_create(
-            provider='sms',
-            identity=identity,
-        )
-        if not account.user:
-            account.user = User.create(
-                Context.from_request(request),
-                group='other',
-                tel=identity,
-            ).user
-            account.save()
-        login(request, account.user, backend)
+        if self.check_code():
+            self.login(tel=self.identity)
         return redirect('hub')
 
 
-# noinspection PyMethodMayBeStatic
-class GetCodeView(View):
-    def post(self, request):
-        identity = json.loads(request.body).get('identity')
-        try:
-            assert isinstance(identity, str)
-            assert all(c in '0123456789' for c in identity)
-            assert len(identity) == 11
-            assert identity[0] == '1'
-        except AssertionError:
-            return JsonResponse({'error': '手机号码格式错误'}, status=400)
-        try:
-            code = Code.generate('sms', identity)
-        except Code.TooMany:
-            return JsonResponse({'error': '校验码发送过于频繁'}, status=429)
+class GetCodeView(BaseGetCodeView):
+    provider = 'sms'
+    validate_identity = RegexValidator(r'^1[0-9]{10}$', '手机号码格式错误')
+
+    def send(self, identity, code):
         request = aliyunsdkcore.request.CommonRequest()
         request.set_accept_format('json')
         request.set_domain('dysmsapi.aliyuncs.com')
@@ -77,15 +45,10 @@ class GetCodeView(View):
         request.add_query_param('PhoneNumbers', identity)
         request.add_query_param('SignName', 'Hackergame')
         request.add_query_param('TemplateCode', 'SMS_168560438')
-        request.add_query_param('TemplateParam', json.dumps({
-            'code': code.code,
-        }))
+        request.add_query_param('TemplateParam', json.dumps({'code': code}))
         response = json.loads(client.do_action_with_exception(request))
-        print(response)
-        if response['Code'] == 'OK':
-            return JsonResponse({})
-        else:
-            return JsonResponse({'error': '校验码发送失败'}, status=400)
+        if response['Code'] != 'OK':
+            raise ValueError(response['Code'])
 
 
 urlpatterns = [

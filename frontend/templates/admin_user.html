@@ -37,6 +37,19 @@
                     <label for="form-email">邮箱:</label>
                     <input class="vTextField" type="email" id="form-email" name="email" v-model="opened.email">
                 </div>
+                <div class="form-row">
+                    <label for="form-gender">性别:</label>
+                    <select id="form-gender" name="gender" v-model="opened.gender">
+                        <option value=""></option>
+                        <option value="male">男</option>
+                        <option value="female">女</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                <div class="form-row">
+                    <label for="form-qq">QQ:</label>
+                    <input class="vTextField" type="text" id="form-qq" name="qq" v-model="opened.qq">
+                </div>
             </fieldset>
             <div class="submit-row" v-show="!opened_disabled">
                 <input type="submit" class="default" value="保存">
@@ -55,6 +68,8 @@
                         <th scope="col"><div class="text"><span>学号</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>电话</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>邮箱</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>性别</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>QQ</span></div><div class="clear"></div></th>
                     </tr>
                     </thead>
                     <tbody v-if="objs">
@@ -67,6 +82,8 @@
                         <td>{{ obj.sno }}</td>
                         <td>{{ obj.tel }}</td>
                         <td>{{ obj.email }}</td>
+                        <td>{{ {'':'','female':'女','male':'男','other':'其他'}[obj.gender] }}</td>
+                        <td>{{ obj.qq }}</td>
                     </tr>
                     </tbody>
                 </table>

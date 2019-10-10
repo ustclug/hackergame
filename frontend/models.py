@@ -40,7 +40,7 @@ class Code(models.Model):
         pass
 
     @classmethod
-    def generate(cls, provider, identity, period=timedelta(minutes=10),
+    def generate(cls, provider, identity, duration=timedelta(minutes=10),
                  limit=3):
         if cls.objects.filter(
             provider=provider,
@@ -52,8 +52,8 @@ class Code(models.Model):
             provider=provider,
             identity=identity,
             code=str(randrange(100000, 1000000)),
-            expiration=now() + period,
-        )
+            expiration=now() + duration,
+        ).code
 
     @classmethod
     def authenticate(cls, provider, identity, code):

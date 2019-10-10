@@ -34,19 +34,29 @@ def group_validator(group):
 class User:
     json_fields = ('pk', 'is_staff', 'group', 'profile_ok',
                    'display_name', 'nickname', 'name', 'sno', 'tel',
-                   'email', 'gender', 'token')
+                   'email', 'gender', 'qq', 'token')
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email',
-                     'gender')
+                     'gender', 'qq')
     groups = {
         'staff': '管理员',
         'ustc': '中国科学技术大学',
+        'jlu': '吉林大学',
         'nankai': '南开大学',
+        'bupt': '北京邮电大学',
+        'cqu': '重庆大学',
+        'hit': '哈尔滨工业大学',
+        'neu': '东北大学',
         'other': '其他选手',
     }
     profile_required = {
         'staff': ['nickname'],
         'ustc': ['nickname', 'name', 'sno', 'tel', 'email', 'gender'],
-        'nankai': ['nickname', 'name', 'sno', 'tel', 'email'],
+        'jlu': ['nickname', 'sno', 'email'],
+        'nankai': ['nickname', 'name', 'sno', 'tel'],
+        'bupt': ['nickname'],
+        'cqu': ['nickname', 'sno'],
+        'hit': ['nickname', 'sno', '/qq/tel/1'],
+        'neu': ['nickname'],
         'other': ['nickname'],
     }
     subscribers = []
@@ -54,11 +64,13 @@ class User:
         'group': group_validator,
         'nickname': RegexValidator(r'^.{1,30}$', '昵称应为 1～30 个字符'),
         'name': RegexValidator(r'^.{2,30}$', '姓名应为 2～30 个字符'),
-        'sno': RegexValidator(r'^[a-zA-Z0-9]{4,10}$', '学号格式错误'),
+        'sno': RegexValidator(r'^[a-zA-Z0-9]{4,30}$', '学号格式错误'),
         'tel': RegexValidator(r'^.{5,20}$', '电话格式错误'),
         'email': EmailValidator('邮箱格式错误'),
         'gender': RegexValidator(r'^(female|male|other)$',
                                  '性别应为 female，male，other 之一'),
+        # QQ 号码可能是邮箱的形式，或许还有别的形式，所以用比较宽松的规则
+        'qq': RegexValidator(r'^.{5,50}$', 'QQ 号码格式错误'),
     }
     _private_key = OpenSSL.crypto.load_privatekey(
         OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
@@ -130,7 +142,7 @@ class User:
     def _update(self, **kwargs):
         for k, v in kwargs.items():
             if k in {'group', 'nickname', 'name', 'sno', 'tel', 'email',
-                     'gender'}:
+                     'gender', 'qq'}:
                 v = v or None
                 try:
                     v is None or self._validators[k](v)
@@ -168,8 +180,16 @@ class User:
     @property
     def profile_ok(self):
         for field in self.profile_required[self.group]:
-            if getattr(self, field) is None:
-                return False
+            if field.startswith('/'):
+                # 这种记法表示 N 选 K
+                *fields, minimum = field[1:].split('/')
+                count = sum(getattr(self, i) is not None for i in fields)
+                if count < int(minimum):
+                    return False
+            else:
+                # 普通的必填字段
+                if getattr(self, field) is None:
+                    return False
         return True
 
     @property
@@ -225,6 +245,12 @@ class User:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full')
         return self._obj.gender
+
+    @property
+    def qq(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full')
+        return self._obj.qq
 
     @property
     def token(self):

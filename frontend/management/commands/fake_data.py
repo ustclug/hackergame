@@ -121,6 +121,7 @@ class Command(BaseCommand):
                 tel='123456789',
                 email='foo@example.com',
                 gender=random.choice(('female', 'male')),
+                qq='12345',
             )
             Terms.get(Context(u.user), terms.pk).agree(u.pk)
             Account.objects.create(provider='debug', identity=f'{i}',

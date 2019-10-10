@@ -121,8 +121,10 @@ class ProfileView(View):
 
     def post(self, request):
         try:
+            kwargs = json.loads(request.body)
+            kwargs = {k: kwargs[k] for k in kwargs if k in User.update_fields}
             user = User.get(Context.from_request(request), request.user.pk)
-            user.update(**json.loads(request.body))
+            user.update(**kwargs)
             return JsonResponse({})
         except WrongFormat as e:
             return JsonResponse({'error': e.json}, status=400)

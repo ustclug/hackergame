@@ -9,9 +9,9 @@ from .base import BaseLoginView, BaseGetCodeView, DomainEmailValidator
 
 class LoginView(BaseLoginView):
     template_name = 'login_email.html'
-    template_context = {'provider_name': '南开大学'}
-    provider = 'nankai'
-    group = 'nankai'
+    template_context = {'provider_name': '北京邮电大学'}
+    provider = 'bupt'
+    group = 'bupt'
 
     def post(self, request):
         if self.check_code():
@@ -20,9 +20,9 @@ class LoginView(BaseLoginView):
 
 
 class GetCodeView(BaseGetCodeView):
-    provider = 'nankai'
+    provider = 'bupt'
     duration = timedelta(hours=1)
-    validate_identity = DomainEmailValidator('mail.nankai.edu.cn')
+    validate_identity = DomainEmailValidator('bupt.edu.cn')
 
     def send(self, identity, code):
         url = self.request.build_absolute_uri("/")
@@ -34,6 +34,6 @@ class GetCodeView(BaseGetCodeView):
 
 
 urlpatterns = [
-    path('nankai/login/', LoginView.as_view()),
-    path('nankai/get_code/', GetCodeView.as_view()),
+    path('bupt/login/', LoginView.as_view()),
+    path('bupt/get_code/', GetCodeView.as_view()),
 ]
