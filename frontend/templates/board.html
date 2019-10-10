@@ -17,7 +17,7 @@
     {% verbatim %}
     <div id="app">
         <h1>{{ filters.category?`${filters.category} 类`:'' }}{{ filters.group?groups[filters.group]:'总' }}排名</h1>
-        <div id="chart" style="height:300px">（正在加载）</div>
+        <div v-if="!filters.category" id="chart" style="height:300px">（正在加载）</div>
         <table class="pure-table pure-table-horizontal center">
             <thead>
             <tr class="center">
@@ -61,7 +61,9 @@
                 axios.post('/admin/submission/', {method: 'get_board', args: {limit: 100, ...this.filters}})
                     .then(({data: {value}}) => {
                         this.objs = value;
-                        drawchart();
+                        if (!this.filters.category) {
+                            drawchart();
+                        }
                     })
                     .catch(({response: {data: {error}}}) => {
                         alert(error && error.message);
