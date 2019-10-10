@@ -63,6 +63,9 @@
                     <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
                         <span class="pure-button pure-button-primary">注册/登录</span>
                         <ul class="pure-menu-children">
+                            {% if debug %}
+                                <li class="pure-menu-item"><a href="/accounts/debug/login/" class="pure-menu-link">调试登录</a></li>
+                            {% endif %}
                             <li class="pure-menu-item"><a href="/accounts/ustc/login/" class="pure-menu-link">中国科学技术大学</a></li>
                             <li class="pure-menu-item"><a href="/accounts/nankai/login/" class="pure-menu-link">南开大学</a></li>
                             <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">

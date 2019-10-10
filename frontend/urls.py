@@ -13,6 +13,7 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('terms/', views.TermsView.as_view(), name='terms'),
 
+    path('accounts/', include('frontend.auth_providers.debug')),
     path('accounts/', include('frontend.auth_providers.ustc')),
     path('accounts/', include('frontend.auth_providers.nankai')),
     path('accounts/', include('frontend.auth_providers.sms')),

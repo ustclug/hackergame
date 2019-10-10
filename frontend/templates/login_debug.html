@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>调试登录</h1>
+    <form class="pure-form" method="post">
+        {% csrf_token %}
+        <select name="provider" required>
+            <option value="ustc">中国科学技术大学 GID</option>
+            <option value="nankai">南开大学邮箱</option>
+            <option value="sms" selected>手机号码</option>
+        </select>
+        <input type="text" name="identity" required>
+        <button type="submit" class="pure-button pure-button-primary">登录</button>
+    </form>
+{% endblock %}

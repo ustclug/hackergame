@@ -1,6 +1,8 @@
 from server.user.interface import User
 from server.context import Context
 
+from django.conf import settings
+
 from .models import Page
 
 
@@ -12,4 +14,5 @@ def frontend(request):
             if request.user.is_authenticated else None
         ),
         'groups': User.groups,
+        'debug': settings.DEBUG,
     }
