@@ -29,7 +29,7 @@
             </a>
             <template v-if="progress.scores.find(i=>i.category===null)" v-for="(category, category_index) in categories">
                 {{ category_index ? '，' : '' }}
-                <a :href="`/board/?category=${encodeURIComponent(category)}`">
+                <a :href="`/board/?category=${encodeURIComponent(category)}&group=${encodeURIComponent(user.group)}`">
                     {{ category }}：{{ (progress.scores.find(i=>i.category===category)||{score:0}).score }}
                 </a>
             </template>
