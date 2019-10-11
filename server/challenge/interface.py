@@ -10,9 +10,9 @@ from . import models
 
 class Challenge:
     json_fields = ('pk', 'score', 'enabled', 'name', 'category',
-                   'detail', 'url', 'prompt', 'index', 'flags')
-    update_fields = ('enabled', 'name', 'category', 'detail', 'url',
-                     'prompt', 'index', 'flags')
+                   'detail', 'file', 'url', 'prompt', 'index', 'flags')
+    update_fields = ('enabled', 'name', 'category', 'detail', 'file',
+                     'url', 'prompt', 'index', 'flags')
     subscribers = []
 
     def __init__(self, context, obj: models.Challenge):

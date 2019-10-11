@@ -1,4 +1,11 @@
+from uuid import uuid4
+
 from django.db import models
+
+
+# noinspection PyUnusedLocal
+def challenge_file_path(instance, filename):
+    return f'{uuid4()}/{filename}'
 
 
 class Challenge(models.Model):
@@ -7,6 +14,7 @@ class Challenge(models.Model):
     enabled = models.BooleanField()
     detail = models.TextField()
     url = models.TextField(null=True)
+    file = models.FileField(upload_to=challenge_file_path, null=True)
     prompt = models.TextField(null=True)
     index = models.IntegerField(db_index=True)
     flags = models.TextField()
