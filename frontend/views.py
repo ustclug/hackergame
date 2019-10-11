@@ -79,26 +79,34 @@ class AnnouncementsView(View):
 class BoardView(View):
     def get(self, request):
         context = Context.from_request(request)
-        return TemplateResponse(request, 'board.html', {
-            'filters': {
-                'category': request.GET.get('category', None),
-                'group': request.GET.get('group', None),
-            },
-            'users': {u.pk: u.display_name for u in User.get_all(context)},
-        })
+        try:
+            return TemplateResponse(request, 'board.html', {
+                'filters': {
+                    'category': request.GET.get('category', None),
+                    'group': request.GET.get('group', None),
+                },
+                'users': {u.pk: u.display_name for u in User.get_all(context)},
+            })
+        except Error as e:
+            messages.error(request, e.message)
+            return redirect('hub')
 
 
 # noinspection PyMethodMayBeStatic
 class FirstView(View):
     def get(self, request):
         context = Context.from_request(request)
-        return TemplateResponse(request, 'first.html', {
-            'filters': {
-                'group': request.GET.get('group', None),
-            },
-            'users': {u.pk: u.display_name for u in User.get_all(context)},
-            'challenges': [c.json for c in Challenge.get_enabled(context)],
-        })
+        try:
+            return TemplateResponse(request, 'first.html', {
+                'filters': {
+                    'group': request.GET.get('group', None),
+                },
+                'users': {u.pk: u.display_name for u in User.get_all(context)},
+                'challenges': [c.json for c in Challenge.get_enabled(context)],
+            })
+        except Error as e:
+            messages.error(request, e.message)
+            return redirect('hub')
 
 
 # noinspection PyMethodMayBeStatic
@@ -162,11 +170,15 @@ class BaseAdminView(View):
         return {}
 
     def get(self, request):
-        return TemplateResponse(request, self.template, {
-            **site.each_context(request),
-            **self.get_extra_context(Context.from_request(request)),
-            'title': self.title,
-        })
+        try:
+            return TemplateResponse(request, self.template, {
+                **site.each_context(request),
+                **self.get_extra_context(Context.from_request(request)),
+                'title': self.title,
+            })
+        except Error as e:
+            messages.error(request, e.message)
+            return redirect('hub')
 
     def post(self, request):
         body = json.loads(request.body)
