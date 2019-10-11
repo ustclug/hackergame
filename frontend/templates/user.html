@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'axios.min.js' %}"></script>
+    <script>
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+    </script>
+{% endblock %}
+
+{% block content %}
+    <h1>查询用户信息</h1>
+    {% verbatim %}
+    <form id="app" @submit.prevent="load">
+        <div>
+            <label for="pk">用户编号:</label>
+            <input type="number" id="pk" v-model="pk" required>
+            <button type="submit">查询</button>
+        </div>
+        <div v-if="obj">
+            <div>Token: {{ obj.token_short }}...</div>
+            <div>用户组: {{ groups[obj.group]||obj.group }}</div>
+            <div>昵称: {{ obj.nickname }}</div>
+            <div>姓名: {{ obj.name }}</div>
+            <div>学号: {{ obj.sno }}</div>
+            <div>电话: {{ obj.tel }}</div>
+            <div>邮箱: {{ obj.email }}</div>
+            <div>性别: {{ {'':'','female':'女','male':'男','other':'其他'}[obj.gender] }}</div>
+            <div>QQ: {{ obj.qq }}</div>
+        </div>
+    </form>
+    {% endverbatim %}
+    {{ groups|json_script:'json-groups' }}
+    <script>
+    app = new Vue({
+        el: '#app',
+        data: {
+            groups: JSON.parse(document.getElementById('json-groups').textContent),
+            pk: '',
+            obj: undefined,
+        },
+        methods: {
+            load() {
+                axios.post('/admin/user/', {method: 'get', args: {pk: Number(this.pk)}})
+                    .then(({data: {value}}) => {
+                        this.obj = value;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                    });
+            },
+        },
+    });
+    </script>
+{% endblock %}

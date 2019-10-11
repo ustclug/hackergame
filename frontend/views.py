@@ -148,6 +148,12 @@ class TermsView(View):
 
 
 # noinspection PyMethodMayBeStatic
+class UserView(View):
+    def get(self, request):
+        return TemplateResponse(request, 'user.html')
+
+
+# noinspection PyMethodMayBeStatic
 class BaseAdminView(View):
     title = None
     template = None
@@ -292,6 +298,9 @@ class TriggerAdminView(BaseAdminView):
 class UserAdminView(BaseAdminView):
     title = 'User'
     template = 'admin_user.html'
+
+    def do_get(self, context, pk):
+        return User.get(context, pk).json
 
     def do_get_all(self, context):
         return [obj.json for obj in User.get_all(context)]

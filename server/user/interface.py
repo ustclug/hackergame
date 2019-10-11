@@ -34,7 +34,7 @@ def group_validator(group):
 class User:
     json_fields = ('pk', 'is_staff', 'group', 'profile_ok',
                    'display_name', 'nickname', 'name', 'sno', 'tel',
-                   'email', 'gender', 'qq', 'token')
+                   'email', 'gender', 'qq', 'token', 'token_short')
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email',
                      'gender', 'qq')
     groups = {
@@ -257,3 +257,10 @@ class User:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context)
         return self._obj.token
+
+    @property
+    def token_short(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full')
+        token = self._obj.token
+        return token[: token.find(':') + 11]

@@ -12,6 +12,7 @@ urlpatterns = [
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('terms/', views.TermsView.as_view(), name='terms'),
+    path('user/', views.UserView.as_view()),
 
     path('accounts/', include('frontend.auth_providers.debug')),
     path('accounts/', include('frontend.auth_providers.ustc')),
