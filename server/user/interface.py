@@ -34,9 +34,10 @@ def group_validator(group):
 class User:
     json_fields = ('pk', 'is_staff', 'group', 'profile_ok',
                    'display_name', 'nickname', 'name', 'sno', 'tel',
-                   'email', 'gender', 'qq', 'token', 'token_short')
+                   'email', 'gender', 'qq', 'school', 'grade', 'token',
+                   'token_short')
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email',
-                     'gender', 'qq')
+                     'gender', 'qq', 'school', 'grade')
     groups = {
         'staff': '管理员',
         'ustc': '中国科学技术大学',
@@ -53,7 +54,7 @@ class User:
         'ustc': ['nickname', 'name', 'sno', 'tel', 'email', 'gender'],
         'jlu': ['nickname', 'sno', 'email'],
         'nankai': ['nickname', 'name', 'sno', 'tel'],
-        'bupt': ['nickname'],
+        'bupt': ['nickname', 'name', 'sno', 'gender', 'school', 'grade'],
         'cqu': ['nickname', 'sno'],
         'hit': ['nickname', 'sno', '/qq/tel/1'],
         'neu': ['nickname'],
@@ -71,6 +72,8 @@ class User:
                                  '性别应为 female，male，other 之一'),
         # QQ 号码可能是邮箱的形式，或许还有别的形式，所以用比较宽松的规则
         'qq': RegexValidator(r'^.{5,50}$', 'QQ 号码格式错误'),
+        'school': RegexValidator(r'^.{1,30}$', '学院格式错误'),
+        'grade': RegexValidator(r'^.{1,10}$', '年级格式错误'),
     }
     _private_key = OpenSSL.crypto.load_privatekey(
         OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
@@ -142,7 +145,7 @@ class User:
     def _update(self, **kwargs):
         for k, v in kwargs.items():
             if k in {'group', 'nickname', 'name', 'sno', 'tel', 'email',
-                     'gender', 'qq'}:
+                     'gender', 'qq', 'school', 'grade'}:
                 v = v or None
                 try:
                     v is None or self._validators[k](v)
@@ -257,6 +260,20 @@ class User:
             User.test_permission(self._context, 'user.full',
                                  f'user.view_{self.group}')
         return self._obj.qq
+
+    @property
+    def school(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
+        return self._obj.school
+
+    @property
+    def grade(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
+        return self._obj.grade
 
     @property
     def token(self):

@@ -51,6 +51,14 @@
             <label for="qq">QQ</label>
             <input type="text" id="qq" name="qq" v-model="user.qq" :required="fields.qq">
         </div>
+        <div v-if="fields.school!==undefined" class="pure-control-group">
+            <label for="school">学院</label>
+            <input type="text" id="school" name="school" v-model="user.school" :required="fields.school">
+        </div>
+        <div v-if="fields.grade!==undefined" class="pure-control-group">
+            <label for="grade">年级</label>
+            <input type="text" id="grade" name="grade" v-model="user.grade" :required="fields.grade">
+        </div>
         <div class="pure-controls">
             <button type="submit" class="pure-button pure-button-primary" :disabled="submit_disabled">确认</button>
         </div>
@@ -76,6 +84,8 @@
                     email: '邮箱',
                     gender: '性别',
                     qq: 'QQ',
+                    school: '学院',
+                    grade: '年级',
                 };
                 info.push(fields.map(i => names[i]).join('、') + ` 至少填 ${minimum} 项`);
             } else {

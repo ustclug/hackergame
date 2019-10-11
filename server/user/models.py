@@ -11,6 +11,8 @@ class User(models.Model):
     email = models.TextField(null=True)
     gender = models.TextField(null=True)
     qq = models.TextField(null=True)
+    school = models.TextField(null=True)
+    grade = models.TextField(null=True)
     token = models.TextField()
 
     class Meta:
