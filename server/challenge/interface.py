@@ -57,7 +57,10 @@ class Challenge:
         User.test_authenticated(context)
         User.test_profile(context)
         Terms.test_agreed_enabled(context)
-        Trigger.test_state(context)
+        try:
+            User.test_permission(context, 'challenge.full')
+        except PermissionRequired:
+            Trigger.test_state(context)
         queryset = models.Challenge.objects.filter(enabled=True)
         return [cls(context, obj) for obj in queryset]
 
