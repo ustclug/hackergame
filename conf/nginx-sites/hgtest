@@ -6,6 +6,9 @@ server {
     access_log /var/log/nginx/hgtest.log;
     error_log /var/log/nginx/hgtest.error.log;
 
+    location /media {
+        root /var/opt/hgtest;
+    }
     location /static {
         root /var/opt/hgtest;
     }

@@ -39,6 +39,9 @@ AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+# Media
+MEDIA_URL = '/media/'
+
 # Site
 SITE_ID = 1
 

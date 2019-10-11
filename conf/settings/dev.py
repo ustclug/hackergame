@@ -2,6 +2,7 @@ from .base import *
 
 DEBUG = True
 ALLOWED_HOSTS = ['*']
+MEDIA_ROOT = 'var/media'
 
 DATABASES = {
     'default': {

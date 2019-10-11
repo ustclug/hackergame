@@ -2,6 +2,7 @@ from .base import *
 
 DEBUG = False
 ALLOWED_HOSTS = ['hack.lug.ustc.edu.cn']
+MEDIA_ROOT = '/var/opt/hackergame/media'
 STATIC_ROOT = '/var/opt/hackergame/static'
 
 DATABASES = {

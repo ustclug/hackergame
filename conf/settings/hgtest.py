@@ -2,6 +2,7 @@ from .base import *
 
 DEBUG = False
 ALLOWED_HOSTS = ['hgtest.lug.ustc.edu.cn']
+MEDIA_ROOT = '/var/opt/hgtest/media'
 STATIC_ROOT = '/var/opt/hgtest/static'
 
 DATABASES = {
