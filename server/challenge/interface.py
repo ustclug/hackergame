@@ -35,7 +35,7 @@ class Challenge:
     def get(cls, context, pk):
         queryset = models.Challenge.objects.all()
         try:
-            User.test_permission(context, 'challenge.full')
+            User.test_permission(context, 'challenge.full', 'challenge.view')
         except PermissionRequired:
             User.test_authenticated(context)
             User.test_profile(context)
@@ -49,7 +49,7 @@ class Challenge:
 
     @classmethod
     def get_all(cls, context):
-        User.test_permission(context, 'challenge.full')
+        User.test_permission(context, 'challenge.full', 'challenge.view')
         return [cls(context, obj) for obj in models.Challenge.objects.all()]
 
     @classmethod
@@ -58,7 +58,7 @@ class Challenge:
         User.test_profile(context)
         Terms.test_agreed_enabled(context)
         try:
-            User.test_permission(context, 'challenge.full')
+            User.test_permission(context, 'challenge.full', 'challenge.view')
         except PermissionRequired:
             Trigger.test_state(context)
         queryset = models.Challenge.objects.filter(enabled=True)
@@ -188,7 +188,8 @@ class Challenge:
     def flags(self):
         flags = json.loads(self._obj.flags)
         try:
-            User.test_permission(self._context, 'challenge.full')
+            User.test_permission(self._context, 'challenge.full',
+                                 'challenge.view')
             return flags
         except PermissionRequired:
             return [{

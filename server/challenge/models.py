@@ -15,6 +15,7 @@ class Challenge(models.Model):
         default_permissions = ()
         permissions = [
             ('full', '管理题目'),
+            ('view', '查看题目'),
         ]
         ordering = ['index']
 

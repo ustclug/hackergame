@@ -116,7 +116,7 @@ class Submission:
 
     @classmethod
     def get_log(cls, context, start=None, limit=None):
-        User.test_permission(context, 'submission.full')
+        User.test_permission(context, 'submission.full', 'submission.view')
         return list(
             models.Submission.objects
             .order_by('-pk')
@@ -130,7 +130,7 @@ class Submission:
 
     @classmethod
     def get_violations(cls, context):
-        User.test_permission(context, 'submission.full')
+        User.test_permission(context, 'submission.full', 'submission.view')
         return list(models.FlagViolation.objects.values(
             user=models.models.F('submission__user'),
             challenge=models.models.F('submission__challenge'),

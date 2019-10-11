@@ -12,6 +12,7 @@ class Submission(models.Model):
         default_permissions = ()
         permissions = [
             ('full', '管理提交记录'),
+            ('view', '查看提交记录'),
         ]
 
 
