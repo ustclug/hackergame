@@ -131,7 +131,7 @@ class User:
 
     @classmethod
     def get_all(cls, context):
-        return [cls(context, obj) for obj in models.User.objects.all()]
+        return [cls(context, i) for i in models.User.objects.order_by('pk')]
 
     def update(self, **kwargs):
         if self._context.user.pk != self.pk:
