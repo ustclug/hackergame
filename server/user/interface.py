@@ -87,13 +87,13 @@ class User:
             raise LoginRequired()
 
     @classmethod
-    def test_permission(cls, context, permission=None):
+    def test_permission(cls, context, *permissions):
         if context.elevated:
             return
-        if permission is None:
-            raise PermissionRequired()
-        if not context.user.has_perm(permission):
-            raise PermissionRequired()
+        for permission in permissions:
+            if context.user.has_perm(permission):
+                return
+        raise PermissionRequired()
 
     @classmethod
     def test_profile(cls, context):
@@ -219,37 +219,43 @@ class User:
     @property
     def name(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
         return self._obj.name
 
     @property
     def sno(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
         return self._obj.sno
 
     @property
     def tel(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
         return self._obj.tel
 
     @property
     def email(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
         return self._obj.email
 
     @property
     def gender(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
         return self._obj.gender
 
     @property
     def qq(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
         return self._obj.qq
 
     @property
@@ -261,6 +267,7 @@ class User:
     @property
     def token_short(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
         token = self._obj.token
-        return token[: token.find(':') + 11]
+        return token[: token.find(':') + 11] + '...'

@@ -17,4 +17,11 @@ class User(models.Model):
         default_permissions = ()
         permissions = [
             ('full', '管理个人信息'),
+            ('view_ustc', '查看中国科学技术大学个人信息'),
+            ('view_jlu', '查看吉林大学个人信息'),
+            ('view_nankai', '查看南开大学个人信息'),
+            ('view_bupt', '查看北京邮电大学个人信息'),
+            ('view_cqu', '查看重庆大学个人信息'),
+            ('view_hit', '查看哈尔滨工业大学个人信息'),
+            ('view_neu', '查看东北大学个人信息'),
         ]
