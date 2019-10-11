@@ -39,8 +39,11 @@ class HubView(View):
             announcement = None
         if request.user.is_authenticated:
             user = User.get(context, request.user.pk)
-            ranking = Submission.get_user_ranking(context, request.user.pk,
-                                                  group=user.group)
+            if user.group == 'other':
+                ranking = Submission.get_user_ranking(context, request.user.pk)
+            else:
+                ranking = Submission.get_user_ranking(context, request.user.pk,
+                                                      group=user.group)
         else:
             ranking = {}
         return TemplateResponse(request, 'hub.html', {

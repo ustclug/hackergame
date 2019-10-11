@@ -21,17 +21,28 @@
             <input type="text" id="token" :value="user.token" readonly>
             <button onclick="token_copy()">复制</button>
             Token 是一些题目的登录凭证，禁止分享，否则视为作弊
-            <a v-if="progress.scores.find(i=>i.category===null)" :href="`/board/?group=${encodeURIComponent(user.group)}`">
-                <br>
-                当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
-                {{ groups[user.group] }}组内排名：{{ ranking.ranking }} / {{ ranking.total }}
-                <br>
-            </a>
-            <template v-if="progress.scores.find(i=>i.category===null)" v-for="(category, category_index) in categories">
-                {{ category_index ? '，' : '' }}
-                <a :href="`/board/?category=${encodeURIComponent(category)}&group=${encodeURIComponent(user.group)}`">
-                    {{ category }}：{{ (progress.scores.find(i=>i.category===category)||{score:0}).score }}
+            <template v-if="progress.scores.find(i=>i.category===null)">
+                <a v-if="user.group==='other'" href="/board/">
+                    <br>
+                    当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
+                    总排名：{{ ranking.ranking }} / {{ ranking.total }}
+                    <br>
                 </a>
+                <a v-else :href="`/board/?group=${encodeURIComponent(user.group)}`">
+                    <br>
+                    当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
+                    {{ groups[user.group] }}组内排名：{{ ranking.ranking }} / {{ ranking.total }}
+                    <br>
+                </a>
+                <template v-for="(category, category_index) in categories">
+                    {{ category_index ? '，' : '' }}
+                    <a v-if="user.group==='other'" :href="`/board/?category=${encodeURIComponent(category)}`">
+                        {{ category }}：{{ (progress.scores.find(i=>i.category===category)||{score:0}).score }}
+                    </a>
+                    <a v-else :href="`/board/?category=${encodeURIComponent(category)}&group=${encodeURIComponent(user.group)}`">
+                        {{ category }}：{{ (progress.scores.find(i=>i.category===category)||{score:0}).score }}
+                    </a>
+                </template>
             </template>
         </div>
         <div class="challenges">
