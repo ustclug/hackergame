@@ -20,7 +20,7 @@
             <label for="token">Token:</label>
             <button @click="token_show=!token_show">{{ token_show?'隐藏':'显示' }}</button>
             <input v-show="token_show" type="text" id="token" :value="user.token" readonly>
-            <button onclick="token_copy()">复制</button>
+            <button onclick="token_copy()">{{ token_copy_text }}</button>
             Token 是一些题目的登录凭证，禁止分享，否则视为作弊
             <template v-if="progress.scores.find(i=>i.category===null)">
                 <a v-if="user.group==='other'" href="/board/">
@@ -118,10 +118,19 @@
     {{ announcement|json_script:'json-announcement' }}
     <script>
         function token_copy() {
-            let copyText = document.getElementById("token");
-            copyText.select();
-            copyText.setSelectionRange(0, 99999);
-            document.execCommand("copy");
+            let t = app.token_show;
+            app.token_show = true;
+            Vue.nextTick(function () {
+                let copyText = document.getElementById("token");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999);
+                document.execCommand("copy");
+                app.token_show = t;
+                app.token_copy_text = '已复制';
+                setTimeout(function () {
+                    app.token_copy_text = '复制';
+                }, 1000);
+            });
         }
         let {value: challenges = [], error: challenges_error} =
             JSON.parse(document.getElementById('json-challenges').textContent);
@@ -147,6 +156,7 @@
                 announcement: JSON.parse(document.getElementById('json-announcement').textContent),
                 opened,
                 token_show: false,
+                token_copy_text: '复制',
             },
             computed: {
                 categories() {
