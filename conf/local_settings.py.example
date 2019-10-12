@@ -8,3 +8,4 @@ openssl req -x509 -key conf/local_settings.py -days 30
 GOOGLE_APP_SECRET = ''
 MICROSOFT_APP_SECRET = ''
 SMS_ACCESS_KEY_SECRET = ''
+SENDGRID_API_KEY = ''
