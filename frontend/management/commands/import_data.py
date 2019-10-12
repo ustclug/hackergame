@@ -4,16 +4,10 @@ import markdown
 
 from django.core.management.base import BaseCommand
 from django.db.transaction import atomic
-from django.utils import timezone
 
 from server.challenge.interface import Challenge
-from server.submission.interface import Submission
-from server.terms.interface import Terms
-from server.trigger.interface import Trigger
 from server.user.interface import User
 from server.context import Context
-from server.exceptions import NotFound
-from server.submission.interface import SlowDown
 from ...models import Account
 
 
@@ -90,7 +84,7 @@ class Command(BaseCommand):
                             'type': 'expr' if flag_flags[i].startswith('f"') else 'text',
                             'flag': flag_flags[i],
                         })
-                
+
                     Challenge.create(
                         Context(root),
                         name=metadata['title'],
