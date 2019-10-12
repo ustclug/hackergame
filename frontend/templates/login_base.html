@@ -46,12 +46,14 @@
             methods: {
                 get_code() {
                     this.get_code_disabled = true;
+                    this.get_code_text = '正在发送';
                     axios.post('../get_code/', {identity: this.identity})
                         .then(() => {
                             this.get_code_text = '校验码已发送';
                         })
                         .catch(({response: {data: {error}}}) => {
                             alert(error);
+                            this.get_code_text = '获取校验码';
                             this.get_code_disabled = false;
                         });
                 },
