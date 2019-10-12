@@ -67,6 +67,12 @@ class Command(BaseCommand):
                         shutil.copy(source, target)
                         url = '/media/' + url
 
+                    if 'extrafile' in metadata:
+                        for file in metadata['extrafile'].split(', '):
+                            source = dir / file
+                            target = pathlib.Path(files_dir) / file
+                            shutil.copy(source, target)
+
                     flag_flags = metadata['flag'].split(', ')
                     flag_scores = metadata['score'].split(', ')
                     if len(flag_flags) > 1:
