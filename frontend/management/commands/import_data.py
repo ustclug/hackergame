@@ -1,6 +1,6 @@
 import pathlib
 import shutil
-import markdown2
+import markdown
 
 from django.core.management.base import BaseCommand
 from django.db.transaction import atomic
@@ -89,7 +89,7 @@ class Command(BaseCommand):
                         Context(root),
                         name=metadata['title'],
                         category=metadata['category'],
-                        detail=markdown2.markdown(body),
+                        detail=markdown.markdown(body, extensions=['fenced_code']),
                         url=url,
                         prompt='flag{...}',
                         index=int(metadata['index']),
