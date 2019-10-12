@@ -57,7 +57,7 @@ class User:
         'bupt': ['nickname', 'name', 'sno', 'gender', 'school', 'grade'],
         'cqu': ['nickname', 'sno'],
         'hit': ['nickname', 'sno', '/qq/tel/1'],
-        'neu': ['nickname'],
+        'neu': ['nickname', 'name', 'sno'],
         'other': ['nickname'],
     }
     subscribers = []
