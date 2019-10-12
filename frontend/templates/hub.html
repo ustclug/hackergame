@@ -18,7 +18,8 @@
         </div>
         <div v-if="user" class="msg-info">
             <label for="token">Token:</label>
-            <input type="text" id="token" :value="user.token" readonly>
+            <button @click="token_show=!token_show">{{ token_show?'隐藏':'显示' }}</button>
+            <input v-show="token_show" type="text" id="token" :value="user.token" readonly>
             <button onclick="token_copy()">复制</button>
             Token 是一些题目的登录凭证，禁止分享，否则视为作弊
             <template v-if="progress.scores.find(i=>i.category===null)">
@@ -145,6 +146,7 @@
                 clear_count: JSON.parse(document.getElementById('json-clear_count').textContent),
                 announcement: JSON.parse(document.getElementById('json-announcement').textContent),
                 opened,
+                token_show: false,
             },
             computed: {
                 categories() {
