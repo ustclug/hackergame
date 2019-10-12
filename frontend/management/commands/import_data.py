@@ -34,8 +34,8 @@ class Command(BaseCommand):
         Account.objects.create(provider='debug', identity='root', user=root)
 
         for dir in pathlib.Path(source_dir).iterdir():
-            if dir.is_dir():
-                print(f'Processing {dir.name}')
+            if dir.is_dir() and not dir.name.startswith('.'):
+                print(f'Processing {dir.name}...', end=' ')
                 for file in dir.iterdir():
                     if file.name.upper() == 'README.MD':
                         readme = file
@@ -62,19 +62,22 @@ class Command(BaseCommand):
                 if 'enabled' in metadata and int(metadata['enabled']):
                     url = metadata['url']
                     if url and not url.startswith('http://'):
+                        source = dir / url
                         target = pathlib.Path(files_dir) / url
-                        shutil.copy(url, target)
+                        shutil.copy(source, target)
                         url = '/media/' + url
 
-                    flag_flags = metadata['flag'].split(',')
-                    flag_scores = metadata['score'].split(',')
+                    flag_flags = metadata['flag'].split(', ')
+                    flag_scores = metadata['score'].split(', ')
                     if len(flag_flags) > 1:
-                        flag_names = metadata['flagnames'].split(',')
+                        flag_names = metadata['flagnames'].split(', ')
                     else:
                         flag_names = ['']
 
                     flags = []
                     for i in range(len(flag_flags)):
+                        assert flag_flags[i].startswith('f"flag{{') or flag_flags[i].startswith('flag{')
+                        assert flag_flags[i].endswith('}}"') or flag_flags[i].endswith('}')
                         flags.append({
                             'name': flag_names[i],
                             'score': flag_scores[i],
