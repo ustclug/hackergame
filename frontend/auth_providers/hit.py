@@ -22,7 +22,7 @@ class LoginView(BaseLoginView):
 class GetCodeView(BaseGetCodeView):
     provider = 'hit'
     duration = timedelta(hours=1)
-    validate_identity = DomainEmailValidator('stu.hit.edu.cn')
+    validate_identity = DomainEmailValidator(('hit.edu.cn', 'stu.hit.edu.cn'))
 
     def send(self, identity, code):
         url = self.request.build_absolute_uri("/")
