@@ -1,4 +1,5 @@
 from datetime import timedelta
+import requests
 
 from django.conf import settings
 from django.core.mail import EmailMessage, get_connection
@@ -27,21 +28,23 @@ class GetCodeView(BaseGetCodeView):
 
     def send(self, identity, code):
         url = self.request.build_absolute_uri("/")
-        with get_connection(
-            backend='django.core.mail.backends.smtp.EmailBackend',
-            host='smtp.sendgrid.net',
-            port=587,
-            username='apikey',
-            password=settings.SENDGRID_API_KEY,
-            use_tls=True,
-            use_ssl=False,
-        ) as connection:
-            EmailMessage(
-                subject=f'登录校验码：{code}',
-                body=f'{code}\n请使用该校验码登录 {url}\n',
-                to=[identity],
-                connection=connection,
-            ).send()
+        requests.post(
+            url='https://api.sendgrid.com/v3/mail/send',
+            json={
+                'personalizations': [{
+                    'to': [{'email': identity}],
+                }],
+                'from': {
+                    'name': settings.DEFAULT_FROM_EMAIL_NAME,
+                    'email': settings.DEFAULT_FROM_EMAIL_EMAIL,
+                },
+                'subject': f'登录校验码：{code}',
+                'content': [{
+                    'type': 'text/plain',
+                    'value': f'{code}\n请使用该校验码登录 {url}\n',
+                }]},
+            headers={'Authorization': 'Bearer ' + settings.SENDGRID_API_KEY},
+        )
 
 
 urlpatterns = [
