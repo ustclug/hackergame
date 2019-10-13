@@ -1,109 +1,93 @@
+import markdown
 import pathlib
 import shutil
-import markdown
+import traceback
+import uuid
+import yaml
 
+from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.db.transaction import atomic
 
 from server.challenge.interface import Challenge
-from server.user.interface import User
 from server.context import Context
-from ...models import Account
+
+UUID_NAMESPACE = uuid.uuid5(
+    namespace=uuid.UUID('dcd82ef8-ab13-4942-829c-41aa47f1708b'),
+    name=settings.SECRET_KEY,
+)
 
 
 class Command(BaseCommand):
     help = '从题目仓库导入数据'
 
     def add_arguments(self, parser):
-        parser.add_argument('source_dir')
-        parser.add_argument('files_dir')
+        parser.add_argument('challenges_dir', type=pathlib.Path)
+        parser.add_argument('media_dir', type=pathlib.Path)
+        parser.add_argument('--dry-run', action='store_true')
 
+    # noinspection PyAttributeOutsideInit
     @atomic
-    def handle(self, source_dir, files_dir, **options):
-        root = User.create(Context(), group='other', nickname='root').user
-        root.is_staff = True
-        root.is_superuser = True
-        root.save()
-        root.refresh_from_db()
-        Account.objects.create(provider='debug', identity='root', user=root)
-
-        for dir in pathlib.Path(source_dir).iterdir():
-            if not dir.is_dir() or dir.name.startswith('.'):
+    def handle(self, challenges_dir, media_dir, dry_run=False, **options):
+        self.challenges_dir = challenges_dir
+        self.media_dir = media_dir
+        self.dry_run = dry_run
+        context = Context(elevated=True)
+        old_challenges = {i.name: i for i in Challenge.get_all(context)}
+        new_challenges = {}
+        for path in challenges_dir.iterdir():
+            if not path.is_dir() or path.name.startswith('.'):
                 continue
-            print(f'Processing {dir.name}...', end=' ')
-            for file in dir.iterdir():
-                if file.name.upper() == 'README.MD':
-                    readme = file
-                    break
+            # noinspection PyBroadException
+            try:
+                challenge = self.parse_challenge(path, media_dir)
+            except Exception as e:
+                msg = traceback.format_exception_only(type(e), e)[0].strip()
+                self.stdout.write(self.style.ERROR(f'{path.name}: {msg}'))
             else:
-                print('Readme file not found')
-                continue
-
-            with open(readme) as f:
-                lines = f.readlines()
-            if lines[0] != '---\n':
-                print('Header not found in readme')
-                continue
-            pos = lines.index('---\n', 1)
-            headers = lines[1:pos]
-            body = ''.join(lines[pos + 1:])
-            metadata = {}
-            for line in headers:
-                pos = line.find(':')
-                key = line[:pos].strip()
-                value = line[pos + 1:].strip()
-                metadata[key] = value
-
-            if not int(metadata.get('enabled', 0)):
-                print('Not enabled')
-                continue
-            url = metadata['url']
-            if url and not url.startswith('http://'):
-                source = dir / url
-                target = pathlib.Path(files_dir) / url
-                shutil.copy(source, target)
-                url = '/media/' + url
-
-            if 'extrafile' in metadata:
-                for file in metadata['extrafile'].split(', '):
-                    source = dir / file
-                    target = pathlib.Path(files_dir) / file
-                    shutil.copy(source, target)
-
-            flag_flags = metadata['flag'].split(', ')
-            flag_scores = metadata['score'].split(', ')
-            if len(flag_flags) > 1:
-                flag_names = metadata['flagnames'].split(', ')
+                new_challenges[challenge['name']] = challenge
+        self.stdout.write(f'Parsed {len(new_challenges)} challenges')
+        for name in new_challenges:
+            if name in old_challenges:
+                if not dry_run:
+                    old_challenges[name].update(**new_challenges[name])
+                self.stdout.write(f'{name}: ' + self.style.WARNING('updated'))
             else:
-                flag_names = ['']
+                if not dry_run:
+                    Challenge.create(context, **new_challenges[name])
+                self.stdout.write(f'{name}: ' + self.style.SUCCESS('created'))
+        for name in old_challenges:
+            if name not in new_challenges:
+                if not dry_run:
+                    old_challenges[name].delete()
+                self.stdout.write(f'{name}: ' + self.style.NOTICE('deleted'))
 
-            flags = []
-            for i in range(len(flag_flags)):
-                if flag_flags[i].startswith('f"'):
-                    assert flag_flags[i].startswith('f"flag{{')
-                    assert flag_flags[i].endswith('}}"')
-                    flag_type = 'expr'
-                else:
-                    assert flag_flags[i].startswith('flag{')
-                    assert flag_flags[i].endswith('}')
-                    flag_type = 'text'
-                flags.append({
-                    'name': flag_names[i],
-                    'score': flag_scores[i],
-                    'type': flag_type,
-                    'flag': flag_flags[i],
-                })
-
-            Challenge.create(
-                Context(root),
-                name=metadata['title'],
-                category=metadata['category'],
-                detail=markdown.markdown(body, extensions=['fenced_code']),
-                url=url,
-                prompt='flag{...}',
-                index=int(metadata['index']),
-                enabled=True,
-                flags=flags,
-            )
-
-            print('Succeeded')
+    def parse_challenge(self, path, media_dir):
+        # default values
+        challenge = {
+            'enabled': True,
+            'name': path.name,
+            'category': None,
+            'url': None,
+            'prompt': 'flag{...}',
+            'index': 0,
+            'flags': [],
+        }
+        readme = path / 'README.md'
+        with readme.open() as f:
+            challenge.update(next(yaml.safe_load_all(f)))
+        lines = readme.read_text().splitlines(keepends=True)
+        lines = lines[lines.index('---\n', 1) + 1:]
+        challenge['detail'] = markdown.markdown(''.join(lines),
+                                                extensions=['fenced_code'])
+        files = path / 'files'
+        if files.is_dir():
+            target = media_dir / str(uuid.uuid5(UUID_NAMESPACE,
+                                                challenge['name']))
+            if not self.dry_run:
+                shutil.rmtree(target, ignore_errors=True)
+                shutil.copytree(files, target)
+            if challenge['url'] and challenge['url'].startswith('files/'):
+                challenge['url'] = (pathlib.Path('/media') / target.name
+                                    / challenge['url'][6:])
+        return challenge
