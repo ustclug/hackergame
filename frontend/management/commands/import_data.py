@@ -79,7 +79,7 @@ class Command(BaseCommand):
         lines = readme.read_text().splitlines(keepends=True)
         lines = lines[lines.index('---\n', 1) + 1:]
         challenge['detail'] = markdown.markdown(''.join(lines),
-                                                extensions=['fenced_code'])
+                                                extensions=['codehilite'])
         files = path / 'files'
         if files.is_dir():
             target = media_dir / str(uuid.uuid5(UUID_NAMESPACE,
