@@ -1,4 +1,4 @@
-import markdown
+import markdown.treeprocessors
 import pathlib
 import shutil
 import traceback
@@ -16,6 +16,31 @@ UUID_NAMESPACE = uuid.uuid5(
     namespace=uuid.UUID('dcd82ef8-ab13-4942-829c-41aa47f1708b'),
     name=settings.SECRET_KEY,
 )
+
+
+class ReplaceLinks(markdown.extensions.Extension):
+    class Processor(markdown.treeprocessors.Treeprocessor):
+        def __init__(self, md, files_url):
+            super().__init__(md)
+            self.files_url = files_url
+
+        def run(self, root):
+            for node in root.iter('a'):
+                if node.attrib['href'].startswith('files/'):
+                    node.attrib['href'] = str(self.files_url
+                                              / node.attrib['href'][6:])
+            for node in root.iter('img'):
+                if node.attrib['src'].startswith('files/'):
+                    node.attrib['src'] = str(self.files_url
+                                             / node.attrib['src'][6:])
+
+    def __init__(self, files_url):
+        super().__init__()
+        self.files_url = files_url
+
+    def extendMarkdown(self, md):
+        processor = self.Processor(self, self.files_url)
+        md.treeprocessors.register(processor, 'replacelinks', 0)
 
 
 class Command(BaseCommand):
@@ -78,16 +103,18 @@ class Command(BaseCommand):
             challenge.update(next(yaml.safe_load_all(f)))
         lines = readme.read_text().splitlines(keepends=True)
         lines = lines[lines.index('---\n', 1) + 1:]
-        challenge['detail'] = markdown.markdown(''.join(lines),
-                                                extensions=['codehilite'])
+        files_uuid = str(uuid.uuid5(UUID_NAMESPACE, challenge['name']))
+        files_path = media_dir / files_uuid
+        files_url = pathlib.Path('/media') / files_uuid
         files = path / 'files'
         if files.is_dir():
-            target = media_dir / str(uuid.uuid5(UUID_NAMESPACE,
-                                                challenge['name']))
             if not self.dry_run:
-                shutil.rmtree(target, ignore_errors=True)
-                shutil.copytree(files, target)
-            if challenge['url'] and challenge['url'].startswith('files/'):
-                challenge['url'] = (pathlib.Path('/media') / target.name
-                                    / challenge['url'][6:])
+                shutil.rmtree(files_path, ignore_errors=True)
+                shutil.copytree(files, files_path)
+        if challenge['url'] and challenge['url'].startswith('files/'):
+            challenge['url'] = str(files_url / challenge['url'][6:])
+        challenge['detail'] = markdown.markdown(
+            ''.join(lines),
+            extensions=['codehilite', ReplaceLinks(files_url)],
+        )
         return challenge
