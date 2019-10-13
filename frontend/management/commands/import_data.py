@@ -48,14 +48,13 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument('challenges_dir', type=pathlib.Path)
-        parser.add_argument('media_dir', type=pathlib.Path)
         parser.add_argument('--dry-run', action='store_true')
 
     # noinspection PyAttributeOutsideInit
     @atomic
-    def handle(self, challenges_dir, media_dir, dry_run=False, **options):
+    def handle(self, challenges_dir, dry_run=False, **options):
         self.challenges_dir = challenges_dir
-        self.media_dir = media_dir
+        self.media_dir = pathlib.Path(settings.MEDIA_ROOT)
         self.dry_run = dry_run
         context = Context(elevated=True)
         old_challenges = {i.name: i for i in Challenge.get_all(context)}
@@ -65,7 +64,7 @@ class Command(BaseCommand):
                 continue
             # noinspection PyBroadException
             try:
-                challenge = self.parse_challenge(path, media_dir)
+                challenge = self.parse_challenge(path)
             except Exception as e:
                 msg = traceback.format_exception_only(type(e), e)[0].strip()
                 self.stdout.write(self.style.ERROR(f'{path.name}: {msg}'))
@@ -87,7 +86,7 @@ class Command(BaseCommand):
                     old_challenges[name].delete()
                 self.stdout.write(f'{name}: ' + self.style.NOTICE('deleted'))
 
-    def parse_challenge(self, path, media_dir):
+    def parse_challenge(self, path):
         # default values
         challenge = {
             'enabled': True,
@@ -104,7 +103,7 @@ class Command(BaseCommand):
         lines = readme.read_text().splitlines(keepends=True)
         lines = lines[lines.index('---\n', 1) + 1:]
         files_uuid = str(uuid.uuid5(UUID_NAMESPACE, challenge['name']))
-        files_path = media_dir / files_uuid
+        files_path = self.media_dir / files_uuid
         files_url = pathlib.Path('/media') / files_uuid
         files = path / 'files'
         if files.is_dir():
