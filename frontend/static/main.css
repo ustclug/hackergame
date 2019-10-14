@@ -58,7 +58,7 @@ table {
 .content {
     margin: 0 auto 2em;
     padding: 0 1em;
-    max-width: 1000px;
+    max-width: 72em;
 }
 @media screen and (min-width: 48em) {
     .content {
@@ -70,7 +70,7 @@ table {
     margin: 1em 0;
     padding: 1em;
     border: 1px solid;
-    border-radius: 5px;
+    border-radius: .5em;
 }
 .msg-error {color: #a94442; background-color: #f2dede; border-color: #ebccd1;}
 .msg-info {color: #31708f; background-color: #d9edf7; border-color: #bce8f1;}
