@@ -401,8 +401,7 @@ class Submission:
             models.Score.objects.filter(user=old['pk']) \
                 .update(group=new['group'])
 
-
-# noinspection PyProtectedMember
-Challenge.subscribers.append(Submission._challenge_event)
-# noinspection PyProtectedMember
-User.subscribers.append(Submission._user_event)
+    @classmethod
+    def app_ready(cls):
+        Challenge.subscribers.append(cls._challenge_event)
+        User.subscribers.append(cls._user_event)

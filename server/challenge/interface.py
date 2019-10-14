@@ -251,6 +251,6 @@ class Challenge:
             if cls._add_user(new['pk']):
                 models.User.objects.create(user=new['pk'])
 
-
-# noinspection PyProtectedMember
-User.subscribers.append(Challenge._user_event)
+    @classmethod
+    def app_ready(cls):
+        User.subscribers.append(cls._user_event)
