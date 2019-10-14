@@ -12,6 +12,8 @@ class Page(models.Model):
     keywords = models.TextField(blank=True, default='Hackergame,CTF')
     content = models.TextField(blank=True, default='<h1>Hackergame</h1>',
                                help_text='会被放入 <code>div</code> 的 HTML')
+    js = models.TextField(blank=True,
+                          help_text='会被放入 <code>script</code> 的 JS')
 
     def __str__(self):
         return self.title
