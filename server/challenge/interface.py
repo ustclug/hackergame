@@ -38,8 +38,8 @@ class Challenge:
             User.test_permission(context, 'challenge.full', 'challenge.view')
         except PermissionRequired:
             User.test_authenticated(context)
-            User.test_profile(context)
             Terms.test_agreed_enabled(context)
+            User.test_profile(context)
             Trigger.test_state(context)
             queryset = queryset.filter(enabled=True)
         try:
@@ -55,8 +55,8 @@ class Challenge:
     @classmethod
     def get_enabled(cls, context):
         User.test_authenticated(context)
-        User.test_profile(context)
         Terms.test_agreed_enabled(context)
+        User.test_profile(context)
         try:
             User.test_permission(context, 'challenge.full', 'challenge.view')
         except PermissionRequired:
