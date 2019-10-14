@@ -15,5 +15,8 @@ pip install -r requirements.txt
 ./manage.py import_data /opt/hackergame2019-problems
 deactivate
 
+cp /opt/hgtest/conf/nginx-sites/hgtest /etc/nginx/sites-available/hgtest
+cp /opt/hgtest/conf/uwsgi-apps/hgtest.ini /etc/uwsgi/apps-available/hgtest.ini
+
 service uwsgi reload
 service nginx reload
