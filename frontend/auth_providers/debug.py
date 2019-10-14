@@ -13,7 +13,12 @@ class LoginView(BaseLoginView):
         self.group = {
             'debug': 'other',
             'ustc': 'ustc',
+            'jlu': 'jlu',
             'nankai': 'nankai',
+            'bupt': 'bupt',
+            'cqu': 'cqu',
+            'hit': 'hit',
+            'neu': 'neu',
             'sms': 'other',
         }[self.provider]
         self.identity = request.POST['identity']
