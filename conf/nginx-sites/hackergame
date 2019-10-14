@@ -8,9 +8,11 @@ server {
 
     location /media {
         root /var/opt/hackergame;
+        expires -1;
     }
     location /static {
         root /var/opt/hackergame;
+        expires 1h;
     }
     location / {
         uwsgi_pass unix:///run/uwsgi/app/hackergame/socket;

@@ -8,9 +8,11 @@ server {
 
     location /media {
         root /var/opt/hgtest;
+        expires -1;
     }
     location /static {
         root /var/opt/hgtest;
+        expires 1h;
     }
     location / {
         uwsgi_pass unix:///run/uwsgi/app/hgtest/socket;
