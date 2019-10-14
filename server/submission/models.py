@@ -2,9 +2,9 @@ from django.db import models
 
 
 class Submission(models.Model):
-    user = models.IntegerField()
-    group = models.TextField()
-    challenge = models.IntegerField()
+    user = models.IntegerField(db_index=True)
+    group = models.TextField(db_index=True)
+    challenge = models.IntegerField(db_index=True)
     text = models.TextField()
     time = models.DateTimeField()
 
