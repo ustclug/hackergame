@@ -33,6 +33,10 @@ class ReplaceLinks(markdown.extensions.Extension):
                 if node.attrib['src'].startswith('files/'):
                     node.attrib['src'] = str(self.files_url
                                              / node.attrib['src'][6:])
+            for node in root.iter('a'):
+                if node.attrib['href'].startswith(('http://', 'https://')):
+                    node.attrib['target'] = '_blank'
+                    node.attrib['rel'] = 'noopener'
 
     def __init__(self, files_url):
         super().__init__()
