@@ -45,7 +45,6 @@ function drawchart() {
       data: data,
       animationEnabled: true,
       zoomEnabled: true,
-      exportEnabled: true,
       axisX: {
         valueFormatString: "MM-DD HH:mm",
         labelAngle: -50,
