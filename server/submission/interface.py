@@ -31,7 +31,7 @@ class Submission:
             pass
         else:
             if latest.time + timedelta(seconds=10) > context.time:
-                raise SlowDown()
+                raise SlowDown('提交过于频繁，请 10 秒后再试')
         obj = models.Submission.objects.create(
             user=user.pk,
             group=user.group,
