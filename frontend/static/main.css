@@ -151,16 +151,21 @@ table .narrow {
 .highlight-row {
     background-color: #dff0d8;
 }
-blockquote {
+.main-body {
+    word-wrap: break-word;
+}
+.main-body blockquote {
     background: #f9f9f9;
-    border-left: 10px solid #ccc;
-    margin: 1.5em 10px;
-    padding: 0.5em;
+    border-left: .5em solid #ccc;
+    margin: 0;
+    padding: 0 .5em;
     overflow: auto;
 }
-blockquote:before {
-    color: #ccc;
-    line-height: 0.1em;
-    margin-right: 0.25em;
-    vertical-align: -0.4em;
+.main-body img {
+    max-width: 100%;
+}
+@media screen and (min-width: 48em) {
+    .main-body img {
+        max-width: calc(100% - 26em);
+    }
 }
