@@ -17,8 +17,8 @@ class Submission:
     def submit(cls, context, user, challenge, text):
         if context.user.pk != user:
             User.test_permission(context)
-        if len(text) > 100:
-            raise WrongFormat('Flag 不应超过 100 个字符')
+        if len(text) > 200:
+            raise WrongFormat('Flag 不应超过 200 个字符')
         user = User.get(context, user)
         challenge = Challenge.get(context, challenge)
         try:
