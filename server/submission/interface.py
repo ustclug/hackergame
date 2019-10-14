@@ -3,7 +3,7 @@ from datetime import timedelta
 from server.challenge.interface import Challenge
 from server.user.interface import User
 from server.context import Context
-from server.exceptions import Error, NotFound, WrongFormat
+from server.exceptions import Error, NotFound, WrongArguments, WrongFormat
 from . import models
 
 
@@ -69,8 +69,8 @@ class Submission:
         for f, u in violations:
             models.FlagViolation.objects.create(
                 submission=obj,
-                flag=f['index'],
-                user=u,
+                violation_flag=f['index'],
+                violation_user=u,
             )
         if match_flags - flags:
             if (flags | match_flags).issuperset(range(len(challenge.flags))):
@@ -115,28 +115,43 @@ class Submission:
             )
 
     @classmethod
-    def get_log(cls, context, start=None, limit=None):
+    def get_log(cls, context, *, after=None, before=None, limit=None,
+                challenge=None, group=None, match=None):
+        if after is not None and before is not None:
+            raise WrongArguments()
         User.test_permission(context, 'submission.full', 'submission.view')
-        return list(
-            models.Submission.objects
-            .order_by('-pk')
-            .filter(**({} if start is None else {'pk__lte': start}))
-            .values(
-                'pk', 'user', 'challenge', 'text', 'time',
-                flag=models.models.F('flagclear__flag'),
-            )
-            [slice(limit)]
-        )
+        queryset = models.Submission.objects.order_by('-pk')
+        if after is not None:
+            queryset = queryset.filter(pk__lt=after)
+        if before is not None:
+            queryset = queryset.filter(pk__gt=before).reverse()
+        if challenge is not None:
+            queryset = queryset.filter(challenge=challenge)
+        if group is not None:
+            queryset = queryset.filter(group=group)
+        if match is not None:
+            queryset = queryset.filter(flagclear__isnull=not match)
+        queryset = list(queryset.values(
+            'pk', 'user', 'challenge', 'text', 'time',
+            flag=models.models.F('flagclear__flag'),
+        )[slice(limit)])
+        if before is not None:
+            queryset.reverse()
+        return queryset
 
     @classmethod
-    def get_violations(cls, context):
+    def get_violations(cls, context, *, challenge=None, group=None):
         User.test_permission(context, 'submission.full', 'submission.view')
-        return list(models.FlagViolation.objects.values(
+        queryset = models.FlagViolation.objects
+        if challenge is not None:
+            queryset = queryset.filter(submission__challenge=challenge)
+        if group is not None:
+            queryset = queryset.filter(submission__group=group)
+        return list(queryset.values(
+            'violation_flag', 'violation_user',
             user=models.models.F('submission__user'),
             challenge=models.models.F('submission__challenge'),
             time=models.models.F('submission__time'),
-            violation_flag=models.models.F('flag'),
-            violation_user=models.models.F('user'),
         ))
 
     # noinspection PyUnusedLocal

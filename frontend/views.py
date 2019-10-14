@@ -250,8 +250,8 @@ class SubmissionAdminView(BaseAdminView):
     def do_get_log(self, context, **kwargs):
         return Submission.get_log(context, **kwargs)
 
-    def do_get_violations(self, context):
-        return Submission.get_violations(context)
+    def do_get_violations(self, context, **kwargs):
+        return Submission.get_violations(context, **kwargs)
 
     def do_get_user_progress(self, context, **kwargs):
         return Submission.get_user_progress(context, **kwargs)
