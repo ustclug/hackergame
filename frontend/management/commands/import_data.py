@@ -73,7 +73,8 @@ class Command(BaseCommand):
                 msg = traceback.format_exception_only(type(e), e)[0].strip()
                 self.stdout.write(self.style.ERROR(f'{path.name}: {msg}'))
             else:
-                new_challenges[challenge['name']] = challenge
+                if challenge['enabled']:
+                    new_challenges[challenge['name']] = challenge
         self.stdout.write(f'Parsed {len(new_challenges)} challenges')
         for name in new_challenges:
             if name in old_challenges:
