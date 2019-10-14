@@ -15,7 +15,7 @@
             </p>
             <p class="filter">
                 <a href="#" :class="{selected: filters.challenge===null}" @click.prevent="change_filter({challenge: null})">全部</a>
-                <a v-for="(name, pk) in challenge_names" href="#" :class="{selected: filters.challenge===pk}" @click.prevent="change_filter({challenge: pk})">{{ name }}</a>
+                <a v-for="challenge in challenges" href="#" :class="{selected: filters.challenge===challenge.pk}" @click.prevent="change_filter({challenge: challenge.pk})">{{ challenge.name }}</a>
             </p>
             <p class="filter">
                 <a href="#" :class="{selected: filters.group===null}" @click.prevent="change_filter({group: null})">全部</a>
@@ -74,6 +74,7 @@
         el: '#content-main',
         data: {
             users: JSON.parse(document.getElementById('json-users').textContent),
+            challenges,
             challenge_names,
             flag_names,
             groups: JSON.parse(document.getElementById('json-groups').textContent),
