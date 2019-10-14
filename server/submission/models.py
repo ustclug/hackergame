@@ -42,8 +42,8 @@ class FlagClear(models.Model):
 
 class FlagViolation(models.Model):
     submission = models.ForeignKey(Submission, models.CASCADE)
-    flag = models.IntegerField()
-    user = models.IntegerField()
+    violation_flag = models.IntegerField()
+    violation_user = models.IntegerField()
 
     class Meta:
         default_permissions = ()
