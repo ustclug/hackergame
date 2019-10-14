@@ -234,6 +234,8 @@ class Submission:
     # noinspection PyUnusedLocal
     @classmethod
     def get_first(cls, context, *, group=None):
+        if group in {'staff', 'other'}:
+            User.test_permission(context, 'submission.full', 'submission.view')
         return {
             'challenges': list(
                 models.ChallengeFirst.objects
@@ -251,6 +253,8 @@ class Submission:
     @classmethod
     def get_board(cls, context, *, limit=None,
                   category=None, group=None):
+        if group in {'staff', 'other'}:
+            User.test_permission(context, 'submission.full', 'submission.view')
         return list(
             cls._filter_group(models.Score.objects, group)
             .filter(category=category)
