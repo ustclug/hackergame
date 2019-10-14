@@ -99,10 +99,10 @@
             <div style="word-wrap:break-word;" v-html="opened.detail.replace(/{token}/g, encodeURIComponent(user.token))"></div>
             <form class="pure-form" method="post" :key="opened.pk">
                 {% endverbatim %}{% csrf_token %}{% verbatim %}
-                <a v-if="opened.url" class="pure-button pure-input-rounded" target="_blank" :href="opened.url.replace(/{token}/g, encodeURIComponent(user.token))">打开题目</a>
+                <a v-if="opened.url" class="pure-button pure-button-primary pure-input-rounded" target="_blank" :href="opened.url.replace(/{token}/g, encodeURIComponent(user.token))">打开/下载题目</a>
                 <input type="hidden" name="challenge" :value="opened.pk">
                 <input type="text" name="flag" class="pure-input-rounded" maxlength="200" autocomplete="off" :placeholder="opened.prompt">
-                <button type="submit" class="pure-button pure-button-primary pure-input-rounded">提交</button>
+                <button type="submit" class="pure-button pure-input-rounded">提交</button>
             </form>
         </div>
         <div v-else v-html="page_content"></div>
