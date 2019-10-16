@@ -64,6 +64,10 @@
             </div>
         </form>
         <div class="module" id="changelist">
+            <p class="filter">
+                <a href="#" :class="{selected: filters.group===null}" @click.prevent="filters.group=null">全部</a>
+                <a v-for="(name, group) in groups" href="#" :class="{selected: filters.group===group}" @click.prevent="filters.group=group">{{ name }}</a>
+            </p>
             <div class="results">
                 <table id="result_list">
                     <thead>
@@ -83,7 +87,7 @@
                     </tr>
                     </thead>
                     <tbody v-if="objs">
-                    <tr v-for="obj in objs" @click="open(obj)">
+                    <tr v-if="filters.group?obj.group===filters.group:true" v-for="obj in objs" @click="open(obj)">
                         <td>{{ obj.pk }}</td>
                         <td>{{ groups[obj.group] }}</td>
                         <td>{{ obj.display_name }}</td>
@@ -113,6 +117,9 @@
             objs: undefined,
             opened: undefined,
             opened_disabled: false,
+            filters: {
+                group: null,
+            },
         },
         created() {
             this.refresh();
