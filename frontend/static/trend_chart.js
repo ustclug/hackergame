@@ -26,32 +26,42 @@ function drawchart() {
       let points = history.map(i => ({x: new Date(i.time), y: i.score}));
       points.unshift({x: starttime, y: 0});
       points.push({x: endtime, y: points[points.length-1].y});
+      let username = app.users[app.objs[i].user];
+      let color = ["#C0392B", "#2ECC71", "#3498DB", "#F1C40F", "#8E44AD", "#797D7F", "#117864", "#E67E22", "#F1948A", "#1F618D"][i];
       return {
-        type: 'stepLine',
-        name: app.users[app.objs[i].user],
-        showInLegend: true,
-        dataPoints: points,
-        markerSize: 0,
+        label: username,
+        data: points,
+        steppedLine: true,
+        fill: false,
+        backgroundColor: color,
+        borderColor: color,
+        borderWidth: 2,
       };
     });
-    new CanvasJS.Chart('chart', {
-      legend: {
-        verticalAlign: "top",
-        horizontalAlign: "center",
+
+    new Chart(document.getElementById('chart').getContext('2d'),{
+      type: 'line',
+      data: {
+        datasets: data,
       },
-      toolTip: {
-        content: "{name}: {y}",
-      },
-      data: data,
-      animationEnabled: true,
-      zoomEnabled: true,
-      axisX: {
-        valueFormatString: "MM-DD HH:mm",
-        labelAngle: -50,
-        crosshair: {
-          enabled: true,
-        },
-      },
-    }).render();
+      options: {
+        responsive: false,
+        scales: {
+					xAxes: [{
+            type: 'time',
+            ticks: {
+              minRotation: 50,
+            },
+						time: {
+              unit: 'hour',
+              displayFormats: {
+                hour: "MM-DD HH:mm",
+              },
+              tooltipFormat: "YYYY-MM-DD HH:mm:ss",
+            }
+					}]
+				}
+      }
+    });
   });
 }
