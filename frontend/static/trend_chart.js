@@ -36,6 +36,8 @@ function drawchart() {
         backgroundColor: color,
         borderColor: color,
         borderWidth: 2,
+        radius: 2,
+        hoverRadius: 3,
       };
     });
 
@@ -45,6 +47,9 @@ function drawchart() {
         datasets: data,
       },
       options: {
+        hover: {
+          mode: 'x',
+        },
         responsive: false,
         scales: {
 					xAxes: [{
