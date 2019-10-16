@@ -48,6 +48,7 @@ class User:
         'hit': '哈尔滨工业大学',
         'neu': '东北大学',
         'other': '其他选手',
+        'banned': '已封禁',
     }
     profile_required = {
         'staff': ['nickname'],
@@ -59,7 +60,10 @@ class User:
         'hit': ['nickname', 'sno', '/qq/tel/1'],
         'neu': ['nickname', 'name', 'sno'],
         'other': ['nickname'],
+        'banned': ['nickname'],
     }
+    no_board_groups = ['staff', 'other', 'banned']
+    no_score_groups = ['staff', 'banned']
     subscribers = []
     _validators = {
         'group': group_validator,
@@ -182,6 +186,8 @@ class User:
 
     @property
     def profile_ok(self):
+        if self.group == 'banned':
+            return False
         for field in self.profile_required[self.group]:
             if field.startswith('/'):
                 # 这种记法表示 N 选 K

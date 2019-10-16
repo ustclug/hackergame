@@ -53,7 +53,7 @@ class Submission:
                 flag=flag,
                 time=context.time,
             )
-            if user.group != 'staff':
+            if user.group not in User.no_score_groups:
                 models.FlagFirst.objects.get_or_create(
                     challenge=challenge.pk,
                     flag=flag,
@@ -80,7 +80,7 @@ class Submission:
                     challenge=challenge.pk,
                     time=context.time,
                 )
-                if user.group != 'staff':
+                if user.group not in User.no_score_groups:
                     models.ChallengeFirst.objects.get_or_create(
                         challenge=challenge.pk,
                         group=None,
@@ -211,7 +211,7 @@ class Submission:
     @classmethod
     def _filter_group(cls, queryset, group):
         if group is None:
-            return queryset.exclude(group='staff')
+            return queryset.exclude(group__in=User.no_score_groups)
         else:
             return queryset.filter(group=group)
 
@@ -234,7 +234,7 @@ class Submission:
     # noinspection PyUnusedLocal
     @classmethod
     def get_first(cls, context, *, group=None):
-        if group in {'staff', 'other'}:
+        if group in User.no_board_groups:
             User.test_permission(context, 'submission.full', 'submission.view')
         return {
             'challenges': list(
@@ -253,7 +253,7 @@ class Submission:
     @classmethod
     def get_board(cls, context, *, limit=None,
                   category=None, group=None):
-        if group in {'staff', 'other'}:
+        if group in User.no_board_groups:
             User.test_permission(context, 'submission.full', 'submission.view')
         return list(
             cls._filter_group(models.Score.objects, group)

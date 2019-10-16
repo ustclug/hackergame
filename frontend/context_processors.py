@@ -15,4 +15,5 @@ def frontend(request):
         ),
         'groups': User.groups,
         'debug': settings.DEBUG,
+        'no_board_groups': User.no_board_groups,
     }

@@ -38,7 +38,7 @@
                                 {% for group, group_name in groups.items %}
                                     <li class="pure-menu-item"><a href="/board/?group={{ group|urlencode }}" class="pure-menu-link">{{ group_name }}排名</a></li>
                                 {% endfor %}
-                            {% elif user_.group != 'other' %}
+                            {% elif user_.group not in no_board_groups %}
                                 <li class="pure-menu-item"><a href="/board/?group={{ user_.group|urlencode }}" class="pure-menu-link">组内排名</a></li>
                             {% endif %}
                             <li class="pure-menu-item"><a href="/first/" class="pure-menu-link">总一血榜</a></li>
@@ -46,7 +46,7 @@
                                 {% for group, group_name in groups.items %}
                                     <li class="pure-menu-item"><a href="/first/?group={{ group|urlencode }}" class="pure-menu-link">{{ group_name }}一血榜</a></li>
                                 {% endfor %}
-                            {% elif user_.group != 'other' %}
+                            {% elif user_.group not in no_board_groups %}
                                 <li class="pure-menu-item"><a href="/first/?group={{ user_.group|urlencode }}" class="pure-menu-link">组内一血榜</a></li>
                             {% endif %}
                         </ul>

@@ -15,6 +15,9 @@
     <h1>修改个人信息</h1>
     {% verbatim %}
     <form id="app" class="pure-form pure-form-aligned" @submit.prevent="submit">
+        <div v-if="user.group==='banned'" class="msg-error">
+            由于违反规则，你的参赛资格已被取消，如有疑问请联系 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>。
+        </div>
         <div v-if="info.length" class="msg-info">
             <div v-for="i in info">{{ i }}</div>
         </div>
