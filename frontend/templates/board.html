@@ -38,8 +38,8 @@
                 <td v-if="show_progress">
                     <template v-for="challenge in challenges">
                         <i v-if="(!user_progress)||(!user_progress[obj.user])" class="fas fa-hourglass-half fa-fw" title="正在载入"></i>
-                        <i v-else-if="user_progress[obj.user].challenges.some(i=>i.challenge===challenge.pk)" class="fas fa-check-circle fa-fw" :title="`${users[obj.user]}\n完成了\n${challenge.name}`"></i>
-                        <i v-else-if="user_progress[obj.user].flags.some(i=>i.challenge===challenge.pk)" class="fas fa-dot-circle fa-fw" :title="`${users[obj.user]}\n部分完成了\n${challenge.name}`"></i>
+                        <i v-else-if="user_progress[obj.user].challenges.some(i=>i.challenge===challenge.pk)" class="fas fa-check-circle fa-fw" :title="`${users[obj.user]}\n于 ${new Date(user_progress[obj.user].challenges.find(i=>i.challenge===challenge.pk).time).toLocaleString()} 完成了\n${challenge.name}`"></i>
+                        <i v-else-if="user_progress[obj.user].flags.some(i=>i.challenge===challenge.pk)" class="fas fa-dot-circle fa-fw" :title="`${users[obj.user]}\n部分完成了\n${challenge.name}\n`+challenge.flags.map((i,j)=>`${i.name}：${display_time(user_progress[obj.user].flags.find(i=>i.challenge===challenge.pk&&i.flag===j))}`).join('\n')"></i>
                         <i v-else class="far fa-circle fa-fw" :title="`${users[obj.user]}\n未完成\n${challenge.name}`"></i>
                     </template>
                 </td>
@@ -95,6 +95,13 @@
                             Vue.set(this.user_progress, obj.user, value);
                         });
                 });
+            },
+            display_time(o) {
+                if (o) {
+                    return new Date(o.time).toLocaleString();
+                } else {
+                    return '未完成';
+                }
             },
         },
     });
