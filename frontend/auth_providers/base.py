@@ -60,7 +60,7 @@ class BaseLoginView(View):
         )
         if not account.user:
             account.user = User.create(
-                Context.from_request(self.request),
+                Context(elevated=True),
                 group=self.group,
                 **kwargs,
             ).user

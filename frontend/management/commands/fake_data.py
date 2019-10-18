@@ -34,7 +34,11 @@ class Command(BaseCommand):
     def handle(self, fake_complex_challenges, fake_simple_challenges,
                fake_users, fake_submissions, game_started_seconds,
                **options):
-        root = User.create(Context(), group='other', nickname='root').user
+        root = User.create(
+            Context(elevated=True),
+            group='other',
+            nickname='root',
+        ).user
         root.is_staff = True
         root.is_superuser = True
         root.save()
@@ -113,7 +117,7 @@ class Command(BaseCommand):
         for i in range(fake_users):
             print('user', i, end='\r')
             u = User.create(
-                Context(root),
+                Context(elevated=True),
                 group=random.choice(list(User.groups.keys())),
                 nickname=f'用户 {i}',
                 name='姓名',

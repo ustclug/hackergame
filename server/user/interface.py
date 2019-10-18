@@ -111,9 +111,11 @@ class User:
 
     @classmethod
     def create(cls, context, group, user=None, **kwargs):
+        User.test_permission(context)
+        context = context.copy(elevated=False)
         if user is None:
             user = get_user_model().objects.create_user(str(uuid4()))
-        self = cls(context.copy(user=user), models.User(user=user.pk))
+        self = cls(context, models.User(user=user.pk))
         pk = str(user.pk)
         sig = base64.b64encode(OpenSSL.crypto.sign(
             self._private_key, pk.encode(), 'sha256')).decode()
@@ -137,7 +139,10 @@ class User:
     def get_all(cls, context):
         return [cls(context, i) for i in models.User.objects.order_by('pk')]
 
-    def update(self, **kwargs):
+    def update(self, group=None, **kwargs):
+        if group != self.group:
+            User.test_permission(self._context, 'user.full')
+            kwargs['group'] = group
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full')
         old = self._json_all
