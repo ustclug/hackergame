@@ -23,7 +23,7 @@
         </div>
         <div v-if="fields.nickname!==undefined" class="pure-control-group">
             <label for="nickname">昵称</label>
-            <input type="text" maxlength=30 id="nickname" name="nickname" v-model="user.nickname" :required="fields.nickname">
+            <input type="text" id="nickname" name="nickname" v-model="user.nickname" :required="fields.nickname">
         </div>
         <div v-if="fields.name!==undefined" class="pure-control-group">
             <label for="name">姓名</label>

@@ -164,41 +164,16 @@ table .narrow {
 .main-body img {
     max-width: 100%;
 }
-@media screen and (min-width: 48em) {
-    .main-body img {
-        max-width: calc(100% - 26em);
-    }
-}
-
-
-#username {
+.logout {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
 }
-
-
-
-@media(max-width:950px){
-    #username{
-        max-width:300px;
+@media screen and (min-width: 48em) {
+    .main-body img {
+        max-width: calc(100% - 26em);
     }
-}
-
-@media(max-width:820px){
-    #username{
-        max-width:200px;
-    }
-}
-
-@media(max-width:700px){
-    #username{
-        max-width:100px;
-    }
-}
-
-@media(max-width:600px){
-    #username{
-        max-width:80px;
+    .logout {
+        max-width: 8em;
     }
 }
