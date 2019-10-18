@@ -139,10 +139,9 @@ class User:
     def get_all(cls, context):
         return [cls(context, i) for i in models.User.objects.order_by('pk')]
 
-    def update(self, group=None, **kwargs):
-        if group != self.group:
+    def update(self, **kwargs):
+        if 'group' in kwargs and kwargs['group'] != self.group:
             User.test_permission(self._context, 'user.full')
-            kwargs['group'] = group
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full')
         old = self._json_all
