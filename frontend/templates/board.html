@@ -16,23 +16,33 @@
 {% block content %}
     {% verbatim %}
     <div id="app">
+        <a class="float-right" href="#" @click.prevent="show_progress_toggle">切换进度显示</a>
         <h1>{{ filters.category?`${filters.category} 类`:'' }}{{ filters.group?groups[filters.group]:'总' }}排名</h1>
         <canvas v-if="!filters.category" id="chart" style="width: 100%; height: 400px"></canvas>
         <table class="pure-table pure-table-horizontal center">
             <thead>
             <tr class="center">
                 <td>名次</td>
-                <td>昵称</td>
-                <td>分数</td>
-                <td>时间</td>
+                <td v-if="!show_progress">昵称</td>
+                <td v-if="!show_progress">分数</td>
+                <td v-if="!show_progress">时间</td>
+                <td v-if="show_progress">进度（鼠标悬浮查看详情）</td>
             </tr>
             </thead>
             <tbody v-if="objs">
             <tr v-for="(obj, obj_index) in objs" :class="{'highlight-row': obj.user===user.pk}">
                 <td>{{ obj_index + 1 }}</td>
-                <td style="word-break: break-all">{{ users[obj.user] }}</td>
-                <td>{{ obj.score }}</td>
-                <td style="word-break: keep-all">{{ new Date(obj.time).toLocaleString() }}</td>
+                <td v-if="!show_progress" style="word-break: break-all">{{ users[obj.user] }}</td>
+                <td v-if="!show_progress">{{ obj.score }}</td>
+                <td v-if="!show_progress" style="word-break: keep-all">{{ new Date(obj.time).toLocaleString() }}</td>
+                <td v-if="show_progress">
+                    <template v-for="challenge in challenges">
+                        <i v-if="(!user_progress)||(!user_progress[obj.user])" class="fas fa-hourglass-half fa-fw" title="正在载入"></i>
+                        <i v-else-if="user_progress[obj.user].challenges.some(i=>i.challenge===challenge.pk)" class="fas fa-check-circle fa-fw" :title="`${users[obj.user]}\n完成了\n${challenge.name}`"></i>
+                        <i v-else-if="user_progress[obj.user].flags.some(i=>i.challenge===challenge.pk)" class="fas fa-dot-circle fa-fw" :title="`${users[obj.user]}\n部分完成了\n${challenge.name}`"></i>
+                        <i v-else class="far fa-circle fa-fw" :title="`${users[obj.user]}\n未完成\n${challenge.name}`"></i>
+                    </template>
+                </td>
             </tr>
             </tbody>
         </table>
@@ -43,6 +53,7 @@
     {{ groups|json_script:'json-groups' }}
     {{ users|json_script:'json-users' }}
     {{ user_.json|json_script:'json-user' }}
+    {{ challenges|json_script:'json-challenges' }}
     <script>
     app = new Vue({
         el: '#app',
@@ -51,7 +62,10 @@
             groups: JSON.parse(document.getElementById('json-groups').textContent),
             users: JSON.parse(document.getElementById('json-users').textContent),
             user: JSON.parse(document.getElementById('json-user').textContent),
+            challenges: JSON.parse(document.getElementById('json-challenges').textContent),
             objs: undefined,
+            user_progress: undefined,
+            show_progress: false,
         },
         created() {
             this.refresh();
@@ -68,6 +82,19 @@
                     .catch(({response: {data: {error}}}) => {
                         alert(error && error.message);
                     });
+            },
+            show_progress_toggle() {
+                this.show_progress = !this.show_progress;
+                if (!this.show_progress || this.user_progress) {
+                    return;
+                }
+                this.user_progress = {};
+                this.objs.forEach(obj => {
+                    axios.post('/admin/submission/', {method: 'get_user_progress', args: {user: obj.user}})
+                        .then(({data: {value}}) => {
+                            Vue.set(this.user_progress, obj.user, value);
+                        });
+                });
             },
         },
     });
