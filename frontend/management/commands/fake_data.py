@@ -114,18 +114,21 @@ class Command(BaseCommand):
 
         Trigger.create(Context(root), time=min(timestamps), state=True)
 
+        groups = list(set(User.groups.keys()) - {'staff', 'banned'})
         for i in range(fake_users):
             print('user', i, end='\r')
             u = User.create(
                 Context(elevated=True),
-                group=random.choice(list(User.groups.keys())),
-                nickname=f'用户 {i}',
+                group=random.choice(groups),
+                nickname='用户 ' * 8 + str(i),
                 name='姓名',
                 sno='PB11111111',
                 tel='123456789',
                 email='foo@example.com',
                 gender=random.choice(('female', 'male')),
                 qq='12345',
+                school='foo',
+                grade='1',
             )
             Terms.get(Context(u.user), terms.pk).agree(u.pk)
             Account.objects.create(provider='debug', identity=f'{i}',
