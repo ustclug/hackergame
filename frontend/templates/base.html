@@ -59,7 +59,7 @@
                     <li class="pure-menu-item">
                         <form action="{% url 'logout' %}" method="post">
                             {% csrf_token %}
-                            <button type="submit" class="pure-button">注销 {{ user_.display_name }}</button>
+                            <button type="submit" class="pure-button logout">注销 {{ user_.display_name }}</button>
                         </form>
                     </li>
                 {% else %}

@@ -164,8 +164,16 @@ table .narrow {
 .main-body img {
     max-width: 100%;
 }
+.logout {
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
 @media screen and (min-width: 48em) {
     .main-body img {
         max-width: calc(100% - 26em);
+    }
+    .logout {
+        max-width: 8em;
     }
 }
