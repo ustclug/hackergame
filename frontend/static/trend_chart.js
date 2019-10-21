@@ -12,15 +12,17 @@ function drawchart() {
   ]).then(([user_reqs, {data: {value: triggers}}]) => {
     let starttime = triggers.find(i => i.state);
     if (!starttime || new Date(starttime.time) > new Date()) {
-      document.getElementById('chart').innerHTML = '比赛尚未开始';
+      document.getElementById('charttext').innerHTML = '比赛尚未开始';
       return;
     } else {
       starttime = new Date(starttime.time);
     }
+    let last_starttime = [...triggers].reverse().find(i => i.state);
     let endtime = [...triggers].reverse().find(i => !i.state);
-    endtime = endtime ? new Date(endtime.time) : new Date();
-    if (endtime > new Date()) {
+    if (!endtime || new Date(endtime.time) > new Date() || new Date(endtime.time) < new Date(last_starttime.time)) {
       endtime = new Date();
+    } else {
+      endtime = new Date(endtime.time);
     }
     let data = user_reqs.map(({data: {value: history}}, i) => {
       let points = history.map(i => ({x: new Date(i.time), y: i.score}));
@@ -40,6 +42,8 @@ function drawchart() {
         hoverRadius: 3,
       };
     });
+
+    document.getElementById('charttext').innerHTML = '';
 
     new Chart(document.getElementById('chart').getContext('2d'),{
       type: 'line',
