@@ -88,7 +88,7 @@ class BoardView(View):
                     'category': request.GET.get('category', None),
                     'group': request.GET.get('group', None),
                 },
-                'users': {u.pk: u.display_name for u in User.get_all(context)},
+                'users': {u.pk: u.json for u in User.get_all(context)},
                 'challenges': [c.json for c in Challenge.get_enabled(context)],
             })
         except Error as e:
@@ -105,7 +105,7 @@ class FirstView(View):
                 'filters': {
                     'group': request.GET.get('group', None),
                 },
-                'users': {u.pk: u.display_name for u in User.get_all(context)},
+                'users': {u.pk: u.json for u in User.get_all(context)},
                 'challenges': [c.json for c in Challenge.get_enabled(context)],
             })
         except Error as e:

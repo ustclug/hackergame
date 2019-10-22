@@ -28,7 +28,7 @@ function drawchart() {
       let points = history.map(i => ({x: new Date(i.time), y: i.score}));
       points.unshift({x: starttime, y: 0});
       points.push({x: endtime, y: points[points.length-1].y});
-      let username = app.users[app.objs[i].user];
+      let username = app.users[app.objs[i].user].display_name;
       let color = ["#C0392B", "#2ECC71", "#3498DB", "#F1C40F", "#8E44AD", "#797D7F", "#117864", "#E67E22", "#F1948A", "#1F618D"][i];
       return {
         label: username,

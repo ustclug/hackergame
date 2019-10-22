@@ -14,6 +14,9 @@
 {% block content %}
     {% verbatim %}
     <div id="app">
+        <div class="float-right">
+            <a v-if="profile_fields.length" href="#" @click.prevent="show_profile=!show_profile">切换个人信息显示</a>
+        </div>
         <h1>{{ filters.category?`${filters.category} 类`:'' }}{{ filters.group?groups[filters.group]:'总' }}最终一血榜</h1>
         <table class="pure-table pure-table-horizontal center" style="background-color: #fffbec">
             <thead>
@@ -21,19 +24,22 @@
                 <td>题目</td>
                 <td>昵称</td>
                 <td>时间</td>
+                <td v-if="show_profile" v-for="field in profile_fields">{{ field.name }}</td>
             </tr>
             </thead>
             <tbody v-if="objs">
             <template v-for="challenge in challenges">
                 <tr :class="{'highlight-row': objs.challenges[challenge.pk].user===user.pk}">
                     <td>{{ challenge.name }}</td>
-                    <td style="word-break: break-all">{{ users[objs.challenges[challenge.pk].user] }}</td>
+                    <td style="word-break: break-all">{{ (users[objs.challenges[challenge.pk].user]||{display_name:''}).display_name }}</td>
                     <td style="word-break: keep-all">{{ objs.challenges[challenge.pk].time }}</td>
+                    <td v-if="show_profile" v-for="field in profile_fields">{{ (users[objs.challenges[challenge.pk].user]||{[field.field]:''})[field.field] }}</td>
                 </tr>
                 <tr v-if="challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags" :class="{'highlight-row': objs.flags[[challenge.pk, flag_index]].user===user.pk}">
                     <td>{{ challenge.name }}/{{ flag.name }}</td>
-                    <td style="word-break: break-all">{{ users[objs.flags[[challenge.pk, flag_index]].user] }}</td>
+                    <td style="word-break: break-all">{{ (users[objs.flags[[challenge.pk, flag_index]].user]||{display_name:''}).display_name }}</td>
                     <td style="word-break: keep-all">{{ objs.flags[[challenge.pk, flag_index]].time }}</td>
+                    <td v-if="show_profile" v-for="field in profile_fields">{{ (users[objs.flags[[challenge.pk, flag_index]].user]||{[field.field]:''})[field.field] }}</td>
                 </tr>
             </template>
             </tbody>
@@ -56,6 +62,8 @@
             user: JSON.parse(document.getElementById('json-user').textContent),
             challenges: JSON.parse(document.getElementById('json-challenges').textContent),
             objs: undefined,
+            profile_fields: [],
+            show_profile: false,
         },
         created() {
             this.refresh();
@@ -85,6 +93,28 @@
                             };
                         }
                         this.objs = objs;
+                        let fields = new Set();
+                        for (let u of Object.values(objs.challenges).concat(Object.values(objs.flags)).map(i => i.user)) {
+                            if (!u || u === this.user.pk) {
+                                continue;
+                            }
+                            for (let field of Object.keys(this.users[u])) {
+                                fields.add(field);
+                            }
+                        }
+                        const field_names = {
+                            name: '姓名',
+                            sno: '学号',
+                            tel: '电话',
+                            email: '邮箱',
+                            gender: '性别',
+                            qq: 'QQ',
+                            school: '学院',
+                            grade: '年级',
+                        };
+                        this.profile_fields = [...fields]
+                            .filter(field => field_names.hasOwnProperty(field))
+                            .map(field => ({field, name: field_names[field]}));
                     })
                     .catch(({response: {data: {error}}}) => {
                         alert(error && error.message);
