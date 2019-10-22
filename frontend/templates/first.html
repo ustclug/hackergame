@@ -99,7 +99,9 @@
                                 continue;
                             }
                             for (let field of Object.keys(this.users[u])) {
-                                fields.add(field);
+                                if (this.users[u][field]) {
+                                    fields.add(field);
+                                }
                             }
                         }
                         const field_names = {
