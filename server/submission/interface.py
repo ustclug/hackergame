@@ -12,9 +12,15 @@ class SlowDown(Error):
     message = '提交过于频繁'
 
 
+class Finished(Error):
+    code = 'finished'
+    message = '比赛已结束'
+
+
 class Submission:
     @classmethod
     def submit(cls, context, user, challenge, text):
+        raise Finished()
         if context.user.pk != user:
             User.test_permission(context)
         if len(text) > 200:
