@@ -5,7 +5,7 @@ cffi==1.12.3
 chardet==3.0.4
 cryptography==2.7
 defusedxml==0.6.0
-Django==2.1.12
+Django==2.2.10
 django-allauth==0.40.0
 idna==2.8
 jmespath==0.9.4
