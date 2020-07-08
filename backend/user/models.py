@@ -1,46 +1,58 @@
+import base64
+
+import OpenSSL
+from django.conf import settings
 from django.db import models
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
+
+
+class TermManager(models.Manager):
+    def enabled_term(self):
+        return self.get_queryset().get(enabled=True)
 
 
 class Term(models.Model):
     """协议与条款"""
     name = models.CharField(max_length=100)
     content = models.TextField()
+    date_created = models.DateTimeField(auto_now_add=True)
     enabled = models.BooleanField()
+
+    objects = TermManager()
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            for user in User.objects.all():
+                # FIXME ...
+                user.terms.create(self)
+        super().save(*args, **kwargs)
+
+
+class MyUserManager(UserManager):
+    _private_key = OpenSSL.crypto.load_privatekey(
+        OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
+
+    def create_user(self, username, email=None, password=None, **extra_fields):
+        user = super().create_user(username, email, password, **extra_fields)
+        pk = str(user.pk)
+        sig = base64.b64encode(OpenSSL.crypto.sign(
+            self._private_key, pk.encode(), 'sha256')).decode()
+        user.token = pk + ':' + sig
+        user.save()
+        return user
 
 
 class User(AbstractUser):
     phone_number = models.CharField(max_length=14, null=True)
-    token = models.TextField()
-    terms = models.ManyToManyField(Term, through='Agreement')
+    token = models.TextField(null=True)
+    term_agreed = models.BooleanField(default=False)
 
+    objects = MyUserManager()
 
-class Agreement(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    term = models.ForeignKey(Term, on_delete=models.CASCADE)
-    agreed = models.BooleanField()
+    REQUIRED_FIELDS = []
 
-
-class Group(models.Model):
-    name = models.CharField(max_length=100)
-    rule_has_phone_number = models.BooleanField()
-    rule_has_email = models.BooleanField()
-    rule_email_suffix = models.CharField(max_length=50)
-    rule_has_name = models.BooleanField()
-    rule_must_be_verified_by_admin = models.BooleanField()
-    rule_apply_hint = models.TextField(verbose_name='给申请者的提示')
-    verified = models.BooleanField(verbose_name='是否为认证过的组')
-    verify_message = models.TextField()
-
-
-class Application(models.Model):
-    """加入某个组的申请"""
-    STATUS = (
-        ('accepted', 'accepted'),
-        ('rejected', 'rejected'),
-        ('pending', 'pending')
-    )
-    group = models.ForeignKey(Group, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    apply_message = models.TextField()
-    status = models.CharField(max_length=10, choices=STATUS, default='pending')
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # FIXME ...
+            self.terms.create(Term.objects.enabled_term())
+        super().save(*args, **kwargs)
