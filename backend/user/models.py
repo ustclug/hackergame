@@ -11,20 +11,21 @@ class TermManager(models.Manager):
         return self.get_queryset().get(enabled=True)
 
 
+# FIXME: 只允许一条启用的条款
 class Term(models.Model):
     """协议与条款"""
     name = models.CharField(max_length=100)
     content = models.TextField()
     date_created = models.DateTimeField(auto_now_add=True)
-    enabled = models.BooleanField()
+    enabled = models.BooleanField(default=True)
 
     objects = TermManager()
 
     def save(self, *args, **kwargs):
         if not self.pk:
             for user in User.objects.all():
-                # FIXME ...
-                user.terms.create(self)
+                user.term_agreed = False
+                user.save()
         super().save(*args, **kwargs)
 
 
@@ -50,9 +51,3 @@ class User(AbstractUser):
     objects = MyUserManager()
 
     REQUIRED_FIELDS = []
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            # FIXME ...
-            self.terms.create(Term.objects.enabled_term())
-        super().save(*args, **kwargs)

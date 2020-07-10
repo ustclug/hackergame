@@ -14,30 +14,11 @@
 
 ## 用户
 
-### 获取个人资料
-
-- Request
-
-  - Url: `user/`
-  - Method: GET
-
-- Response
-
-  ```json
-  {
-      "username": "cjc7373",
-      "email": "c@ac.com",
-      "phone_number": "13012345678",
-      "name": null,
-      "token": "1:123123"
-  }
-  ```
-
 ### 注册
 
 - Request
 
-  - Url: `user/registration/`
+  - Url: `user/register/`
 
   - Method: POST
 
@@ -74,11 +55,40 @@
   
     - ```json
       {
-          name: "xxxxx",
-          content: "xxxx",
-          date_created: "TODO"
+      	term: {
+              name: "xxxxx",
+              content: "xxxx",
+              date_created: "TODO"
+          }
       }
       ```
+
+### 登出
+
+- Request
+  - Url: `user/logout/`
+  - Method: POST
+
+### 获取个人资料
+
+- Request
+
+  - Url: `user/`
+  - Method: GET
+
+- Response
+
+  ```json
+  {
+      "username": "cjc7373",
+      "email": "c@ac.com",
+      "phone_number": "13012345678",
+      "name": null,
+      "token": "1:123123"
+  }
+  ```
+
+### 修改个人资料
 
 ### 修改密码
 
@@ -210,7 +220,7 @@
 
 - Request
 
-  - Url: `group/1/members/`
+  - Url: `group/1/member/`
   - Method: GET
 
 - Response
@@ -224,5 +234,5 @@
 ### 删除成员
 
 - Request
-  - Url: `group/1/members/10[user_id]`
+  - Url: `group/1/member/10[user_id]`
   - Method: DELETE

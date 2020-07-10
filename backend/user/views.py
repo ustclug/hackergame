@@ -17,9 +17,9 @@ class LoginAPI(APIView):
                             password=serializer.data['password'])
         if user is not None:
             if not user.term_agreed:
-                if not serializer.data['allow_terms']:
-                    return Response(TermSerializer(Term.objects.enabled_term()),
-                                    status=status.HTTP_403_FORBIDDEN)
+                if not serializer.data.get('allow_terms'):
+                    data = {"term": TermSerializer(Term.objects.enabled_term()).data}
+                    return Response(data, status=status.HTTP_403_FORBIDDEN)
                 user.term_agreed = True
                 user.save()
             login(request, user)
@@ -33,6 +33,7 @@ class LogoutAPI(APIView):
 
     def post(self, request):
         logout(request)
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RegisterAPI(generics.CreateAPIView):
@@ -40,6 +41,10 @@ class RegisterAPI(generics.CreateAPIView):
     serializer_class = RegisterSerializer
 
 
-class ProfileAPI(generics.RetrieveAPIView):
-    queryset = User.objects.all()
-    serializer_class = ProfileSerializer
+class ProfileAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
+        serializer = ProfileSerializer(user)
+        return Response(serializer.data)
