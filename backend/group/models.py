@@ -5,6 +5,7 @@ from user.models import User
 class Group(models.Model):
     name = models.CharField(max_length=100)
     users = models.ManyToManyField(User)
+    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="group_admin")
     rule_has_phone_number = models.BooleanField()
     rule_has_email = models.BooleanField()
     rule_email_suffix = models.CharField(max_length=50, null=True)

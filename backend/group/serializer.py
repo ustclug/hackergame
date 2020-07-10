@@ -14,9 +14,3 @@ class GroupApplicationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Application
         fields = '__all__'
-
-
-class GroupMemberSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Group
-        fields = ['users']

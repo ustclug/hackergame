@@ -49,4 +49,10 @@ class ProfileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'email', 'phone_number', 'token', 'name']
+        fields = ['username', 'email', 'phone_number', 'token', 'name', 'date_joined']
+
+
+class PublicProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'phone_number', 'name']

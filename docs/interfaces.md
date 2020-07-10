@@ -156,17 +156,16 @@
 
 - Request
 
-  - Url: `group/application/`
+  - Url: `group/1/application/`
 
   - Method: POST
 
   - ```json
     {
-        group: 1, // id
         apply_message: "xxx",
     }
     ```
-
+  
 - Response:
 
   - ```json
@@ -175,13 +174,55 @@
     }
     ```
 
-    
-
-### 查看成员
-
-### 删除成员
 
 ### 查看加入申请
 
+- Request
+
+  - Url: `group/1/application/`
+  - Method: GET
+
+- Response
+
+  - ```json
+    [
+        {user:{...}, apply_message: "xxx"},
+        {...},
+    ]
+    ```
+
 ### 同意或拒绝某一申请
 
+- Request
+  - Url: `group/1/application/1[id]`
+
+  - Method: PUT
+
+  - ```json
+    {
+        status: "rejected" //拒绝, accepted 为同意
+    }
+    ```
+
+
+
+### 查看成员
+
+- Request
+
+  - Url: `group/1/members/`
+  - Method: GET
+
+- Response
+
+  - ```json
+    [
+        {...(字段和个人资料一致)},
+    ]
+    ```
+
+### 删除成员
+
+- Request
+  - Url: `group/1/members/10[user_id]`
+  - Method: DELETE
