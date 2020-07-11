@@ -1,12 +1,10 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics, status
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, \
-                                    ListModelMixin, DestroyModelMixin
+                                    ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
-from user.models import User
-from user.serializer import PublicProfileSerializer
 from group.models import Group, Application
 from group.serializer import GroupSerializer, GroupApplicationSerializer, \
                                 GroupApplicationUpdateSerializer, ProfileSerializer

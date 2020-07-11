@@ -78,7 +78,7 @@ class TestApplication:
         assert r.data['status'] == 'pending'
 
         # 申请一个不存在的组
-        r = client_another_user.post(f'/api/group/100/application/', data)
+        r = client_another_user.post('/api/group/100/application/', data)
         assert r.status_code == status.HTTP_400_BAD_REQUEST
 
         # 重复申请
@@ -90,7 +90,7 @@ class TestApplication:
         assert r.data[0]['apply_message'] == 'xxx'
 
         # 查看一个不存在的组
-        r = client.get(f'/api/group/100/application/')
+        r = client.get('/api/group/100/application/')
         assert r.status_code == status.HTTP_404_NOT_FOUND
 
     def test_accept_update(self, client, application, group, another_user):

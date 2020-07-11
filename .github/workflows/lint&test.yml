@@ -1,0 +1,30 @@
+name: lint and test
+
+on:
+    push:
+        branches: refactor
+
+jobs:
+    lint_and_test:
+        runs-on: ubuntu-18.04
+        steps:
+            - uses: actions/checkout@v2
+            - uses: actions/setup-python@v1
+              with:
+                python-version: 3.8
+            - name: install dependencies
+              run: |
+                python -m pip install --upgrade pip
+                pip install -r backend/requirements.txt
+            - name: lint
+              run: |
+                pip install flake8
+                cd backend
+                flake8 . --statistics --exclude .env,migrations,dev.py --max-line-length 127
+            - name: test
+              run: |
+                cd backend
+                export DJANGO_SETTINGS_MODULE=backend.dev
+                # TODO:This will be removed in the future
+                python manage.py makemigrations user group
+                pytest
