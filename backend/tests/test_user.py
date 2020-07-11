@@ -10,14 +10,20 @@ def test_create_term():
 
 
 def test_register(client_without_login):
-    client_without_login.post('/api/user/register/', {
+    data = {
         "username": "test_user",
         "password": "test_password",
         "password_confirm": "test_password"
-    })
+    }
+    client_without_login.post('/api/user/register/', data)
     user = User.objects.all()[0]
     assert user.username == "test_user"
     assert user.token is not None
+
+    # 测试重复的用户名
+    r = client_without_login.post('/api/user/register/', data)
+    assert r.status_code == 400
+    assert r.data['username'][0] == 'A user with that username already exists.'
 
 
 def test_login(client_without_login):

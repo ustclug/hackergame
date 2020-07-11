@@ -1,4 +1,6 @@
 from django.db import models
+from django.db.models import Q
+
 from user.models import User
 
 
@@ -12,19 +14,38 @@ class Group(models.Model):
     rule_has_name = models.BooleanField()
     rule_must_be_verified_by_admin = models.BooleanField()
     rule_apply_hint = models.TextField(verbose_name='给申请者的提示', null=True)
-    verified = models.BooleanField(verbose_name='是否为认证过的组')
+    verified = models.BooleanField(verbose_name='是否为认证过的组', default=False)
     verify_message = models.TextField(null=True)
+
+    def __str__(self):
+        return f'{self.id}:{self.name}'
 
 
 class Application(models.Model):
     """加入某个组的申请"""
     STATUS = (
-        ('accepted', 'accepted'),
+        ('accepted', 'the user is now in the group'),
         ('rejected', 'rejected'),
-        ('pending', 'pending')
+        ('pending', 'pending'),
+        ('deleted', 'the user is deleted from the group')
     )
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     apply_message = models.TextField()
     status = models.CharField(max_length=10, choices=STATUS, default='pending')
 
+    def save(self, *args, **kwargs):
+        if self.status == 'accepted':
+            self.group.users.add(self.user)
+        if self.status == 'deleted':
+            self.group.users.remove(self.user)
+        super().save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'group'],
+                condition=Q(status='pending') | Q(status='accepted'),
+                name='unique_application'
+            )
+        ]

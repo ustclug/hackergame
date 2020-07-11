@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import RegisterAPI, LoginAPI, LogoutAPI, ProfileAPI
+from user.views import RegisterAPI, LoginAPI, LogoutAPI, ProfileAPI
 
 urlpatterns = [
     path('register/', RegisterAPI.as_view()),

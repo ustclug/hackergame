@@ -12,11 +12,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = ['username', 'password', 'password_confirm']
         extra_kwargs = {'password': {'write_only': True}}
 
-    def validate_username(self, value):
-        if User.objects.filter(username=value).exists():
-            raise ValidationError("The username has been used.")
-        return value
-
     def validate_password(self, value):
         if len(value) < 8:
             raise ValidationError("Password too short.")
@@ -53,6 +48,8 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 
 class PublicProfileSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='last_name')
+
     class Meta:
         model = User
         fields = ['username', 'email', 'phone_number', 'name']

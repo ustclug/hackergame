@@ -9,6 +9,7 @@
 - 成功: 200 OK
 - 成功, 操作为创建: 201 Created
 - 成功, 无响应内容: 204 No Content
+- 传入的字段不符合规范或 Validate Error: 400 Bad Request
 - 权限不足: 403 Forbidden
 - 未找到: 404 Not Found
 
@@ -29,6 +30,28 @@
         "password_confirm": "123456"
     }
     ```
+  
+- Response: 几种 400 Bad Request 的情况
+
+  - 用户名已存在: 
+
+    ```json
+    {username: "A user with that username already exists."}
+    ```
+
+  - 密码太短
+
+    ```json
+    {password: "Password too short."}
+    ```
+
+  - 密码不一致
+
+    ```json
+    {password: "Passwords are not same."}
+    ```
+
+    
 
 
 ### 登录
@@ -110,15 +133,13 @@
 
   - ```json
     {
-        name: "某大学"
+        name: "某大学",
         rule_has_phone_number: true,
         rule_has_email: true,
         rule_email_suffix: "xx.edu.cn", //可选
         rule_has_name: true,
         rule_must_be_verified_by_admin: true,
         rule_apply_hint: "xxx", //可选
-        verified: true,
-        verify_message: "xxx", //可选
     }
     ```
   
@@ -183,7 +204,14 @@
         status: "pending" (若无需要管理员验证这一规则则为"accepted")
     }
     ```
-
+    
+  - 重复申请:
+  
+    ```json
+    {non_field_errors: "The fields user, group must make a unique set."}
+    ```
+  
+    
 
 ### 查看加入申请
 
@@ -227,7 +255,7 @@
 
   - ```json
     [
-        {...(字段和个人资料一致)},
+        {apply_message: "xxx", user: {(字段和个人资料一致)}},
     ]
     ```
 
