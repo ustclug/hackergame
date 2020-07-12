@@ -16,12 +16,14 @@ def client_without_login():
 
 @pytest.fixture
 def user():
-    return User.objects.create_user(username="test_user", password="test_password")
+    return User.objects.create_user(username="test_user", password="test_password",
+                                    last_name='test_name')
 
 
 @pytest.fixture
 def another_user():
-    return User.objects.create_user(username="test_user2", password="test_password")
+    return User.objects.create_user(username="test_user2", password="test_password",
+                                    email='a@xx.edu.cn')
 
 
 @pytest.fixture

@@ -1,3 +1,7 @@
+"""
+The "a" in the filename will make this file got tested first.
+"""
+
 from rest_framework import status
 
 from user.models import User, Term

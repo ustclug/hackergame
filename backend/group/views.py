@@ -1,14 +1,32 @@
 from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, generics, status
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, \
-                                    ListModelMixin
+    ListModelMixin
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
+from user.models import User
 from group.models import Group, Application
 from group.serializer import GroupSerializer, GroupApplicationSerializer, \
-                                GroupApplicationUpdateSerializer, ProfileSerializer
+    GroupApplicationUpdateSerializer, ProfileSerializer
 from group.permissions import IsGroupAdminOrReadOnly, IsGroupAdmin
+
+
+def validate_apply_group(user: User, group: Group):
+    if group.rule_has_phone_number and user.phone_number == '':
+        raise ValidationError('user must have phone number')
+
+
+def generate_rules_meet(rules, user):
+    rules_meet = {
+        "has_phone_number": user.phone_number != "" if rules['has_phone_number'] else True,
+        "has_email": user.email != "" if rules['has_email'] else True,
+        "has_name": user.last_name != "" if rules['has_name'] else True,
+        "email_suffix": user.email.endswith(rules['email_suffix'])
+        if rules['email_suffix'] != "" else True
+    }
+    return rules_meet
 
 
 class GroupAPI(viewsets.ModelViewSet):
@@ -21,9 +39,14 @@ class GroupAPI(viewsets.ModelViewSet):
     def perform_create(self, serializer):
         user = serializer.context['request'].user
         serializer.validated_data['admin'] = user
-        serializer.validated_data['users'] = [user]
         serializer.save()
-        # TODO 添加管理员
+
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        rtn = serializer.data
+        rtn['rules_meet'] = generate_rules_meet(serializer.data['rules'], request.user)
+        return Response(rtn)
 
 
 class GroupApplicationAPI(generics.GenericAPIView, ListModelMixin,
@@ -45,7 +68,14 @@ class GroupApplicationAPI(generics.GenericAPIView, ListModelMixin,
         return response
 
     def post(self, request, group_id, **kwargs):
-        # TODO: 根据rules字段validate
+        # 根据rules字段validate
+        group = get_object_or_404(Group, id=group_id)
+        serializer = GroupSerializer(group)
+        rules_meet = generate_rules_meet(serializer.data['rules'], request.user)
+        for rule in rules_meet.values():
+            if not rule:
+                raise ValidationError('You do not meet the groups requirements.')
+
         request.data['group'] = group_id
         request.data['user'] = request.user.pk
         return self.create(request)

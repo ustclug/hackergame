@@ -13,12 +13,21 @@ class Group(models.Model):
     rule_email_suffix = models.CharField(max_length=50, null=True)
     rule_has_name = models.BooleanField()
     rule_must_be_verified_by_admin = models.BooleanField()
-    rule_apply_hint = models.TextField(verbose_name='给申请者的提示', null=True)
+    apply_hint = models.TextField(verbose_name='给申请者的提示', null=True)
     verified = models.BooleanField(verbose_name='是否为认证过的组', default=False)
     verify_message = models.TextField(null=True)
 
     def __str__(self):
         return f'{self.id}:{self.name}'
+
+    def save(self, *args, **kwargs):
+        flg = 0
+        if not self.pk:
+            flg = 1
+        super().save(*args, **kwargs)
+        # 为创建组的用户添加 Application
+        if flg:
+            Application.objects.create(group=self, user=self.admin, status='accepted')
 
 
 class Application(models.Model):

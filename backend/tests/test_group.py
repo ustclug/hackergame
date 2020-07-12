@@ -10,12 +10,12 @@ def group(user):
     group = Group.objects.create(
         name='某大学',
         admin=user,
-        rule_has_phone_number=True,
+        rule_has_phone_number=False,
         rule_has_email=True,
         rule_email_suffix='xx.edu.cn',
-        rule_has_name=True,
+        rule_has_name=False,
         rule_must_be_verified_by_admin=True,
-        rule_apply_hint='Please apply.',
+        apply_hint='Please apply.',
         verified=True,
         verify_message='This group has been verified.'
     )
@@ -24,17 +24,21 @@ def group(user):
 
 
 class TestManagement:
+    # TODO: 根据 API 修改 test
     def test_create(self, client, user):
         r = client.post('/api/group/', {
             'name': "某大学",
-            'rule_has_phone_number': True,
-            'rule_has_email': True,
-            'rule_email_suffix': "xx.edu.cn",
-            'rule_has_name': True,
-            'rule_must_be_verified_by_admin': True,
-            'rule_apply_hint': "xxx",
+            'rules': {
+                'has_phone_number': True,
+                'has_email': True,
+                'email_suffix': "xx.edu.cn",
+                'has_name': True,
+                'must_be_verified_by_admin': True,
+            },
+            'apply_hint': "xxx",
         })
         assert r.status_code == status.HTTP_201_CREATED
+
         # 测试创建者在组内并为管理员
         group = Group.objects.all()[0]
         assert group.admin == user
@@ -47,10 +51,11 @@ class TestManagement:
     def test_retrieve(self, client, group):
         r = client.get(f'/api/group/{group.id}/')
         assert r.data['id'] == group.id
+        assert r.data['rules_meet']
 
     def test_update(self, client, group):
-        r = client.patch(f'/api/group/{group.id}/', {'rule_has_name': False})
-        assert r.data['rule_has_name'] is False
+        r = client.patch(f'/api/group/{group.id}/', {'rules': {'has_name': False}})
+        assert r.data['rules']['has_name'] is False
         group.refresh_from_db()
         assert group.rule_has_name is False
 
@@ -79,7 +84,7 @@ class TestApplication:
 
         # 申请一个不存在的组
         r = client_another_user.post('/api/group/100/application/', data)
-        assert r.status_code == status.HTTP_400_BAD_REQUEST
+        assert r.status_code == status.HTTP_404_NOT_FOUND
 
         # 重复申请
         r = client_another_user.post(f'/api/group/{group.id}/application/', data)
@@ -125,8 +130,8 @@ class TestMember:
 
     def test_view(self, client, accepted_application, group):
         r = client.get(f'/api/group/{group.id}/member/')
-        assert r.data[0]['apply_message']
-        assert r.data[0]['user']
+        assert r.data[0]['apply_message'] is not None
+        assert r.data[0]['user'] is not None
 
     def test_delete(self, client, accepted_application, another_user, group):
         r = client.delete(f'/api/group/{group.id}/member/{another_user.id}/')

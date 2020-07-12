@@ -7,10 +7,31 @@ from group.models import Group, Application
 from user.serializer import PublicProfileSerializer
 
 
-class GroupSerializer(serializers.ModelSerializer):
+class RuleSerializer(serializers.ModelSerializer):
+    has_phone_number = serializers.BooleanField(source='rule_has_phone_number')
+    has_email = serializers.BooleanField(source='rule_has_email')
+    has_name = serializers.BooleanField(source='rule_has_name')
+    must_be_verified_by_admin = serializers.BooleanField(source='rule_must_be_verified_by_admin')
+    email_suffix = serializers.CharField(source='rule_email_suffix', allow_null=True,
+                                         max_length=50, required=False)
+
     class Meta:
         model = Group
-        exclude = ['users', 'admin']
+        fields = [
+            'has_phone_number',
+            'has_email',
+            'has_name',
+            'must_be_verified_by_admin',
+            'email_suffix'
+        ]
+
+
+class GroupSerializer(serializers.ModelSerializer):
+    rules = RuleSerializer(source='*')
+
+    class Meta:
+        model = Group
+        fields = ['id', 'name', 'rules', 'apply_hint', 'verified', 'verify_message']
 
 
 class GroupApplicationSerializer(serializers.ModelSerializer):

@@ -48,7 +48,7 @@
   - 密码不一致
 
     ```json
-    {password: "Passwords are not same."}
+    {non_field_errors: "Passwords are not same."}
     ```
 
     
@@ -134,12 +134,14 @@
   - ```json
     {
         name: "某大学",
-        rule_has_phone_number: true,
-        rule_has_email: true,
-        rule_email_suffix: "xx.edu.cn", //可选
-        rule_has_name: true,
-        rule_must_be_verified_by_admin: true,
-        rule_apply_hint: "xxx", //可选
+        rules: {
+            has_phone_number: true,
+            has_email: true,
+            email_suffix: "xx.edu.cn", //可选
+            has_name: true,
+            must_be_verified_by_admin: true,
+        },
+        apply_hint: "xxx", //可选
     }
     ```
   
@@ -161,13 +163,32 @@
     ]
     ```
 
-  - 字段同创建, 多了一个`id`
+  - 字段同创建, 多了`id`, `verified`, `verify_message`
 
 ### 查看组信息
 
 - Request
   - Url: `group/1[id]/`
   - GET
+  
+- Response
+
+  - ```json
+    {
+        name: "xxx",
+        rules: {
+            has_phone_number: true,
+    		email_suffix: 'xx.edu.cn',
+    		...
+        },
+    	rules_meet: {
+            has_phone_number: true,
+    		email_suffix: false,
+    		...
+        },
+    	apply_hint: "xxx",
+    }
+    ```
 
 ### 修改组加入条件
 
