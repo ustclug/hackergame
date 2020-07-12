@@ -113,6 +113,17 @@
 
 ### 修改个人资料
 
+目前只能改 name..
+
+- Request
+  - Url: `user/`
+
+  - Method: PUT
+
+  - ```json
+    {name: "xxx"}
+    ```
+
 ### 修改密码
 
 ### 找回密码

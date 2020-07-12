@@ -3,6 +3,7 @@ import base64
 import OpenSSL
 from django.conf import settings
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractUser, UserManager
 
 
@@ -11,7 +12,7 @@ class TermManager(models.Manager):
         return self.get_queryset().get(enabled=True)
 
 
-# FIXME: 只允许一条启用的条款
+# TODO: 只允许一条启用的条款 (admin page)
 class Term(models.Model):
     """协议与条款"""
     name = models.CharField(max_length=100)
@@ -27,6 +28,15 @@ class Term(models.Model):
                 user.term_agreed = False
                 user.save()
         super().save(*args, **kwargs)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['enabled'],
+                condition=Q(enabled=True),
+                name='only_one_enabled_term'
+            )
+        ]
 
 
 class MyUserManager(UserManager):

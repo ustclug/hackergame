@@ -1,7 +1,8 @@
 """
 The "a" in the filename will make this file got tested first.
 """
-
+import pytest
+from django.db.utils import IntegrityError
 from rest_framework import status
 
 from user.models import User, Term
@@ -11,6 +12,11 @@ def test_create_term():
     User.objects.create_user(username="test_user", password="test_password")
     Term.objects.create(name='term', content='test')
     assert Term.objects.enabled_term().name == 'term'
+
+
+def test_only_one_enabled_term(term):
+    with pytest.raises(IntegrityError):
+        Term.objects.create(name='term2', content='test')
 
 
 def test_register(client_without_login):
@@ -49,6 +55,13 @@ def test_login(client_without_login):
 def test_user_profile(client):
     r = client.get('/api/user/')
     assert r.data['username'] == 'test_user'
+
+
+def test_update_user_profile(client, user):
+    r = client.put('/api/user/', {'name': 'another name'})
+    assert r.status_code == status.HTTP_204_NO_CONTENT
+    user.refresh_from_db()
+    assert user.last_name == 'another name'
 
 
 def test_logout(client):

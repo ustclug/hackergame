@@ -1,3 +1,6 @@
+"""
+TODO: 创建基础的 auth_group, 设置相关权限
+"""
 from django.core.management.base import BaseCommand
 from django.contrib.auth.models import Group
 from django.contrib.auth.models import Permission

@@ -47,6 +47,14 @@ class ProfileSerializer(serializers.ModelSerializer):
         fields = ['username', 'email', 'phone_number', 'token', 'name', 'date_joined']
 
 
+class ProfileUpdateSerializer(serializers.ModelSerializer):
+    name = serializers.CharField(source='last_name')
+
+    class Meta:
+        model = User
+        fields = ['name']
+
+
 class PublicProfileSerializer(serializers.ModelSerializer):
     name = serializers.CharField(source='last_name')
 

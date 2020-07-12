@@ -6,7 +6,8 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from user.models import User, Term
-from user.serializer import RegisterSerializer, TermSerializer, LoginSerializer, ProfileSerializer
+from user.serializer import RegisterSerializer, TermSerializer, LoginSerializer, \
+                        ProfileSerializer, ProfileUpdateSerializer
 
 
 class LoginAPI(APIView):
@@ -48,3 +49,10 @@ class ProfileAPI(APIView):
         user = request.user
         serializer = ProfileSerializer(user)
         return Response(serializer.data)
+
+    def put(self, request):
+        user = request.user
+        serializer = ProfileUpdateSerializer(user, data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_204_NO_CONTENT)
