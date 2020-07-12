@@ -30,6 +30,7 @@ class Term(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
+        default_permissions = []
         constraints = [
             models.UniqueConstraint(
                 fields=['enabled'],
@@ -61,3 +62,9 @@ class User(AbstractUser):
     objects = MyUserManager()
 
     REQUIRED_FIELDS = []
+
+    class Meta:
+        default_permissions = []
+        permissions = [
+            ('update_profile', 'can update his own profile')
+        ]

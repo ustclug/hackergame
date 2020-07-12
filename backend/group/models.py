@@ -29,6 +29,9 @@ class Group(models.Model):
         if flg:
             Application.objects.create(group=self, user=self.admin, status='accepted')
 
+    class Meta:
+        default_permissions = []
+
 
 class Application(models.Model):
     """加入某个组的申请"""
@@ -51,6 +54,7 @@ class Application(models.Model):
         super().save(*args, **kwargs)
 
     class Meta:
+        default_permissions = []
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'group'],

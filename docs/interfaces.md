@@ -36,19 +36,19 @@
   - 用户名已存在: 
 
     ```json
-    {username: "A user with that username already exists."}
+    {"username": "A user with that username already exists."}
     ```
 
   - 密码太短
 
     ```json
-    {password: "Password too short."}
+    {"password": "Password too short."}
     ```
 
   - 密码不一致
 
     ```json
-    {non_field_errors: "Passwords are not same."}
+    {"non_field_errors": "Passwords are not same."}
     ```
 
     
@@ -78,10 +78,10 @@
   
     - ```json
       {
-      	term: {
-              name: "xxxxx",
-              content: "xxxx",
-              date_created: "TODO"
+      	"term": {
+              "name": "xxxxx",
+              "content": "xxxx",
+              "date_created": "TODO"
           }
       }
       ```
@@ -121,7 +121,7 @@
   - Method: PUT
 
   - ```json
-    {name: "xxx"}
+    {"name": "xxx"}
     ```
 
 ### 修改密码
@@ -144,15 +144,15 @@
 
   - ```json
     {
-        name: "某大学",
-        rules: {
-            has_phone_number: true,
-            has_email: true,
-            email_suffix: "xx.edu.cn", //可选
-            has_name: true,
-            must_be_verified_by_admin: true,
+        "name": "某大学",
+        "rules": {
+            "has_phone_number": true,
+            "has_email": true,
+            "email_suffix": "xx.edu.cn", //可选
+            "has_name": true,
+            "must_be_verified_by_admin": true,
         },
-        apply_hint: "xxx", //可选
+        "apply_hint": "xxx", //可选
     }
     ```
   
@@ -186,18 +186,18 @@
 
   - ```json
     {
-        name: "xxx",
-        rules: {
-            has_phone_number: true,
-    		email_suffix: 'xx.edu.cn',
+        "name": "xxx",
+        "rules": {
+            "has_phone_number": true,
+    		"email_suffix": 'xx.edu.cn',
     		...
         },
-    	rules_meet: {
-            has_phone_number: true,
-    		email_suffix: false,
+    	"rules_meet": {
+            "has_phone_number": true,
+    		"email_suffix": false,
     		...
         },
-    	apply_hint: "xxx",
+    	"apply_hint": "xxx",
     }
     ```
 
@@ -225,7 +225,7 @@
 
   - ```json
     {
-        apply_message: "xxx",
+        "apply_message": "xxx",
     }
     ```
   
@@ -233,14 +233,14 @@
 
   - ```json
     {
-        status: "pending" (若无需要管理员验证这一规则则为"accepted")
+        "status": "pending" (若无需要管理员验证这一规则则为"accepted")
     }
     ```
     
   - 重复申请:
   
     ```json
-    {non_field_errors: "The fields user, group must make a unique set."}
+    {"non_field_errors": "The fields user, group must make a unique set."}
     ```
   
     
@@ -256,7 +256,7 @@
 
   - ```json
     [
-        {user:{...}, apply_message: "xxx"},
+        {"user":{...}, "apply_message": "xxx"},
         {...},
     ]
     ```
@@ -270,7 +270,7 @@
 
   - ```json
     {
-        status: "rejected" //拒绝, accepted 为同意
+        "status": "rejected" //拒绝, accepted 为同意
     }
     ```
 
@@ -287,7 +287,7 @@
 
   - ```json
     [
-        {apply_message: "xxx", user: {(字段和个人资料一致)}},
+        {"apply_message": "xxx", user: {(字段和个人资料一致)}},
     ]
     ```
 
