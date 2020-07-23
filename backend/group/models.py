@@ -5,17 +5,17 @@ from user.models import User
 
 
 class Group(models.Model):
-    name = models.CharField(max_length=100)
+    name = models.TextField()
     users = models.ManyToManyField(User)
-    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, related_name="group_admin")
+    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="group_admin")
     rule_has_phone_number = models.BooleanField()
     rule_has_email = models.BooleanField()
-    rule_email_suffix = models.CharField(max_length=50, null=True)
+    rule_email_suffix = models.CharField(max_length=50, null=True, blank=True)
     rule_has_name = models.BooleanField()
     rule_must_be_verified_by_admin = models.BooleanField()
-    apply_hint = models.TextField(verbose_name='给申请者的提示', null=True)
+    apply_hint = models.TextField(verbose_name='给申请者的提示', blank=True)
     verified = models.BooleanField(verbose_name='是否为认证过的组', default=False)
-    verify_message = models.TextField(null=True)
+    verify_message = models.TextField(blank=True)
 
     def __str__(self):
         return f'{self.id}:{self.name}'
@@ -43,7 +43,7 @@ class Application(models.Model):
     )
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    apply_message = models.TextField()
+    apply_message = models.TextField(blank=True)
     status = models.CharField(max_length=10, choices=STATUS, default='pending')
 
     def save(self, *args, **kwargs):

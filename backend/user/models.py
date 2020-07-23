@@ -55,8 +55,8 @@ class MyUserManager(UserManager):
 
 
 class User(AbstractUser):
-    phone_number = models.CharField(max_length=14, default='')
-    token = models.TextField(null=True)
+    phone_number = models.CharField(max_length=14, blank=True)
+    token = models.TextField(blank=True)
     term_agreed = models.BooleanField(default=False)
 
     objects = MyUserManager()

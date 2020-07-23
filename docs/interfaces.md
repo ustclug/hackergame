@@ -9,7 +9,7 @@
 - 成功: 200 OK
 - 成功, 操作为创建: 201 Created
 - 成功, 无响应内容: 204 No Content
-- 传入的字段不符合规范或 Validate Error: 400 Bad Request
+- 传入的字段不符合规范或 Validation Error: 400 Bad Request
 - 权限不足: 403 Forbidden
 - 未找到: 404 Not Found
 
@@ -23,11 +23,10 @@
 
   - Method: POST
 
-  - ```json
+  - ```
     {
         "username": "cjc7373",
         "password": "123456",
-        "password_confirm": "123456"
     }
     ```
   
@@ -35,19 +34,19 @@
 
   - 用户名已存在: 
 
-    ```json
+    ```
     {"username": "A user with that username already exists."}
     ```
 
   - 密码太短
 
-    ```json
+    ```
     {"password": "Password too short."}
     ```
 
   - 密码不一致
 
-    ```json
+    ```
     {"non_field_errors": "Passwords are not same."}
     ```
 
@@ -62,7 +61,7 @@
 
   - Method: POST
 
-  - ```json
+  - ```
     {
         "username": "cjc7373",
         "password": "123456",
@@ -76,10 +75,10 @@
   
     - 403 Forbidden
   
-    - ```json
+    - ```
       {
-      	"term": {
-              "name": "xxxxx",
+          "term": {
+            "name": "xxxxx",
               "content": "xxxx",
               "date_created": "TODO"
           }
@@ -101,7 +100,7 @@
 
 - Response
 
-  ```json
+  ```
   {
       "username": "cjc7373",
       "email": "c@ac.com",
@@ -120,7 +119,7 @@
 
   - Method: PUT
 
-  - ```json
+  - ```
     {"name": "xxx"}
     ```
 
@@ -142,7 +141,7 @@
 
   - Method: POST
 
-  - ```json
+  - ```
     {
         "name": "某大学",
         "rules": {
@@ -167,7 +166,7 @@
 
 - Response
 
-  - ```json
+  - ```
     [
         {...},
         {...},
@@ -184,20 +183,20 @@
   
 - Response
 
-  - ```json
+  - ```
     {
         "name": "xxx",
         "rules": {
             "has_phone_number": true,
-    		"email_suffix": 'xx.edu.cn',
-    		...
+            "email_suffix": "xx.edu.cn",
+            ...
         },
-    	"rules_meet": {
+        "rules_meet": {
             "has_phone_number": true,
-    		"email_suffix": false,
-    		...
+            "email_suffix": false,
+            ...
         },
-    	"apply_hint": "xxx",
+        "apply_hint": "xxx",
     }
     ```
 
@@ -223,7 +222,7 @@
 
   - Method: POST
 
-  - ```json
+  - ```
     {
         "apply_message": "xxx",
     }
@@ -231,7 +230,7 @@
   
 - Response:
 
-  - ```json
+  - ```
     {
         "status": "pending" (若无需要管理员验证这一规则则为"accepted")
     }
@@ -239,7 +238,7 @@
     
   - 重复申请:
   
-    ```json
+    ```
     {"non_field_errors": "The fields user, group must make a unique set."}
     ```
   
@@ -254,9 +253,9 @@
 
 - Response
 
-  - ```json
+  - ```
     [
-        {"user":{...}, "apply_message": "xxx"},
+        {"user": {...}, "apply_message": "xxx"},
         {...},
     ]
     ```
@@ -268,7 +267,7 @@
 
   - Method: PUT
 
-  - ```json
+  - ```
     {
         "status": "rejected" //拒绝, accepted 为同意
     }
@@ -285,9 +284,9 @@
 
 - Response
 
-  - ```json
+  - ```
     [
-        {"apply_message": "xxx", user: {(字段和个人资料一致)}},
+        {"apply_message": "xxx", "user": {(字段和个人资料一致)}},
     ]
     ```
 
@@ -296,3 +295,4 @@
 - Request
   - Url: `group/1/member/10[user_id]`
   - Method: DELETE
+  

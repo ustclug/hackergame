@@ -28,6 +28,7 @@ class RuleSerializer(serializers.ModelSerializer):
 
 class GroupSerializer(serializers.ModelSerializer):
     rules = RuleSerializer(source='*')
+    name = serializers.CharField(max_length=100)
 
     class Meta:
         model = Group

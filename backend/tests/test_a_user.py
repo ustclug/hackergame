@@ -20,12 +20,16 @@ def test_only_one_enabled_term(term):
 
 
 def test_register(client_without_login):
+    # 测试过短的密码
     data = {
         "username": "test_user",
-        "password": "test_password",
-        "password_confirm": "test_password"
+        "password": "123456",
     }
-    client_without_login.post('/api/user/register/', data)
+    r = client_without_login.post('/api/user/register/', data)
+    assert "too short" in r.data['password']
+
+    data['password'] = 'test_password'
+    r = client_without_login.post('/api/user/register/', data)
     user = User.objects.all()[0]
     assert user.username == "test_user"
     assert user.token is not None
