@@ -296,3 +296,35 @@
   - Url: `group/1/member/10[user_id]`
   - Method: DELETE
   
+## 比赛
+
+### 查看比赛的所有阶段
+
+- Request
+    - Url: `stage/`
+    - Method: GET
+    
+- Response
+    - ```
+        {
+            "start_time": "",
+            "end_time": "",
+            "practice_start_time": "",
+            "pause": [
+                {"start_time": "", "end_time": ""}
+            ]
+        }
+        ```
+
+## 查看比赛的当前阶段
+- Request
+    - Url: `stage/current/`
+    - Method: GET
+    
+- Response
+    - ```
+        {
+            "status": "not_start"
+        }
+        ```
+  

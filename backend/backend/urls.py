@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/user/', include('user.urls')),
     path('api/group/', include('group.urls')),
+    path('api/stage/', include('contest.urls')),
 ]
