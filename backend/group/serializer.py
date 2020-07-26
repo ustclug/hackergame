@@ -39,7 +39,7 @@ class GroupApplicationSerializer(serializers.ModelSerializer):
     def validate_group(self, group):
         # 已经为组内成员不能重复申请
         user = self.context['request'].user
-        if user in group.users.filter():
+        if user in group.users:
             raise ValidationError("You are already a member of this group")
         return group
 

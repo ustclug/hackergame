@@ -6,16 +6,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
-from user.models import User
 from group.models import Group, Application
 from group.serializer import GroupSerializer, GroupApplicationSerializer, \
     GroupApplicationUpdateSerializer, ProfileSerializer
 from group.permissions import IsGroupAdminOrReadOnly, IsGroupAdmin
-
-
-def validate_apply_group(user: User, group: Group):
-    if group.rule_has_phone_number and user.phone_number == '':
-        raise ValidationError('user must have phone number')
 
 
 def generate_rules_meet(rules, user):

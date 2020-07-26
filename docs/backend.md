@@ -21,11 +21,8 @@
 - banned user
 - throttling
 - admin page
-- Application 和 Group.users 这两张表信息重复, 可以舍去 rejected 和
-    deleted 两个状态, 然后用 ManyToManyField
 - Group admin 任意多个?
 - auto_now_add=True 可能不利于测试?
-- User.token 是否会因为意外是 NULL?
 
 ## 其他
 - 是否有必要采取类似 Service 的设计?

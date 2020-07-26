@@ -29,7 +29,4 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Term)
 class TermAdmin(admin.ModelAdmin):
-    save_as = True
-
-    def has_change_permission(self, request, obj=None):
-        return False
+    list_display = ('__str__', 'enabled')

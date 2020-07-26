@@ -50,8 +50,6 @@
     {"non_field_errors": "Passwords are not same."}
     ```
 
-    
-
 
 ### 登录
 
@@ -77,11 +75,13 @@
   
     - ```
       {
-          "term": {
-            "name": "xxxxx",
-              "content": "xxxx",
-              "date_created": "TODO"
-          }
+          "term": [
+              {
+                  "name": "xxxxx",
+                  "content": "xxxx",
+                  "date_created": "xxx"
+              }
+          ]
       }
       ```
 
@@ -232,7 +232,7 @@
 
   - ```
     {
-        "status": "pending" (若无需要管理员验证这一规则则为"accepted")
+        "status": "pending" //若无需要管理员验证这一规则则为"accepted"
     }
     ```
     

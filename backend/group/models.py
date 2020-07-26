@@ -7,7 +7,6 @@ from user.models import User
 class Group(models.Model):
     """组, 区分参赛者所属的组织"""
     name = models.TextField()
-    users = models.ManyToManyField(User)
     admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="group_admin")
     rule_has_phone_number = models.BooleanField()
     rule_has_email = models.BooleanField()
@@ -20,6 +19,11 @@ class Group(models.Model):
 
     def __str__(self):
         return f'{self.id}:{self.name}'
+
+    @property
+    def users(self):
+        applications = Application.objects.filter(group=self, status='accepted')
+        return list(map(lambda appl: appl.user, applications))
 
     def save(self, *args, **kwargs):
         flg = 0
@@ -37,22 +41,18 @@ class Group(models.Model):
 class Application(models.Model):
     """加入某个组的申请"""
     STATUS = (
-        ('accepted', 'the user is now in the group'),
+        ('accepted', 'accepted'),
         ('rejected', 'rejected'),
         ('pending', 'pending'),
-        ('deleted', 'the user is deleted from the group')
+        ('deleted', 'deleted'),
     )
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     apply_message = models.TextField(blank=True)
     status = models.CharField(max_length=10, choices=STATUS, default='pending')
 
-    def save(self, *args, **kwargs):
-        if self.status == 'accepted':
-            self.group.users.add(self.user)
-        if self.status == 'deleted':
-            self.group.users.remove(self.user)
-        super().save(*args, **kwargs)
+    def __str__(self):
+        return f'{self.id}:{self.group.name}:{self.user}'
 
     class Meta:
         default_permissions = []

@@ -19,7 +19,6 @@ def group(user):
         verified=True,
         verify_message='This group has been verified.'
     )
-    group.users.set([user])
     return group
 
 
@@ -42,7 +41,7 @@ class TestManagement:
         # 测试创建者在组内并为管理员
         group = Group.objects.all()[0]
         assert group.admin == user
-        assert group.users.all()[0] == user
+        assert group.users[0] == user
 
     def test_list(self, client, group):
         r = client.get('/api/group/')
@@ -104,7 +103,7 @@ class TestApplication:
         })
         application.refresh_from_db()
         assert application.status == 'accepted'
-        assert another_user in group.users.all()
+        assert another_user in group.users
 
     def test_reject_update(self, client, application, group, another_user):
         client.put(f'/api/group/{group.id}/application/{application.id}/', {
@@ -112,7 +111,7 @@ class TestApplication:
         })
         application.refresh_from_db()
         assert application.status == 'rejected'
-        assert another_user not in group.users.all()
+        assert another_user not in group.users
 
     def test_permission(self, client_another_user, application, group):
         r = client_another_user.get(f'/api/group/{group.id}/application/')
@@ -136,7 +135,7 @@ class TestMember:
     def test_delete(self, client, accepted_application, another_user, group):
         r = client.delete(f'/api/group/{group.id}/member/{another_user.id}/')
         assert r.status_code == status.HTTP_204_NO_CONTENT
-        assert another_user not in group.users.all()
+        assert another_user not in group.users
 
     def test_permission(self, client_another_user, accepted_application, group):
         r = client_another_user.get(f'/api/group/{group.id}/member/')

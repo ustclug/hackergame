@@ -1,18 +1,30 @@
 from django.contrib import admin
-from django.utils.html import format_html
 
 from group.models import Group, Application
 
 
 @admin.register(Group)
 class GroupAdmin(admin.ModelAdmin):
-    list_display = ('test',)
     search_fields = ('name',)
-    filter_horizontal = ('users',)
-
-    def test(self, obj):
-        return format_html('<span style="color: #FF0000">{}</span>',
-                           obj.id)
+    readonly_fields = ('users',)
+    fieldsets = (
+        (None, {
+            'fields': ('name', 'admin', 'users'),
+        }),
+        ('Rules', {
+            'fields': (
+                'rule_has_phone_number',
+                'rule_has_email',
+                'rule_email_suffix',
+                'rule_has_name',
+                'rule_must_be_verified_by_admin',
+                'apply_hint',
+            ),
+        }),
+        ('Verification', {
+            'fields': ('verified', 'verify_message')
+        })
+    )
 
 
 admin.site.register(Application)

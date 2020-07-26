@@ -1,8 +1,6 @@
 """
 The "a" in the filename will make this file got tested first.
 """
-import pytest
-from django.db.utils import IntegrityError
 from rest_framework import status
 
 from user.models import User, Term
@@ -11,12 +9,7 @@ from user.models import User, Term
 def test_create_term():
     User.objects.create_user(username="test_user", password="test_password")
     Term.objects.create(name='term', content='test')
-    assert Term.objects.enabled_term().name == 'term'
-
-
-def test_only_one_enabled_term(term):
-    with pytest.raises(IntegrityError):
-        Term.objects.create(name='term2', content='test')
+    assert Term.objects.enabled_term()[0].name == 'term'
 
 
 def test_register(client_without_login):
@@ -32,7 +25,7 @@ def test_register(client_without_login):
     r = client_without_login.post('/api/user/register/', data)
     user = User.objects.all()[0]
     assert user.username == "test_user"
-    assert user.token is not None
+    assert user.token
 
     # 测试重复的用户名
     r = client_without_login.post('/api/user/register/', data)
@@ -49,7 +42,7 @@ def test_login(client_without_login):
     }
     r = client_without_login.post('/api/user/login/', data)
     assert r.status_code == status.HTTP_403_FORBIDDEN
-    assert r.data['term']['name'] == 'term'
+    assert r.data['term'][0]['name'] == 'term'
 
     data['allow_terms'] = True
     r = client_without_login.post('/api/user/login/', data)

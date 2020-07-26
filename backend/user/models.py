@@ -1,5 +1,4 @@
 from django.db import models
-from django.db.models import Q
 from django.contrib.auth.models import AbstractUser, UserManager
 
 from user.utils import generate_uuid_and_token
@@ -7,10 +6,9 @@ from user.utils import generate_uuid_and_token
 
 class TermManager(models.Manager):
     def enabled_term(self):
-        return self.get_queryset().get(enabled=True)
+        return self.get_queryset().filter(enabled=True)
 
 
-# TODO: 只允许一条启用的条款 (admin page)
 class Term(models.Model):
     """协议与条款"""
     name = models.CharField(max_length=100)
@@ -21,21 +19,18 @@ class Term(models.Model):
     objects = TermManager()
 
     def save(self, *args, **kwargs):
-        if not self.pk:
-            for user in User.objects.all():
-                user.term_agreed = False
-                user.save()
+        # 任何条款变化后都需要用户重新同意
+        # FIXME: 清除登录状态
+        for user in User.objects.all():
+            user.term_agreed = False
+            user.save()
         super().save(*args, **kwargs)
+
+    def __str__(self):
+        return f'{self.id}:{self.name}'
 
     class Meta:
         default_permissions = []
-        constraints = [
-            models.UniqueConstraint(
-                fields=['enabled'],
-                condition=Q(enabled=True),
-                name='only_one_enabled_term'
-            )
-        ]
 
 
 class MyUserManager(UserManager):
