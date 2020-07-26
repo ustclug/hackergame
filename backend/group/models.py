@@ -5,6 +5,7 @@ from user.models import User
 
 
 class Group(models.Model):
+    """组, 区分参赛者所属的组织"""
     name = models.TextField()
     users = models.ManyToManyField(User)
     admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="group_admin")

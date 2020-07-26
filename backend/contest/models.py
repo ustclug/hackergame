@@ -28,6 +28,7 @@ class StageManager(models.Manager):
 
 
 class Stage(models.Model):
+    """比赛各阶段的时间点, 整个表只允许一行数据"""
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     practice_start_time = models.DateTimeField()

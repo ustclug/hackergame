@@ -1,10 +1,8 @@
-import base64
-
-import OpenSSL
-from django.conf import settings
 from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import AbstractUser, UserManager
+
+from user.utils import generate_uuid_and_token
 
 
 class TermManager(models.Manager):
@@ -41,16 +39,9 @@ class Term(models.Model):
 
 
 class MyUserManager(UserManager):
-    _private_key = OpenSSL.crypto.load_privatekey(
-        OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
-
     def create_user(self, username, email=None, password=None, **extra_fields):
-        user = super().create_user(username, email, password, **extra_fields)
-        pk = str(user.pk)
-        sig = base64.b64encode(OpenSSL.crypto.sign(
-            self._private_key, pk.encode(), 'sha256')).decode()
-        user.token = pk + ':' + sig
-        user.save()
+        uid, sig = generate_uuid_and_token()
+        user = super().create_user(username, email, password, uuid=uid, token=sig, **extra_fields)
         return user
 
 
@@ -58,6 +49,7 @@ class User(AbstractUser):
     phone_number = models.CharField(max_length=14, blank=True)
     token = models.TextField(blank=True)
     term_agreed = models.BooleanField(default=False)
+    uuid = models.UUIDField(editable=False)
 
     objects = MyUserManager()
 
