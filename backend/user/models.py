@@ -13,7 +13,7 @@ class Term(models.Model):
     """协议与条款"""
     name = models.CharField(max_length=100)
     content = models.TextField()
-    date_created = models.DateTimeField(auto_now_add=True)
+    date_modified = models.DateTimeField(auto_now=True)
     enabled = models.BooleanField(default=True)
 
     objects = TermManager()
@@ -35,6 +35,7 @@ class Term(models.Model):
 
 class MyUserManager(UserManager):
     def create_user(self, username, email=None, password=None, **extra_fields):
+        # FIXME: 是否应该写到 save 方法里?
         uid, sig = generate_uuid_and_token()
         user = super().create_user(username, email, password, uuid=uid, token=sig, **extra_fields)
         return user

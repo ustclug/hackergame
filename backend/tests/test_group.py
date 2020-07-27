@@ -23,7 +23,6 @@ def group(user):
 
 
 class TestManagement:
-    # TODO: 根据 API 修改 test
     def test_create(self, client, user):
         r = client.post('/api/group/', {
             'name': "某大学",

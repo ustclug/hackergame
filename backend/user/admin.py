@@ -29,4 +29,5 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Term)
 class TermAdmin(admin.ModelAdmin):
+    readonly_fields = ('date_modified',)
     list_display = ('__str__', 'enabled')

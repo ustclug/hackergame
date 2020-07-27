@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 
 class StageManager(models.Manager):
@@ -35,9 +36,22 @@ class Stage(models.Model):
 
     objects = StageManager()
 
+    def save(self, **kwargs):
+        if not self.pk and Stage.objects.count():
+            raise ValidationError("Stage table can only have one line.")
+        super().save(**kwargs)
 
-# FIXME: 如何保证暂停在比赛进行的时间范围内?
+
 class Pause(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     note = models.TextField(blank=True)
+
+    def save(self, **kwargs):
+        stage = Stage.objects.get()
+        if self.start_time < stage.start_time:
+            raise ValidationError("Pause start time must be after contest start time.")
+        if self.end_time > stage.end_time:
+            raise ValidationError("Pause end time must be before contest end time.")
+        super().save(**kwargs)
+
