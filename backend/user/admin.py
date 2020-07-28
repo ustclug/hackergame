@@ -11,7 +11,6 @@ class UserAdmin(admin.ModelAdmin):
             'fields': ('username', 'password', 'last_name', 'email', 'phone_number')
         }),
         ('Advanced', {
-            'classes': ('collapse',),
             'fields': ('term_agreed', 'groups', 'is_superuser', 'is_staff', 'token'),
         }),
     )

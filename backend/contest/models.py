@@ -54,4 +54,3 @@ class Pause(models.Model):
         if self.end_time > stage.end_time:
             raise ValidationError("Pause end time must be before contest end time.")
         super().save(**kwargs)
-

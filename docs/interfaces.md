@@ -296,6 +296,7 @@
   - Url: `group/1/member/10[user_id]`
   - Method: DELETE
   
+
 ## 比赛
 
 ### 查看比赛的所有阶段
@@ -327,4 +328,31 @@
             "status": "not_start"
         }
         ```
-  
+
+
+## 题目
+
+### 查看已启用的题目
+- Request
+    - Url: `challenge/`
+    - Method: GET
+    
+- Response
+    - ```
+        [
+            {
+                "id": 1,
+                "name": "test_problem",
+                "category": "test",
+                "detail": "test_detail",
+                "prompt": "test_prompt",
+                "sub_challenge": [
+                    {
+                        "id": 1,
+                        "name": "",
+                        "score": 50
+                    }
+                ]
+            }
+        ]
+        ```

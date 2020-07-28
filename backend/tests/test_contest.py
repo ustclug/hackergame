@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta
+from datetime import timedelta
 
 import pytest
 import pytz
@@ -7,29 +7,7 @@ from django.core.exceptions import ValidationError
 
 from contest.models import Stage, Pause
 from contest.models import StageManager
-
-cur_time = None
-
-
-def now(cls):
-    return cur_time
-
-
-# monkey patch now()
-StageManager.now = now
-
-
-def stage():
-    start_time = datetime(2020, 7, 24, 22, 47, 00, tzinfo=pytz.utc)
-    end_time = start_time + timedelta(days=1)
-    practice_start_time = start_time + timedelta(days=2)
-    return Stage.objects.create(start_time=start_time, end_time=end_time,
-                                practice_start_time=practice_start_time)
-
-
-@pytest.fixture(name="stage")
-def stage_fixture():
-    return stage()
+from tests.conftest import stage
 
 
 @pytest.fixture
@@ -53,7 +31,12 @@ def test_pause_validation(stage):
 
 
 def test_current_status(stage, pause):
-    global cur_time
+    cur_time = None
+
+    # monkey patch now()
+    origin_now = StageManager.now
+    StageManager.now = lambda cls: cur_time
+
     cur_time = stage.start_time - timedelta(seconds=100)
     assert Stage.objects.current_status == "not start"
 
@@ -69,6 +52,8 @@ def test_current_status(stage, pause):
     cur_time = stage.practice_start_time + timedelta(seconds=100)
     assert Stage.objects.current_status == "practice"
 
+    StageManager.now = origin_now
+
 
 def test_stage(stage, pause, client):
     r = client.get('/api/stage/')
@@ -78,7 +63,14 @@ def test_stage(stage, pause, client):
 
 
 def test_get_current_stage(stage, client):
-    global cur_time
+    cur_time = None
+
+    # monkey patch now()
+    origin_now = StageManager.now
+    StageManager.now = lambda cls: cur_time
+
     cur_time = stage.start_time - timedelta(seconds=100)
     r = client.get('/api/stage/current/')
     assert r.data['status'] == 'not start'
+
+    StageManager.now = origin_now

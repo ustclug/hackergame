@@ -1,7 +1,11 @@
+from datetime import datetime, timedelta
+
+import pytz
 import pytest
 from rest_framework.test import APIClient
 
 from user.models import User, Term
+from contest.models import Stage
 
 
 @pytest.fixture(autouse=True)
@@ -43,3 +47,16 @@ def client_another_user(user, term, another_user):
     c = APIClient()
     c.login(username="test_user2", password="test_password")
     return c
+
+
+def stage():
+    start_time = datetime(2020, 7, 24, 22, 47, 0, tzinfo=pytz.utc)
+    end_time = start_time + timedelta(weeks=52*100)  # 使得用到 Stage 的测试状态永远处于 underway
+    practice_start_time = end_time + timedelta(days=2)
+    return Stage.objects.create(start_time=start_time, end_time=end_time,
+                                practice_start_time=practice_start_time)
+
+
+@pytest.fixture(name="stage")
+def stage_fixture():
+    return stage()

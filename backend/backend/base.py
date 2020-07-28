@@ -26,6 +26,7 @@ INSTALLED_APPS = [
     'user',
     'group',
     'contest',
+    'challenge',
 
     'rest_framework',
 
