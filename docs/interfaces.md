@@ -255,10 +255,11 @@
 
   - ```
     [
-        {"user": {...}, "apply_message": "xxx"},
-        {...},
-    ]
-    ```
+        {
+          "user": {//字段和个人资料一致}, 
+          "apply_message": "xxx"
+        },
+    ]```
 
 ### 同意或拒绝某一申请
 
@@ -286,7 +287,10 @@
 
   - ```
     [
-        {"apply_message": "xxx", "user": {(字段和个人资料一致)}},
+        {
+          "apply_message": "xxx", 
+          "user": {//字段和个人资料一致}
+        },
     ]
     ```
 
@@ -385,7 +389,7 @@
 - Request
     - Url: `/borad/score/`
     - Method: GET
-    - Query string: category=?&group=?(group id)
+    - Query string: category=<category>&group=<group id>
       若 category 为空则为所有分类, 若 group 为空则为所有人
       
 - Response
@@ -399,3 +403,30 @@
         ]
         ```
 
+### 获取一血榜单
+
+- Request
+    - Url: `/board/firstblood/`
+    - Method: GET
+    - Query string: group=<group id>
+
+- Response
+    - ```json5
+      {
+        "challenges": [
+          {
+            "challenge": 1,
+            "user": 1,
+            "time": "2020-05-24T02:44:12.498Z"
+          },
+        ],
+        "sub_challenges": [
+          {
+            "user": 1,
+            "challenge": 1,
+            "sub_challenge": 1,
+            "time": "2020-05-24T02:44:12.498Z"
+          },
+        ]
+      }
+        ```

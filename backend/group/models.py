@@ -7,7 +7,8 @@ from user.models import User
 class Group(models.Model):
     """组, 区分参赛者所属的组织"""
     name = models.TextField()
-    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name="group_admin")
+    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
+                              blank=True, related_name="group_admin")
     rule_has_phone_number = models.BooleanField()
     rule_has_email = models.BooleanField()
     rule_email_suffix = models.CharField(max_length=50, null=True, blank=True)
@@ -53,6 +54,27 @@ class Application(models.Model):
 
     def __str__(self):
         return f'{self.id}:{self.group.name}:{self.user}'
+
+    def save(self, *args, **kwargs):
+        from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood, update_firstblood
+
+        super().save(*args, **kwargs)
+
+        if self.status == 'accepted':
+            # 用户加入组后更新该组的一血榜
+            for submission in Submission.objects.filter(user=self.user):
+                values = {
+                    'sub_challenge': submission.sub_challenge_clear,
+                    'group': self.group,
+                }
+                update_firstblood(SubChallengeFirstBlood, submission, values)
+                if submission.challenge_clear:
+                    values = {
+                        'challenge': submission.challenge,
+                        'group': self.group,
+                    }
+                    update_firstblood(ChallengeFirstBlood, submission, values)
+
 
     class Meta:
         default_permissions = []

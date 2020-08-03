@@ -117,15 +117,16 @@ class TestApplication:
         assert r.status_code == status.HTTP_403_FORBIDDEN
 
 
-class TestMember:
-    @pytest.fixture
-    def accepted_application(self, client, application, group):
-        client.put(f'/api/group/{group.id}/application/{application.id}/', {
-            'status': 'accepted'
-        })
-        application.refresh_from_db()
-        return application
+@pytest.fixture
+def accepted_application(client, application, group):
+    client.put(f'/api/group/{group.id}/application/{application.id}/', {
+        'status': 'accepted'
+    })
+    application.refresh_from_db()
+    return application
 
+
+class TestMember:
     def test_view(self, client, accepted_application, group):
         r = client.get(f'/api/group/{group.id}/member/')
         assert r.data[0]['apply_message'] is not None

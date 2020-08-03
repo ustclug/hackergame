@@ -79,6 +79,8 @@ class SubChallenge(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
+        # TODO: 更新榜单
+
         if self.flag_type == 'expr':
             # 每次保存更新 ExprFlag 表
             users = User.objects.all()

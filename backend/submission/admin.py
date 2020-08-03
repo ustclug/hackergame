@@ -5,4 +5,4 @@ from submission.models import Submission
 
 @admin.register(Submission)
 class SubmissionAdmin(admin.ModelAdmin):
-    ...
+    list_display = ('id', 'user', 'challenge', 'flag', 'created_time', 'sub_challenge_clear')

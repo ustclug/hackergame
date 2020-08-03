@@ -3,6 +3,11 @@ from rest_framework import permissions
 from group.models import Application
 
 
+class IsInGroup(permissions.BasePermission):
+    def has_object_permission(self, request, view, obj):
+        return request.user in obj.users
+
+
 class IsGroupAdmin(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, Application):

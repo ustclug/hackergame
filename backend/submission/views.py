@@ -9,8 +9,10 @@ from rest_framework.exceptions import NotFound
 
 from challenge.models import Challenge
 from submission.models import Submission, ChallengeFirstBlood, SubChallengeFirstBlood, Scoreboard
-from submission.serializer import SubmissionSerializer
+from submission.serializer import SubmissionSerializer, ScoreboardSerializer, \
+                            ChallengeFirstBloodSerializer, SubChallengeFirstBloodSerializer
 from group.models import Group
+from group.permissions import IsInGroup
 from user.models import User
 
 
@@ -26,47 +28,13 @@ class SubmissionAPI(APIView):
         except Http404:
             raise NotFound("The challenge does not exist.")
         flag = data['flag']
-        # 判断重复提交
-        if Submission.objects.filter(user=request.user, challenge=challenge, flag=flag,
-                                     sub_challenge_clear=True).exists():
-            repeat = True
-        else:
-            repeat = False
 
         submission = Submission.objects.create(user=request.user, challenge=challenge, flag=flag)
 
         # 检查提交是否正确
-        correct = False
-        for sub_challenge in challenge.sub_challenge.filter(enabled=True):
-            if sub_challenge.check_correctness(flag, request.user):
-                correct = True
-                if not repeat:
-                    submission.sub_challenge_clear = sub_challenge
-            violation_user = sub_challenge.check_violation(flag, request.user)
-            if violation_user is not None:
-                submission.violation_user = violation_user
-        submission.save()
+        correct = submission.update_clear_status()
 
-        if submission.sub_challenge_clear is not None:
-            correct_challenge_submission = Submission.objects.filter(challenge=challenge, user=request.user,
-                                                                     sub_challenge_clear__isnull=False)
-            if correct_challenge_submission.count() == challenge.sub_challenge.count():
-                submission.challenge_clear = True
-        submission.save()
-
-        # 更新榜单
-        if submission.sub_challenge_clear and not request.user.groups.filter(name='no_score').exists():
-            for group in Group.objects.filter(application__user=request.user, application__status='accepted'):
-                # 一血榜
-                SubChallengeFirstBlood.objects.get_or_create(sub_challenge=submission.sub_challenge_clear,
-                                                             group=group, defaults={'user': request.user})
-                if submission.challenge_clear:
-                    ChallengeFirstBlood.objects.get_or_create(challenge=challenge, group=group,
-                                                              defaults={'user': request.user})
-
-            # 分数榜
-            self.update_scoreboard(request.user, submission)
-            self.update_scoreboard(request.user, submission, challenge.category)
+        submission.update_board()
 
         if correct:
             msg = 'correct'
@@ -74,23 +42,41 @@ class SubmissionAPI(APIView):
             msg = 'wrong'
         return Response({'detail': msg})
 
-    def update_scoreboard(self, user: User, submission: Submission, category: str = ''):
-        """更新分数榜, 若分类为空则为总榜"""
-        try:
-            scoreboard = Scoreboard.objects.get(user=user, category=category)
-            scoreboard.score = F('score') + submission.sub_challenge_clear.score
-            scoreboard.time = submission.created_time
-            scoreboard.save()
-        except Scoreboard.DoesNotExist:
-            Scoreboard.objects.create(
-                user=user,
-                category=category,
-                score=submission.sub_challenge_clear.score,
-                time=submission.created_time
-            )
 
+class ScoreboardAPI(generics.GenericAPIView, mixins.ListModelMixin):
+    serializer_class = ScoreboardSerializer
+    permission_classes = [IsInGroup]
+    # TODO: 做题历史, 进度
 
-class BoardAPI(generics.GenericAPIView, mixins.ListModelMixin):
     def get_queryset(self):
         params = self.request.query_params
-        return Scoreboard.objects.all()
+        scoreboard = Scoreboard.objects.filter(category=params.get('category', ''))
+        group = params.get('group')
+        if group:
+            group = get_object_or_404(Group, pk=group)
+            self.check_object_permissions(self.request, group)
+            return scoreboard.filter(user__in=group.users)
+        else:
+            return scoreboard
+
+    def get(self, request, *args, **kwargs):
+        response = self.list(request, *args, **kwargs)
+        return response
+
+
+class FirstBloodBoardAPI(APIView):
+    def get(self, request):
+        group = self.request.query_params.get('group')
+        if group:
+            group = get_object_or_404(Group, pk=group)
+            self.check_object_permissions(self.request, group)
+        return Response({
+            'challenges': ChallengeFirstBloodSerializer(
+                ChallengeFirstBlood.objects.filter(group=group),
+                many=True
+            ).data,
+            'sub_challenges': SubChallengeFirstBloodSerializer(
+                SubChallengeFirstBlood.objects.filter(group=group),
+                many=True
+            ).data
+        })
