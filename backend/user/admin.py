@@ -21,8 +21,8 @@ class UserAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         # FIXME: how to deal with password?
-        if not change:
-            obj.uuid, obj.token = generate_uuid_and_token()
+        # if not change:
+        #     obj.uuid, obj.token = generate_uuid_and_token()
         super().save_model(request, obj, form, change)
 
 

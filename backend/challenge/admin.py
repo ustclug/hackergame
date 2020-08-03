@@ -11,4 +11,6 @@ class SubChallengeInline(admin.StackedInline):
 @admin.register(Challenge)
 class ChallengeAdmin(admin.ModelAdmin):
     # TODO: 文件上传
+    fields = ('id', 'index', 'name', 'category', 'detail', 'prompt')
+    readonly_fields = ('id',)
     inlines = [SubChallengeInline]

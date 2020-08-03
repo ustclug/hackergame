@@ -2,6 +2,9 @@ from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
 
 from user.models import User
+from challenge.utils import eval_token_expression
+
+from typing import Union
 
 
 class Challenge(models.Model):
@@ -58,14 +61,30 @@ class SubChallenge(models.Model):
         """
     )
 
+    def check_correctness(self, flag: str, user: User) -> bool:
+        if self.flag_type == 'text' and flag == self.flag:
+            return True
+        elif self.flag_type == 'expr':
+            if ExprFlag.objects.filter(sub_challenge=self, flag=flag, user=user).exists():
+                return True
+        return False
+
+    def check_violation(self, flag: str, user: User) -> Union[User, None]:
+        if self.flag_type == 'expr':
+            violation = ExprFlag.objects.filter(sub_challenge=self, flag=flag).exclude(user=user)
+            if violation.exists():
+                return violation[0].user
+        return None
+
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
 
-        from challenge.utils import eval_token_expression
         if self.flag_type == 'expr':
             # 每次保存更新 ExprFlag 表
-            # TODO: 创建用户也要更新 ExprFlag 表
             users = User.objects.all()
+            if len(users) == 0:
+                return
+
             # 若 flag 表达式无变化则跳过更新
             try:
                 obj = ExprFlag.objects.get(user=users[0], sub_challenge=self)

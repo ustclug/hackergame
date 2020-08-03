@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, UserManager
 
 from user.utils import generate_uuid_and_token
+from challenge.utils import eval_token_expression
 
 
 class TermManager(models.Manager):
@@ -36,8 +37,8 @@ class Term(models.Model):
 class MyUserManager(UserManager):
     def create_user(self, username, email=None, password=None, **extra_fields):
         # FIXME: 是否应该写到 save 方法里?
-        uid, sig = generate_uuid_and_token()
-        user = super().create_user(username, email, password, uuid=uid, token=sig, **extra_fields)
+        # uid, sig = generate_uuid_and_token()
+        user = super().create_user(username, email, password, **extra_fields)
         return user
 
 
@@ -50,6 +51,21 @@ class User(AbstractUser):
     objects = MyUserManager()
 
     REQUIRED_FIELDS = []
+
+    def save(self, *args, **kwargs):
+        from challenge.models import SubChallenge, ExprFlag  # to avoid circuit import
+
+        flg = 0
+        if not self.pk:
+            flg = 1
+            self.uuid, self.token = generate_uuid_and_token()
+
+        super().save(*args, **kwargs)
+        # 创建完成后更新 ExprFlag 表
+        if flg:
+            for sub_challenge in SubChallenge.objects.filter(flag_type='expr'):
+                flag = eval_token_expression(sub_challenge.flag, self.token)
+                ExprFlag.objects.create(user=self, sub_challenge=sub_challenge, flag=flag)
 
     class Meta:
         default_permissions = []

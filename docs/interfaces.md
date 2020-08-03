@@ -338,7 +338,7 @@
     - Method: GET
     
 - Response
-    - ```
+    - ```json5
         [
             {
                 "id": 1,
@@ -356,3 +356,46 @@
             }
         ]
         ```
+
+## 提交
+
+### 提交一个 flag
+
+- Request
+    - Url: `/submission/`
+    - Method: POST
+    - ```json5
+        {
+            "challenge": 1,
+            "flag": "flag{hello}"
+        }
+        ```
+
+- Response
+    - ```json5
+        {
+            "detail": "correct" // 或者为 wrong
+        }
+        ```
+      
+## 榜单
+
+### 获取分数榜单
+
+- Request
+    - Url: `/borad/score/`
+    - Method: GET
+    - Query string: category=?&group=?(group id)
+      若 category 为空则为所有分类, 若 group 为空则为所有人
+      
+- Response
+    - ```json5
+        [
+            {
+                "user": 1, //id
+                "score": 100,
+                "time": "2020-05-24T02:44:12.498Z"
+            }
+        ]
+        ```
+
