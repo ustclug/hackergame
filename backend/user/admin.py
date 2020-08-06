@@ -1,7 +1,7 @@
 from django.contrib import admin
 
 from user.models import User, Term
-from user.utils import generate_uuid_and_token
+# from user.utils import generate_uuid_and_token
 
 
 @admin.register(User)

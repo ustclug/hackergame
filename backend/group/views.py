@@ -102,7 +102,7 @@ class GroupMemberAPI(generics.GenericAPIView):
 
     def delete(self, request, group_id, user_id):
         group = self.get_object()
-        application = get_object_or_404(Application, group=group, user__id=user_id)
+        application = get_object_or_404(Application, group=group, user__id=user_id, status='accepted')
         application.status = 'deleted'
         application.save()
         return Response(status=status.HTTP_204_NO_CONTENT)

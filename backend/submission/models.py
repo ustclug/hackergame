@@ -1,5 +1,3 @@
-from typing import Union, Type
-
 from django.db import models
 from django.db.models import Q, F
 
@@ -81,8 +79,9 @@ class Submission(models.Model):
             groups = list(Group.objects.filter(application__user=self.user, application__status='accepted')) \
                      + [None]
         for g in groups:
-            self._update_first_blood_obj(SubChallengeFirstBlood, g,
-                                         {'sub_challenge': self.sub_challenge_clear})
+            if self.sub_challenge_clear:
+                self._update_first_blood_obj(SubChallengeFirstBlood, g,
+                                             {'sub_challenge': self.sub_challenge_clear})
             if self.challenge_clear:
                 self._update_first_blood_obj(ChallengeFirstBlood, g, {'challenge': self.challenge})
 

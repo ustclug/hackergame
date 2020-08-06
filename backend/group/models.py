@@ -65,6 +65,13 @@ class Application(models.Model):
             for submission in Submission.objects.filter(user=self.user):
                 submission.update_first_blood(self.group)
 
+        elif self.status == 'deleted':
+            # 退出组后也要更新一血榜
+            SubChallengeFirstBlood.objects.filter(group=self.group).delete()
+            ChallengeFirstBlood.objects.filter(group=self.group).delete()
+            for submission in Submission.objects.filter(user__in=self.group.users):
+                submission.update_first_blood(self.group)
+
     class Meta:
         default_permissions = []
         constraints = [

@@ -2,24 +2,7 @@ import pytest
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import status
 
-from group.models import Group, Application
-
-
-@pytest.fixture
-def group(user):
-    group = Group.objects.create(
-        name='某大学',
-        admin=user,
-        rule_has_phone_number=False,
-        rule_has_email=True,
-        rule_email_suffix='xx.edu.cn',
-        rule_has_name=False,
-        rule_must_be_verified_by_admin=True,
-        apply_hint='Please apply.',
-        verified=True,
-        verify_message='This group has been verified.'
-    )
-    return group
+from group.models import Group
 
 
 class TestManagement:
@@ -66,11 +49,6 @@ class TestManagement:
     def test_permission(self, group, client_another_user):
         r = client_another_user.delete(f'/api/group/{group.id}/')
         assert r.status_code == status.HTTP_403_FORBIDDEN
-
-
-@pytest.fixture
-def application(group, another_user):
-    return Application.objects.create(user=another_user, group=group, apply_message='xxx')
 
 
 class TestApplication:
