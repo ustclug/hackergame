@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.exceptions import ObjectDoesNotExist
+from dirtyfields import DirtyFieldsMixin
 
 from user.models import User
 from challenge.utils import eval_token_expression
@@ -36,7 +37,7 @@ class Challenge(models.Model):
         ordering = ['index']
 
 
-class SubChallenge(models.Model):
+class SubChallenge(models.Model, DirtyFieldsMixin):
     """子题"""
     FLAG_TYPE = (
         ('expr', 'a Python expression'),
@@ -77,12 +78,22 @@ class SubChallenge(models.Model):
         return None
 
     def save(self, *args, **kwargs):
+        from submission.models import Submission, Scoreboard
+
         super().save(*args, **kwargs)
 
-        # TODO: 更新榜单
+        # 启用状态改变时更新分数榜
+        if self.get_dirty_fields().get('enabled'):
+            Scoreboard.objects.all().delete()
+            for submission in Submission.objects.filter(
+                sub_challenge_clear__isnull=False,
+                sub_challenge_clear__enabled=True
+            ):
+                submission.update_scoreboard()
+                submission.update_scoreboard(self.challenge.category)
 
+        # 每次保存更新 ExprFlag 表
         if self.flag_type == 'expr':
-            # 每次保存更新 ExprFlag 表
             users = User.objects.all()
             if len(users) == 0:
                 return

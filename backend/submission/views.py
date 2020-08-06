@@ -1,5 +1,4 @@
 from django.shortcuts import get_object_or_404
-from django.db.models import F
 from django.http import Http404
 from rest_framework import generics, mixins
 from rest_framework.views import APIView
@@ -13,7 +12,6 @@ from submission.serializer import SubmissionSerializer, ScoreboardSerializer, \
                             ChallengeFirstBloodSerializer, SubChallengeFirstBloodSerializer
 from group.models import Group
 from group.permissions import IsInGroup
-from user.models import User
 
 
 class SubmissionAPI(APIView):
@@ -31,12 +29,7 @@ class SubmissionAPI(APIView):
 
         submission = Submission.objects.create(user=request.user, challenge=challenge, flag=flag)
 
-        # 检查提交是否正确
-        correct = submission.update_clear_status()
-
-        submission.update_board()
-
-        if correct:
+        if submission.correctness is True:
             msg = 'correct'
         else:
             msg = 'wrong'

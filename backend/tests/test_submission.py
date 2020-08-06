@@ -32,8 +32,6 @@ def test_submission_api(challenge, client, user):
 def submission(challenge, user):
     challenge, sub1, sub2 = challenge
     submission = Submission.objects.create(user=user, challenge=challenge, flag=sub2.flag)
-    submission.update_clear_status()
-    submission.update_board()
     return submission
 
 

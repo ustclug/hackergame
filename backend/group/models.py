@@ -56,25 +56,14 @@ class Application(models.Model):
         return f'{self.id}:{self.group.name}:{self.user}'
 
     def save(self, *args, **kwargs):
-        from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood, update_firstblood
+        from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood
 
         super().save(*args, **kwargs)
 
         if self.status == 'accepted':
             # 用户加入组后更新该组的一血榜
             for submission in Submission.objects.filter(user=self.user):
-                values = {
-                    'sub_challenge': submission.sub_challenge_clear,
-                    'group': self.group,
-                }
-                update_firstblood(SubChallengeFirstBlood, submission, values)
-                if submission.challenge_clear:
-                    values = {
-                        'challenge': submission.challenge,
-                        'group': self.group,
-                    }
-                    update_firstblood(ChallengeFirstBlood, submission, values)
-
+                submission.update_first_blood(self.group)
 
     class Meta:
         default_permissions = []
