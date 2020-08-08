@@ -47,3 +47,21 @@ def test_challenge_api(challenge, expr_sub_challenge, text_sub_challenge, client
 
     r = client.get('/api/challenge/')
     assert r.data == []
+
+
+def test_challenge_status_change_will_update_first_blood(client, user, challenge,
+                                                         expr_sub_challenge, submission):
+    expr_sub_challenge.enabled = False
+    expr_sub_challenge.save()
+
+    r = client.get('/api/board/firstblood/')
+    assert r.data['challenges'][0]['user'] == user.id
+
+
+def test_challenge_status_change_will_update_scoreboard(client, submission, expr_submission,
+                                                        expr_sub_challenge, text_sub_challenge):
+    expr_sub_challenge.enabled = False
+    expr_sub_challenge.save()
+
+    r = client.get('/api/board/score/')
+    assert r.data[0]['score'] == text_sub_challenge.score

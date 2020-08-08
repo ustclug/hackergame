@@ -19,24 +19,23 @@ class Submission(models.Model):
                                        null=True, verbose_name="和该用户的某一 flag 重复")
 
     def save(self, *args, **kwargs):
-        self.update_clear_status()
+        self.update_sub_challenge_clear()
+        self.update_challenge_clear()
 
         super().save(*args, **kwargs)
 
         self.update_board()
 
-    def update_clear_status(self) -> bool:
+    def update_sub_challenge_clear(self) -> None:
         # 判断重复提交
         if Submission.objects.filter(user=self.user, challenge=self.challenge, flag=self.flag,
                                      sub_challenge_clear=True).exists():
-            return True
+            return
 
         self.correctness = False
-        self.challenge_clear = False
         self.sub_challenge_clear = None
         self.violation_user = None
 
-        # 更新 clear 状态
         for sub_challenge in self.challenge.sub_challenge.filter(enabled=True):
             if sub_challenge.check_correctness(self.flag, self.user):
                 self.correctness = True
@@ -45,13 +44,23 @@ class Submission(models.Model):
             if violation_user is not None:
                 self.violation_user = violation_user
 
-        if self.sub_challenge_clear is not None:
-            correct_challenge_submission = Submission.objects.filter(challenge=self.challenge, user=self.user,
-                                                                     sub_challenge_clear__isnull=False)
-            if correct_challenge_submission.count() == self.challenge.sub_challenge.count() - 1:
-                self.challenge_clear = True
+    def update_challenge_clear(self) -> None:
+        if self.sub_challenge_clear is None:
+            return
 
-        return self.correctness
+        self.challenge_clear = False
+
+        correct_challenge_submission = Submission.objects.filter(
+            challenge=self.challenge,
+            user=self.user,
+            sub_challenge_clear__isnull=False,
+            sub_challenge_clear__enabled=True,
+        ).exclude(
+            id=self.id
+        )
+        if correct_challenge_submission.count() == \
+                self.challenge.sub_challenge.filter(enabled=True).count() - 1:
+            self.challenge_clear = True
 
     def update_board(self) -> None:
         """更新榜单"""
@@ -87,6 +96,8 @@ class Submission(models.Model):
 
     def update_scoreboard(self, category: str = '') -> None:
         """更新分数榜, 若分类为空则为总榜"""
+        # 必须是一个过题的提交
+        assert self.sub_challenge_clear
         try:
             scoreboard = Scoreboard.objects.get(user=self.user, category=category)
             scoreboard.score = F('score') + self.sub_challenge_clear.score
@@ -100,8 +111,30 @@ class Submission(models.Model):
                 time=self.created_time
             )
 
-    def regen_clear_status(self, challenge: Challenge):
-        ...  # TODO
+    @classmethod
+    def regen_challenge_clear(cls, challenge: Challenge):
+        for submission in cls.objects.filter(challenge=challenge):
+            submission.save()
+
+    @classmethod
+    def regen_scoreboard(cls):
+        Scoreboard.objects.all().delete()
+        for submission in Submission.objects.filter(
+                sub_challenge_clear__isnull=False,
+                sub_challenge_clear__enabled=True
+        ):
+            submission.update_scoreboard()
+            submission.update_scoreboard(submission.challenge.category)
+
+    @classmethod
+    def regen_first_blood(cls):
+        ChallengeFirstBlood.objects.all().delete()
+        SubChallengeFirstBlood.objects.all().delete()
+        for submission in Submission.objects.filter(
+                sub_challenge_clear__isnull=False,
+                sub_challenge_clear__enabled=True
+        ):
+            submission.update_first_blood()
 
     class Meta:
         default_permissions = ()
@@ -110,11 +143,12 @@ class Submission(models.Model):
             ('view', '查看提交记录'),
         ]
         constraints = [
-            models.UniqueConstraint(
-                fields=['user', 'challenge_clear'],
-                condition=Q(challenge_clear=True),
-                name='unique_challenge_clear'
-            ),
+            # FIXME: regen_challenge_clear 时会出现多个 challenge_clear 为 True 的情况
+            # models.UniqueConstraint(
+            #     fields=['user', 'challenge', 'challenge_clear'],
+            #     condition=Q(challenge_clear=True),
+            #     name='unique_challenge_clear'
+            # ),
             models.UniqueConstraint(
                 fields=['user', 'sub_challenge_clear'],
                 name='unique_sub_challenge_clear'

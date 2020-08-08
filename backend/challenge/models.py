@@ -80,17 +80,19 @@ class SubChallenge(models.Model, DirtyFieldsMixin):
     def save(self, *args, **kwargs):
         from submission.models import Submission, Scoreboard
 
+        # 启用状态改变时更新榜单
+        if self.pk and self.get_dirty_fields().get('enabled'):
+            enabled = True
+        else:
+            enabled = False
+
         super().save(*args, **kwargs)
 
-        # 启用状态改变时更新分数榜
-        if self.get_dirty_fields().get('enabled'):
-            Scoreboard.objects.all().delete()
-            for submission in Submission.objects.filter(
-                sub_challenge_clear__isnull=False,
-                sub_challenge_clear__enabled=True
-            ):
-                submission.update_scoreboard()
-                submission.update_scoreboard(self.challenge.category)
+        # 这一步必须在模型保存之后, 否则查询到的 enabled 仍为 True
+        if enabled:
+            Submission.regen_challenge_clear(self.challenge)
+            Submission.regen_scoreboard()
+            Submission.regen_first_blood()
 
         # 每次保存更新 ExprFlag 表
         if self.flag_type == 'expr':

@@ -361,6 +361,28 @@
         ]
         ```
 
+### 获取做题进度
+
+- Request
+    - Url: `/challenge/clear/`
+    - Method: GET
+    
+- Response
+    - ```json5
+        [
+          {
+            "challenge": 1,
+            "clear": true,
+            "sub_challenges": [
+              {
+                "sub_challenge": 1,
+                "clear": true
+              }
+            ]
+          }
+        ] 
+        ```
+
 ## 提交
 
 ### 提交一个 flag

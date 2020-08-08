@@ -73,3 +73,27 @@ class FirstBloodBoardAPI(APIView):
                 many=True
             ).data
         })
+
+
+class ChallengeClearAPI(APIView):
+    def get(self, request):  # 可能有性能问题
+        challenges = Challenge.objects.filter(sub_challenge__enabled=True).distinct()
+        rtn = []
+        for challenge in challenges:
+            data = {
+                'challenge': challenge.id,
+                'clear': Submission.objects.filter(challenge=challenge, user=request.user,
+                                                   challenge_clear=True).exists(),
+                'sub_challenges': []
+            }
+            sub_challenge_clear = Submission.objects.filter(
+                challenge=challenge,
+                user=request.user,
+                sub_challenge_clear__isnull=False).values_list('sub_challenge_clear', flat=True)
+            for sub_challenge in challenge.sub_challenge.all():
+                s = {'sub_challenge': sub_challenge.id, 'clear': False}
+                if sub_challenge.id in sub_challenge_clear:
+                    s['clear'] = True
+                data['sub_challenges'].append(s)
+            rtn.append(data)
+        return Response(rtn)

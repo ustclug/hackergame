@@ -25,18 +25,20 @@ def test_submission_api(challenge, text_sub_challenge, expr_sub_challenge, clien
     assert submission.challenge_clear is True
 
 
-def test_board(client, submission, text_sub_challenge, challenge, group):
+def test_board(client, submission, expr_submission, text_sub_challenge, expr_sub_challenge, challenge, group):
+    score = text_sub_challenge.score + expr_sub_challenge.score
     r = client.get('/api/board/score/')
-    assert r.data[0]['score'] == text_sub_challenge.score
+    assert r.data[0]['score'] == score
 
     r = client.get(f'/api/board/score/?category={challenge.category}')
-    assert r.data[0]['score'] == text_sub_challenge.score
+    assert r.data[0]['score'] == score
 
     r = client.get(f'/api/board/score/?group={group.id}')
-    assert r.data[0]['score'] == text_sub_challenge.score
+    assert r.data[0]['score'] == score
 
     r = client.get('/api/board/firstblood/')
     assert r.data['sub_challenges'][0]['user'] == submission.user.id
+    assert r.data['challenges'][0]['user'] == submission.user.id
 
     r = client.get(f'/api/board/firstblood/?group={group.id}')
     assert r.data['sub_challenges'][0]['user'] == submission.user.id
@@ -70,3 +72,13 @@ def test_group_change_will_update_board(user, another_user, challenge, applicati
     assert another_user.id not in map(lambda a: a['user'], r.data)
     r = client.get(f'/api/board/firstblood/?group={group.id}')
     assert r.data['sub_challenges'][0]['user'] == user.id
+
+
+def test_challenge_progress_api(text_sub_challenge, submission, client):
+    r = client.get('/api/challenge/clear/')
+    assert r.data[0]['clear'] is False
+    data = {
+        "sub_challenge": text_sub_challenge.id,
+        "clear": True,
+    }
+    assert data in r.data[0]['sub_challenges']

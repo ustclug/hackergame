@@ -7,7 +7,7 @@ from rest_framework.test import APIClient
 from user.models import User, Term
 from group.models import Group, Application
 from contest.models import Stage
-from challenge.models import Challenge, SubChallenge
+from challenge.models import Challenge, SubChallenge, ExprFlag
 from submission.models import Submission
 
 
@@ -128,4 +128,11 @@ def text_sub_challenge(challenge):
 @pytest.fixture
 def submission(challenge, text_sub_challenge, user):
     submission = Submission.objects.create(user=user, challenge=challenge, flag=text_sub_challenge.flag)
+    return submission
+
+
+@pytest.fixture
+def expr_submission(challenge, expr_sub_challenge, user):
+    flag = ExprFlag.objects.get(user=user, sub_challenge=expr_sub_challenge).flag
+    submission = Submission.objects.create(user=user, challenge=challenge, flag=flag)
     return submission

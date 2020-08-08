@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from submission.models import Scoreboard, ChallengeFirstBlood, SubChallengeFirstBlood
+from submission.models import Scoreboard, ChallengeFirstBlood, SubChallengeFirstBlood, Submission
 
 
 class SubmissionSerializer(serializers.Serializer):
@@ -26,3 +26,13 @@ class SubChallengeFirstBloodSerializer(serializers.ModelSerializer):
     class Meta:
         model = SubChallengeFirstBlood
         fields = ['sub_challenge', 'challenge', 'user', 'time']
+
+
+class ChallengeClearSerializer(serializers.ModelSerializer):
+    clear = serializers.BooleanField(source='challenge_clear')
+
+
+    class Meta:
+        model = Submission
+        fields = ['challenge', 'clear', 'sub_challenges']
+
