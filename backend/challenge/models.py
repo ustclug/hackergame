@@ -78,7 +78,7 @@ class SubChallenge(models.Model, DirtyFieldsMixin):
         return None
 
     def save(self, *args, **kwargs):
-        from submission.models import Submission, Scoreboard
+        from submission.models import Submission
 
         # 启用状态改变时更新榜单
         if self.pk and self.get_dirty_fields().get('enabled'):

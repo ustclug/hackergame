@@ -26,5 +26,5 @@ jobs:
                 cd backend
                 export DJANGO_SETTINGS_MODULE=backend.dev
                 # TODO:This will be removed in the future
-                python manage.py makemigrations user group contest challenge submission
+                python manage.py makemigrations user group contest challenge submission announcement
                 pytest

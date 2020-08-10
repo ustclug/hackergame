@@ -31,8 +31,6 @@ class SubChallengeFirstBloodSerializer(serializers.ModelSerializer):
 class ChallengeClearSerializer(serializers.ModelSerializer):
     clear = serializers.BooleanField(source='challenge_clear')
 
-
     class Meta:
         model = Submission
         fields = ['challenge', 'clear', 'sub_challenges']
-

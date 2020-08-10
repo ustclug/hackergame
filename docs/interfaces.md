@@ -388,7 +388,7 @@
 ### 提交一个 flag
 
 - Request
-    - Url: `/submission/`
+    - Url: `submission/`
     - Method: POST
     - ```json5
         {
@@ -409,7 +409,7 @@
 ### 获取分数榜单
 
 - Request
-    - Url: `/borad/score/`
+    - Url: `borad/score/`
     - Method: GET
     - Query string: category=<category>&group=<group id>
       若 category 为空则为所有分类, 若 group 为空则为所有人
@@ -428,7 +428,7 @@
 ### 获取一血榜单
 
 - Request
-    - Url: `/board/firstblood/`
+    - Url: `board/firstblood/`
     - Method: GET
     - Query string: group=<group id>
 
@@ -451,4 +451,25 @@
           },
         ]
       }
+        ```
+      
+## 公告
+
+### 获取公告
+
+- Request
+    - Url: `announcement/`
+    - Method: GET
+    - Query string: challenge=<challenge id>
+    
+- Response
+    - ```json5
+        [
+          {
+            "challenge": null, // 为 null 时为一般公告
+            "content": "test",
+            "created_time": "2020-05-24T02:44:12.498Z",
+            "updated_time": "2020-05-24T02:44:12.498Z",
+          },
+        ]
         ```

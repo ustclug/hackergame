@@ -23,4 +23,5 @@ urlpatterns = [
     path('api/stage/', include('contest.urls')),
     path('api/challenge/', include('challenge.urls')),
     path('api/', include('submission.urls')),
+    path('api/announcement/', include('announcement.urls')),
 ]

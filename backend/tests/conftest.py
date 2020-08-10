@@ -9,6 +9,7 @@ from group.models import Group, Application
 from contest.models import Stage
 from challenge.models import Challenge, SubChallenge, ExprFlag
 from submission.models import Submission
+from announcement.models import Announcement
 
 
 @pytest.fixture(autouse=True)
@@ -136,3 +137,8 @@ def expr_submission(challenge, expr_sub_challenge, user):
     flag = ExprFlag.objects.get(user=user, sub_challenge=expr_sub_challenge).flag
     submission = Submission.objects.create(user=user, challenge=challenge, flag=flag)
     return submission
+
+
+@pytest.fixture
+def announcement(challenge):
+    return Announcement.objects.create(challenge=challenge, content='test_announcement')

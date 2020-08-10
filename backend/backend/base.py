@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'contest',
     'challenge',
     'submission',
+    'announcement',
 
     'rest_framework',
 

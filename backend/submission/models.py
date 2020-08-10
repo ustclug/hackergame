@@ -1,5 +1,5 @@
 from django.db import models
-from django.db.models import Q, F
+from django.db.models import F
 
 from user.models import User
 from group.models import Group
