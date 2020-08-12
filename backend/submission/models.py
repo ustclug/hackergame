@@ -64,8 +64,7 @@ class Submission(models.Model):
 
     def update_board(self) -> None:
         """更新榜单"""
-        if self.sub_challenge_clear and not self.user.groups.filter(name='no_score').exists():
-            # FIXME no score group
+        if self.sub_challenge_clear:
             self.update_first_blood()
             self.update_scoreboard()
             self.update_scoreboard(self.challenge.category)
@@ -82,6 +81,8 @@ class Submission(models.Model):
 
     def update_first_blood(self, group=None) -> None:
         """更新一血榜"""
+        if self.user.groups.filter(name='no_score').exists():
+            return
         if group:
             groups = [group]
         else:
@@ -95,7 +96,9 @@ class Submission(models.Model):
                 self._update_first_blood_obj(ChallengeFirstBlood, g, {'challenge': self.challenge})
 
     def update_scoreboard(self, category: str = '') -> None:
-        """更新分数榜, 若分类为空则为总榜"""
+        """累加某题的分数, 若分类为空则为总榜"""
+        if self.user.groups.filter(name='no_score').exists():
+            return
         # 必须是一个过题的提交
         assert self.sub_challenge_clear
         try:
@@ -136,6 +139,11 @@ class Submission(models.Model):
         ):
             submission.update_first_blood()
 
+    @classmethod
+    def regen_board(cls):
+        cls.regen_scoreboard()
+        cls.regen_first_blood()
+
     class Meta:
         default_permissions = ()
         permissions = [
@@ -170,7 +178,7 @@ class ChallengeFirstBlood(FirstBlood):
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
 
     class Meta:
-        default_permissions = ()
+        default_permissions = []
         constraints = [
             models.UniqueConstraint(
                 fields=['challenge', 'group'],
@@ -184,7 +192,7 @@ class SubChallengeFirstBlood(FirstBlood):
     sub_challenge = models.ForeignKey(SubChallenge, on_delete=models.CASCADE)
 
     class Meta:
-        default_permissions = ()
+        default_permissions = []
         constraints = [
             models.UniqueConstraint(
                 fields=['sub_challenge', 'group'],
@@ -201,7 +209,7 @@ class Scoreboard(models.Model):
     time = models.DateTimeField(verbose_name='最后一次更新榜单的时间')
 
     class Meta:
-        default_permissions = ()
+        default_permissions = []
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'category'],

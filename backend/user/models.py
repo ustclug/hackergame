@@ -72,3 +72,4 @@ class User(AbstractUser):
         permissions = [
             ('update_profile', 'can update his own profile')
         ]
+        db_table = 'user'

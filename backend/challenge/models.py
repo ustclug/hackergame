@@ -114,6 +114,9 @@ class SubChallenge(models.Model, DirtyFieldsMixin):
                 obj = ExprFlag(user=user, sub_challenge=self, flag=flag)
                 obj.save()
 
+    class Meta:
+        default_permissions = []
+
 
 class ExprFlag(models.Model):
     """表达式 Flag 的实际值"""
@@ -122,6 +125,7 @@ class ExprFlag(models.Model):
     flag = models.TextField()
 
     class Meta:
+        default_permissions = []
         constraints = [
             models.UniqueConstraint(fields=['user', 'sub_challenge'], name='unique_flag')
         ]

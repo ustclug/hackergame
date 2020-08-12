@@ -41,6 +41,9 @@ class Stage(models.Model):
             raise ValidationError("Stage table can only have one line.")
         super().save(**kwargs)
 
+    class Meta:
+        default_permissions = []
+
 
 class Pause(models.Model):
     start_time = models.DateTimeField()
@@ -54,3 +57,6 @@ class Pause(models.Model):
         if self.end_time > stage.end_time:
             raise ValidationError("Pause end time must be before contest end time.")
         super().save(**kwargs)
+
+    class Meta:
+        default_permissions = []

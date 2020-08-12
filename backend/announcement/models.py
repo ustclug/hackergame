@@ -16,3 +16,6 @@ class Announcement(models.Model):
         else:
             challenge = 'General'
         return f'{self.id}-{challenge}'
+
+    class Meta:
+        default_permissions = ()

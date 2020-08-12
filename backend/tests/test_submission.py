@@ -1,6 +1,9 @@
 from datetime import timedelta
 
-from submission.models import Submission
+from django.contrib.auth.models import Group as AuthGroup
+
+from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood, \
+                            Scoreboard
 from challenge.models import ExprFlag
 
 
@@ -82,3 +85,14 @@ def test_challenge_progress_api(text_sub_challenge, submission, client):
         "clear": True,
     }
     assert data in r.data[0]['sub_challenges']
+
+
+def test_no_board_group_does_not_participate_board(submission, user):
+    no_score = AuthGroup.objects.get(name='no_score')
+    user.groups.add(no_score)
+
+    Submission.regen_board()
+
+    assert len(Scoreboard.objects.all()) == 0
+    assert len(SubChallengeFirstBlood.objects.all()) == 0
+    assert len(ChallengeFirstBlood.objects.all()) == 0
