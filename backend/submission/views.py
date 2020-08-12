@@ -15,7 +15,7 @@ from group.permissions import IsInGroup
 
 
 class SubmissionAPI(APIView):
-    permission_classes = [IsAuthenticated]  # TODO: deal with banned user
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = SubmissionSerializer(data=request.data)

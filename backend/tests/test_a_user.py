@@ -1,6 +1,7 @@
 """
 The "a" in the filename will make this file got tested first.
 """
+from django.contrib.auth.models import Group as AuthGroup
 from rest_framework import status
 
 from user.models import User, Term
@@ -19,7 +20,7 @@ def test_register(client_without_login):
         "password": "123456",
     }
     r = client_without_login.post('/api/user/register/', data)
-    assert "too short" in r.data['password']
+    assert "密码长度太短" in r.data['password']
 
     data['password'] = 'test_password'
     r = client_without_login.post('/api/user/register/', data)
@@ -30,12 +31,10 @@ def test_register(client_without_login):
     # 测试重复的用户名
     r = client_without_login.post('/api/user/register/', data)
     assert r.status_code == 400
-    assert r.data['username'][0] == 'A user with that username already exists.'
+    assert r.data['username'][0] == '已存在一位使用该名字的用户。'
 
 
-def test_login(client_without_login):
-    User.objects.create_user(username="test_user", password="test_password")
-    Term.objects.create(name='term', content='test')
+def test_login(client_without_login, user, term):
     data = {
         "username": "test_user",
         "password": "test_password",
@@ -66,3 +65,18 @@ def test_logout(client):
     assert r.status_code == status.HTTP_204_NO_CONTENT
     r = client.get('/api/user/')
     assert r.status_code == status.HTTP_403_FORBIDDEN
+
+
+def test_banned_user(client, user):
+    banned = AuthGroup.objects.get(name='banned')
+    user.groups.add(banned)
+    r = client.get('/api/user/')
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+    assert r.data['detail'] == '身份认证信息未提供。'
+
+    data = {
+        "username": "test_user",
+        "password": "test_password",
+    }
+    r = client.post('/api/user/login/', data)
+    assert '已被封禁' in r.data['detail']

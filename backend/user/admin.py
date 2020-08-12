@@ -17,7 +17,7 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'last_name', 'phone_number')
     list_filter = ('groups',)
     readonly_fields = ('token',)
-    filter_horizonal = ('groups',)
+    filter_horizontal = ('groups',)
 
     def save_model(self, request, obj, form, change):
         # FIXME: how to deal with password?

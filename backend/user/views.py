@@ -16,6 +16,8 @@ class LoginAPI(APIView):
         serializer.is_valid(raise_exception=True)
         user = authenticate(request, username=serializer.data['username'],
                             password=serializer.data['password'])
+        if user.groups.filter(name='banned').exists():
+            raise AuthenticationFailed('你已被封禁, 如有疑问请与管理员联系.')
         if user is not None:
             if not user.term_agreed:
                 if not serializer.data.get('allow_terms'):
