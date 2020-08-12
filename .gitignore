@@ -6,9 +6,6 @@ __pycache__/
 # Database files
 db.sqlite3
 
-# TODO: this will be removed in the future
-migrations/
-
 # log
 *.log
 
