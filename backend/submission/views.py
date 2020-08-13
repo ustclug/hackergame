@@ -1,9 +1,9 @@
 from django.shortcuts import get_object_or_404
 from django.http import Http404
-from rest_framework import generics, mixins
+from rest_framework import mixins
+from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import NotFound
 
 from challenge.models import Challenge
@@ -15,8 +15,6 @@ from group.permissions import IsInGroup
 
 
 class SubmissionAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
     def post(self, request):
         serializer = SubmissionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -36,9 +34,9 @@ class SubmissionAPI(APIView):
         return Response({'detail': msg})
 
 
-class ScoreboardAPI(generics.GenericAPIView, mixins.ListModelMixin):
+class ScoreboardAPI(GenericAPIView, mixins.ListModelMixin):
     serializer_class = ScoreboardSerializer
-    permission_classes = [IsInGroup]
+    permission_classes = GenericAPIView.permission_classes + [IsInGroup]
     # TODO: 做题历史, 进度
 
     def get_queryset(self):

@@ -4,7 +4,8 @@
 用户的封禁状态采用 auth_group 中的组 banned 表示. 
 被封禁的用户将无法登录, 并不在排行榜中显示.
 
-被封禁的用户会自动登出.
+被封禁的用户会自动登出. 这是通过一个 middleware 来实现的,
+还有一种方法是直接修改 Session.
 
 ## 榜单
 需要重建榜单的情形
@@ -18,15 +19,8 @@
 
 ## TODO
 
-- banned user
 - throttling
-- admin page
 - Group admin 任意多个?
-- auto_now_add=True 可能不利于测试?
 
 ## 其他
 - AuthGroup 的两个组的初始化在 user 的 migrations 中进行
-- 是否有必要采取类似 Service 的设计?
-
-  想法: 对于同时适用于用户的管理员的写到 model 层,
-  只适用于用户的写到 view 层

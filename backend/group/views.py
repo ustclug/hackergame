@@ -1,8 +1,9 @@
 from django.shortcuts import get_object_or_404
-from rest_framework import viewsets, generics, status
+from rest_framework import status
+from rest_framework.generics import GenericAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, \
     ListModelMixin
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
@@ -23,12 +24,12 @@ def generate_rules_meet(rules, user):
     return rules_meet
 
 
-class GroupAPI(viewsets.ModelViewSet):
+class GroupAPI(ModelViewSet):
     # TODO: 分页
     # TODO: Verified Group
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
-    permission_classes = [IsAuthenticated, IsGroupAdminOrReadOnly]
+    permission_classes = ModelViewSet.permission_classes + [IsGroupAdminOrReadOnly]
 
     def perform_create(self, serializer):
         user = serializer.context['request'].user
@@ -43,10 +44,10 @@ class GroupAPI(viewsets.ModelViewSet):
         return Response(rtn)
 
 
-class GroupApplicationAPI(generics.GenericAPIView, ListModelMixin,
+class GroupApplicationAPI(GenericAPIView, ListModelMixin,
                           CreateModelMixin, UpdateModelMixin):
     serializer_class = GroupApplicationSerializer
-    permission_classes = [IsAuthenticated, IsGroupAdmin]
+    permission_classes = GenericAPIView.permission_classes + [IsGroupAdmin]
     lookup_url_kwarg = 'application_id'
 
     def get_group(self):
@@ -88,10 +89,10 @@ class GroupApplicationAPI(generics.GenericAPIView, ListModelMixin,
         return Response(serializer.data)
 
 
-class GroupMemberAPI(generics.GenericAPIView):
+class GroupMemberAPI(GenericAPIView):
     queryset = Group.objects.all()
     serializer_class = ProfileSerializer
-    permission_classes = [IsGroupAdmin]
+    permission_classes = GenericAPIView.permission_classes + [IsGroupAdmin]
     lookup_url_kwarg = 'group_id'
 
     def get(self, request, group_id):

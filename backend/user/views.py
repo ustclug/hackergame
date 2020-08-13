@@ -3,7 +3,7 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 from user.models import User, Term
 from user.serializer import RegisterSerializer, TermSerializer, LoginSerializer, \
@@ -11,6 +11,8 @@ from user.serializer import RegisterSerializer, TermSerializer, LoginSerializer,
 
 
 class LoginAPI(APIView):
+    permission_classes = [AllowAny]
+
     def post(self, request):
         serializer = LoginSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -32,21 +34,18 @@ class LoginAPI(APIView):
 
 
 class LogoutAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
     def post(self, request):
         logout(request)
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class RegisterAPI(generics.CreateAPIView):
+    permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = RegisterSerializer
 
 
 class ProfileAPI(APIView):
-    permission_classes = [IsAuthenticated]
-
     def get(self, request):
         user = request.user
         serializer = ProfileSerializer(user)
