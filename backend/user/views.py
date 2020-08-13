@@ -3,7 +3,7 @@ from rest_framework import status, generics
 from rest_framework.views import APIView
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 
 from user.models import User, Term
 from user.serializer import RegisterSerializer, TermSerializer, LoginSerializer, \

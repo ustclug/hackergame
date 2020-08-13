@@ -411,7 +411,7 @@
 - Request
     - Url: `borad/score/`
     - Method: GET
-    - Query string: category=<category>&group=<group id>
+    - Query string: `category=<category>&group=<group id>`
       若 category 为空则为所有分类, 若 group 为空则为所有人
       
 - Response
@@ -430,7 +430,7 @@
 - Request
     - Url: `board/firstblood/`
     - Method: GET
-    - Query string: group=<group id>
+    - Query string: `group=<group id>`
 
 - Response
     - ```json5
@@ -460,7 +460,7 @@
 - Request
     - Url: `announcement/`
     - Method: GET
-    - Query string: challenge=<challenge id>
+    - Query string: `challenge=<challenge id>`
     
 - Response
     - ```json5

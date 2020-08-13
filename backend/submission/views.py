@@ -5,6 +5,7 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
+from rest_framework.permissions import BasePermission
 
 from challenge.models import Challenge
 from submission.models import Submission, ChallengeFirstBlood, SubChallengeFirstBlood, Scoreboard
@@ -12,9 +13,19 @@ from submission.serializer import SubmissionSerializer, ScoreboardSerializer, \
                             ChallengeFirstBloodSerializer, SubChallengeFirstBloodSerializer
 from group.models import Group
 from group.permissions import IsInGroup
+from contest.models import Stage
+
+
+class IsSubmissionAllowed(BasePermission):
+    message = '比赛当前阶段无法提交'
+
+    def has_permission(self, request, view):
+        return Stage.objects.current_status in ('underway', 'practice')
 
 
 class SubmissionAPI(APIView):
+    permission_classes = APIView.permission_classes + [IsSubmissionAllowed]
+
     def post(self, request):
         serializer = SubmissionSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -22,7 +33,7 @@ class SubmissionAPI(APIView):
         try:
             challenge = get_object_or_404(Challenge, id=data['challenge'])
         except Http404:
-            raise NotFound("The challenge does not exist.")
+            raise NotFound("题目不存在")
         flag = data['flag']
 
         submission = Submission.objects.create(user=request.user, challenge=challenge, flag=flag)

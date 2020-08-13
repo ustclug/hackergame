@@ -1,9 +1,11 @@
 from datetime import timedelta
+from contextlib import contextmanager
 
 import pytest
 import pytz
 from django.conf import settings
 from django.core.exceptions import ValidationError
+from rest_framework import status
 
 from contest.models import Stage, Pause
 from contest.models import StageManager
@@ -30,29 +32,29 @@ def test_pause_validation(stage):
         Pause.objects.create(start_time=start_time, end_time=end_time)
 
 
-def test_current_status(stage, pause):
-    cur_time = None
-
-    # monkey patch now()
+@contextmanager
+def monkey_patch_now(cur_time):
     origin_now = StageManager.now
     StageManager.now = lambda cls: cur_time
-
-    cur_time = stage.start_time - timedelta(seconds=100)
-    assert Stage.objects.current_status == "not start"
-
-    cur_time = stage.start_time + timedelta(seconds=100)
-    assert Stage.objects.current_status == "underway"
-
-    cur_time = pause.start_time + timedelta(seconds=100)
-    assert Stage.objects.current_status == "paused"
-
-    cur_time = stage.end_time + timedelta(seconds=100)
-    assert Stage.objects.current_status == "ended"
-
-    cur_time = stage.practice_start_time + timedelta(seconds=100)
-    assert Stage.objects.current_status == "practice"
-
+    yield cur_time
     StageManager.now = origin_now
+
+
+@pytest.fixture
+def contest_status(stage, pause):
+    return (
+        (stage.start_time - timedelta(seconds=100), 'not start'),
+        (stage.start_time + timedelta(seconds=100), 'underway'),
+        (pause.start_time + timedelta(seconds=100), 'paused'),
+        (stage.end_time + timedelta(seconds=100), 'ended'),
+        (stage.practice_start_time + timedelta(seconds=100), 'practice')
+    )
+
+
+def test_current_status(contest_status):
+    for cur in contest_status:
+        with monkey_patch_now(cur[0]):
+            assert Stage.objects.current_status == cur[1]
 
 
 def test_stage(stage, pause, client):
@@ -63,14 +65,33 @@ def test_stage(stage, pause, client):
 
 
 def test_get_current_stage(stage, client):
-    cur_time = None
-
-    # monkey patch now()
-    origin_now = StageManager.now
-    StageManager.now = lambda cls: cur_time
-
     cur_time = stage.start_time - timedelta(seconds=100)
-    r = client.get('/api/stage/current/')
-    assert r.data['status'] == 'not start'
+    with monkey_patch_now(cur_time):
+        r = client.get('/api/stage/current/')
+        assert r.data['status'] == 'not start'
 
-    StageManager.now = origin_now
+
+def test_submission(contest_status, challenge, client):
+    data = {
+        'challenge': challenge.id,
+        'flag': "any"
+    }
+    for cur in contest_status:
+        with monkey_patch_now(cur[0]):
+            r = client.post('/api/submission/', data)
+            if cur[1] in ('not start', 'paused', 'ended'):
+                assert r.status_code == status.HTTP_403_FORBIDDEN
+                assert '比赛当前阶段无法提交' in r.data['detail']
+            else:
+                assert r.status_code == status.HTTP_200_OK
+
+
+def test_view_challenge(contest_status, challenge, client):
+    for cur in contest_status:
+        with monkey_patch_now(cur[0]):
+            r = client.get('/api/challenge/')
+            if cur[1] in ('not start', 'paused'):
+                assert r.status_code == status.HTTP_403_FORBIDDEN
+                assert '比赛当前阶段无法查看题目' in r.data['detail']
+            else:
+                assert r.status_code == status.HTTP_200_OK

@@ -69,7 +69,7 @@ class GroupApplicationAPI(GenericAPIView, ListModelMixin,
         rules_meet = generate_rules_meet(serializer.data['rules'], request.user)
         for rule in rules_meet.values():
             if not rule:
-                raise ValidationError('You do not meet the groups requirements.')
+                raise ValidationError('不符合加入条件')
 
         request.data['group'] = group_id
         request.data['user'] = request.user.pk
