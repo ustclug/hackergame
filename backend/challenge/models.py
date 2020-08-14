@@ -44,14 +44,15 @@ class SubChallenge(models.Model, DirtyFieldsMixin):
         ('text', 'plain text'),
     )
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE, related_name='sub_challenge')
-    name = models.TextField(blank=True, help_text="若只有一个子题则不填")
+    name = models.TextField(blank=True, help_text="若只有一个子题则可不填")
     score = models.SmallIntegerField()
     enabled = models.BooleanField(
         help_text="""
         设为无效的题目不会被看到，也不会产生任何分数。 将题目改为无效时，它产生的分数会被移除，但并不删除此前的提交记录。
         将题目改为有效时，此前的提交记录会重新产生分数。
         <em>注意：在比赛开始后修改此项信息会重算排行榜，产生较大开销。</em>
-        """
+        """,
+        default=True,
     )
     flag_type = models.CharField(max_length=5, choices=FLAG_TYPE)
     flag = models.TextField(

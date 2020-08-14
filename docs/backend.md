@@ -1,3 +1,12 @@
+## 开发服务器
+```bash
+virtualenv .env
+. .env/bin activate
+pip install -r requirements.txt
+python manage.py init_dev
+python manage.py runserver
+```
+
 ## 用户
 
 ### 封禁
@@ -23,4 +32,4 @@
 - Group admin 任意多个?
 
 ## 其他
-- AuthGroup 的两个组的初始化在 user 的 migrations 中进行
+- AuthGroup 的两个组的初始化在 `user/migrations/0002_init_auth_group.py` 中进行

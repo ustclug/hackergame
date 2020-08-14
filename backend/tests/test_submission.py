@@ -21,11 +21,19 @@ def test_submission_api(challenge, text_sub_challenge, expr_sub_challenge, clien
     submission = Submission.objects.get(flag=text_sub_challenge.flag)
     assert submission.sub_challenge_clear == text_sub_challenge
 
+    # 重复提交
+    r = client.post('/api/submission/', data)
+    assert r.data['detail'] == 'correct'
+
     data['flag'] = ExprFlag.objects.get(user=user, sub_challenge=expr_sub_challenge).flag
     r = client.post('/api/submission/', data)
     assert r.data['detail'] == 'correct'
     submission = Submission.objects.get(flag=data['flag'])
     assert submission.challenge_clear is True
+
+    # 重复提交
+    r = client.post('/api/submission/', data)
+    assert r.data['detail'] == 'correct'
 
 
 def test_board(client, submission, expr_submission, text_sub_challenge, expr_sub_challenge, challenge, group):

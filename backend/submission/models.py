@@ -1,5 +1,6 @@
 from django.db import models
 from django.db.models import F
+from django.utils import timezone
 
 from user.models import User
 from group.models import Group
@@ -11,12 +12,16 @@ class Submission(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
     flag = models.TextField()
-    created_time = models.DateTimeField(auto_now_add=True)
+    created_time = models.DateTimeField(default=timezone.now)
     correctness = models.BooleanField(default=False)
     challenge_clear = models.BooleanField(default=False)
     sub_challenge_clear = models.ForeignKey(SubChallenge, on_delete=models.CASCADE, null=True)
     violation_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='violation_submission',
                                        null=True, verbose_name="和该用户的某一 flag 重复")
+
+    def __str__(self):
+        return f'Submission {self.id} user={self.user}, challenge={self.challenge}, ' \
+               f'created_time={self.created_time}, sub_challenge_clear={self.sub_challenge_clear}'
 
     def save(self, *args, **kwargs):
         self.update_sub_challenge_clear()
@@ -29,7 +34,8 @@ class Submission(models.Model):
     def update_sub_challenge_clear(self) -> None:
         # 判断重复提交
         if Submission.objects.filter(user=self.user, challenge=self.challenge, flag=self.flag,
-                                     sub_challenge_clear=True).exists():
+                                     sub_challenge_clear__isnull=False).exists():
+            self.correctness = True
             return
 
         self.correctness = False
