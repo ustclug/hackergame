@@ -151,11 +151,7 @@ class Submission(models.Model):
         cls.regen_first_blood()
 
     class Meta:
-        default_permissions = ()
-        permissions = [
-            ('full', '管理提交记录'),
-            ('view', '查看提交记录'),
-        ]
+        default_permissions = []
         constraints = [
             # FIXME: regen_challenge_clear 时会出现多个 challenge_clear 为 True 的情况
             # models.UniqueConstraint(

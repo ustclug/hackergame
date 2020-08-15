@@ -27,12 +27,12 @@ class Group(models.Model):
         return list(map(lambda appl: appl.user, applications))
 
     def save(self, *args, **kwargs):
-        flg = 0
+        created = 0
         if not self.pk:
-            flg = 1
+            created = 1
         super().save(*args, **kwargs)
         # 为创建组的用户添加 Application
-        if flg:
+        if created:
             Application.objects.create(group=self, user=self.admin, status='accepted')
 
     class Meta:

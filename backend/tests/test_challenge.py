@@ -16,6 +16,13 @@ def test_expr_flag(expr_sub_challenge, user):
     assert flag == ExprFlag.objects.get(user=user, sub_challenge=expr_sub_challenge).flag
 
 
+def test_flag_update_will_update_expr_flag_table(expr_sub_challenge, user):
+    expr_sub_challenge.flag = '"flag{" + token + "}"'
+    expr_sub_challenge.save()
+
+    assert ExprFlag.objects.get(user=user, sub_challenge=expr_sub_challenge).flag == f'flag{{{user.token}}}'
+
+
 def test_check_correctness(user, text_sub_challenge, expr_sub_challenge):
     flag = eval_token_expression(expr_sub_challenge.flag, user.token)
     assert expr_sub_challenge.check_correctness(flag, user) is True

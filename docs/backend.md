@@ -1,4 +1,5 @@
 ## 开发服务器
+### 本地运行
 ```bash
 virtualenv .env
 . .env/bin activate
@@ -6,6 +7,11 @@ pip install -r requirements.txt
 python manage.py init_dev
 python manage.py runserver
 ```
+
+### 测试服务器
+http://sin.coherence.codes:8001/
+
+superuser: 用户名: root, 密码: root
 
 ## 用户
 
@@ -30,6 +36,10 @@ python manage.py runserver
 
 - throttling
 - Group admin 任意多个?
+- Superuser 是否可以无视比赛阶段的限制呢
 
 ## 其他
 - AuthGroup 的两个组的初始化在 `user/migrations/0002_init_auth_group.py` 中进行
+- 以下两种情况需更新 ExprFlag 表:
+    - User 创建
+    - 类型为 `expr` 的 SubChallenge 的创建或 flag 字段的更新

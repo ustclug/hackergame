@@ -1,5 +1,4 @@
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist
 from dirtyfields import DirtyFieldsMixin
 
 from user.models import User
@@ -29,11 +28,7 @@ class Challenge(models.Model):
         return False
 
     class Meta:
-        default_permissions = ()
-        permissions = [
-            ('full', '管理题目'),
-            ('view', '查看题目'),
-        ]
+        default_permissions = []
         ordering = ['index']
 
 
@@ -87,6 +82,8 @@ class SubChallenge(models.Model, DirtyFieldsMixin):
         else:
             enabled = False
 
+        flag_updated = True if self.get_dirty_fields().get('flag') else False
+
         super().save(*args, **kwargs)
 
         # 这一步必须在模型保存之后, 否则查询到的 enabled 仍为 True
@@ -95,25 +92,14 @@ class SubChallenge(models.Model, DirtyFieldsMixin):
             Submission.regen_scoreboard()
             Submission.regen_first_blood()
 
-        # 每次保存更新 ExprFlag 表
-        if self.flag_type == 'expr':
-            users = User.objects.all()
-            if len(users) == 0:
-                return
-
-            # 若 flag 表达式无变化则跳过更新
-            try:
-                obj = ExprFlag.objects.get(user=users[0], sub_challenge=self)
-                flag = eval_token_expression(self.flag, users[0].token)
-                if obj.flag == flag:
-                    return
-            except ObjectDoesNotExist:
-                pass
-
-            for user in users:
+        # flag 表达式有更新时更新 ExprFlag 表, ExprFlag 有 SubChallenge 的外键故更新要放到 save() 之后
+        if self.flag_type == 'expr' and flag_updated:
+            for user in User.objects.all():
                 flag = eval_token_expression(self.flag, user.token)
-                obj = ExprFlag(user=user, sub_challenge=self, flag=flag)
-                obj.save()
+                ExprFlag.objects.update_or_create(
+                    user=user, sub_challenge=self,
+                    defaults={'flag': flag}
+                )
 
     class Meta:
         default_permissions = []
@@ -128,5 +114,5 @@ class ExprFlag(models.Model):
     class Meta:
         default_permissions = []
         constraints = [
-            models.UniqueConstraint(fields=['user', 'sub_challenge'], name='unique_flag')
+            models.UniqueConstraint(fields=['user', 'sub_challenge'], name='unique_flag_for_every_user')
         ]

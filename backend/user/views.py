@@ -23,7 +23,10 @@ class LoginAPI(APIView):
         if user is not None:
             if not user.term_agreed:
                 if not serializer.data.get('allow_terms'):
-                    data = {"term": TermSerializer(Term.objects.enabled_term(), many=True).data}
+                    data = {
+                        'term': TermSerializer(Term.objects.enabled_term(), many=True).data,
+                        'detail': '请同意用户条款',
+                    }
                     return Response(data, status=status.HTTP_403_FORBIDDEN)
                 user.term_agreed = True
                 user.save()

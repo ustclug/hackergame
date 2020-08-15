@@ -19,4 +19,4 @@ class Announcement(models.Model):
         return f'{self.id}-{challenge}'
 
     class Meta:
-        default_permissions = ()
+        default_permissions = []

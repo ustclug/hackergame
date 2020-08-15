@@ -3,7 +3,7 @@
 import django.contrib.auth.validators
 from django.db import migrations, models
 import django.utils.timezone
-import user.models
+import django.contrib.auth.models
 
 
 class Migration(migrations.Migration):
@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 'default_permissions': [],
             },
             managers=[
-                ('objects', user.models.MyUserManager()),
+                ('objects', django.contrib.auth.models.UserManager()),
             ],
         ),
     ]
