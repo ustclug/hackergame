@@ -26,3 +26,17 @@ jobs:
                 cd backend
                 export DJANGO_SETTINGS_MODULE=backend.dev
                 pytest
+
+    deploy_dev_server:
+        runs-on: ubuntu-18.04
+        steps:
+            - uses: appleboy/ssh-action@master
+              with:
+                host: ${{ secrets.HOST }}
+                username: root
+                key: ${{ secrets.KEY }}
+                script_stop: true
+                script: |
+                  [ ! -d "hackergame" ] && git clone --single-branch --branch refactor https://github.com/cjc7373/hackergame.git
+                  cd hackergame
+                  ./deploy/deploy_test.sh

@@ -26,7 +26,7 @@ class Command(BaseCommand):
         parser.add_argument('-G', '--groups',
                             type=int, default=10)
         parser.add_argument('-S', '--submissions',
-                            type=int, default=500)
+                            type=int, default=200)
 
     # @transaction.atomic
     def handle(self, **options):
