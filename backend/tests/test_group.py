@@ -86,8 +86,6 @@ class TestApplication:
         client.put(f'/api/group/{group.id}/application/{application.id}/', {
             'status': 'rejected'
         })
-        application.refresh_from_db()
-        assert application.status == 'rejected'
         assert another_user not in group.users
 
     def test_permission(self, client_another_user, application, group):

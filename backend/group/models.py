@@ -1,5 +1,9 @@
 from django.db import models
 from django.db.models import Q
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
+from django.core.exceptions import ValidationError
+from dirtyfields import DirtyFieldsMixin
 
 from user.models import User
 
@@ -39,13 +43,11 @@ class Group(models.Model):
         default_permissions = []
 
 
-class Application(models.Model):
-    """加入某个组的申请"""
+class Application(models.Model, DirtyFieldsMixin):
+    """加入某个组的申请, 同时表示了一个组的成员"""
     STATUS = (
         ('accepted', 'accepted'),
-        ('rejected', 'rejected'),
         ('pending', 'pending'),
-        ('deleted', 'deleted'),
     )
     group = models.ForeignKey(Group, on_delete=models.CASCADE)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -58,18 +60,14 @@ class Application(models.Model):
     def save(self, *args, **kwargs):
         from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood
 
+        if self.pk and self.get_dirty_fields().get('status') == 'accepted':
+            raise ValidationError("状态无法从 accepted 改为 pending.")
+
         super().save(*args, **kwargs)
 
         if self.status == 'accepted':
             # 用户加入组后更新该组的一血榜
             for submission in Submission.objects.filter(user=self.user):
-                submission.update_first_blood(self.group)
-
-        elif self.status == 'deleted':
-            # 退出组后也要更新一血榜
-            SubChallengeFirstBlood.objects.filter(group=self.group).delete()
-            ChallengeFirstBlood.objects.filter(group=self.group).delete()
-            for submission in Submission.objects.filter(user__in=self.group.users):
                 submission.update_first_blood(self.group)
 
     class Meta:
@@ -81,3 +79,15 @@ class Application(models.Model):
                 name='unique_application'
             )
         ]
+
+
+@receiver(post_delete, sender=Application)
+def post_delete_application(sender, instance, **kwargs):
+    """QuerySet 的 delete() 或级联删除将不会触发模型的 delete(), 故使用信号."""
+    from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood
+
+    # 退出组后更新一血榜
+    SubChallengeFirstBlood.objects.filter(group=instance.group).delete()
+    ChallengeFirstBlood.objects.filter(group=instance.group).delete()
+    for submission in Submission.objects.filter(user__in=instance.group.users):
+        submission.update_first_blood(instance.group)

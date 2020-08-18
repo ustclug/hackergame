@@ -1,10 +1,10 @@
+from typing import Union
+
 from django.db import models
 from dirtyfields import DirtyFieldsMixin
 
 from user.models import User
 from challenge.utils import eval_token_expression
-
-from typing import Union
 
 
 class Challenge(models.Model):

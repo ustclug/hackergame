@@ -2,8 +2,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import status
 from rest_framework.generics import GenericAPIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.mixins import CreateModelMixin, UpdateModelMixin, \
-    ListModelMixin
+from rest_framework.mixins import CreateModelMixin, ListModelMixin
 from rest_framework.response import Response
 from rest_framework.exceptions import ValidationError
 
@@ -44,23 +43,29 @@ class GroupAPI(ModelViewSet):
         return Response(rtn)
 
 
-class GroupApplicationAPI(GenericAPIView, ListModelMixin,
-                          CreateModelMixin, UpdateModelMixin):
+class GroupApplicationAPI(GenericAPIView, ListModelMixin, CreateModelMixin):
     serializer_class = GroupApplicationSerializer
     permission_classes = GenericAPIView.permission_classes + [IsGroupAdmin]
     lookup_url_kwarg = 'application_id'
+
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+
+        if self.request.method == 'PUT':
+            serializer_class = GroupApplicationUpdateSerializer
+
+        return serializer_class
 
     def get_group(self):
         group_id = self.kwargs['group_id']
         return get_object_or_404(Group, id=group_id)
 
     def get_queryset(self):
+        self.check_object_permissions(self.request, self.get_group())
         return Application.objects.filter(group=self.get_group(), status='pending')
 
     def get(self, request, *args, **kwargs):
-        response = self.list(request, *args, **kwargs)
-        self.check_object_permissions(request, self.get_group())
-        return response
+        return self.list(request, *args, **kwargs)
 
     def post(self, request, group_id, **kwargs):
         # 根据rules字段validate
@@ -85,8 +90,12 @@ class GroupApplicationAPI(GenericAPIView, ListModelMixin,
         application = self.get_object()
         serializer = GroupApplicationUpdateSerializer(application, data=request.data)
         serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+        if serializer.validated_data['status'] == 'rejected':
+            application.delete()
+        else:
+            application.status = 'accepted'
+            application.save()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class GroupMemberAPI(GenericAPIView):
@@ -104,6 +113,5 @@ class GroupMemberAPI(GenericAPIView):
     def delete(self, request, group_id, user_id):
         group = self.get_object()
         application = get_object_or_404(Application, group=group, user__id=user_id, status='accepted')
-        application.status = 'deleted'
-        application.save()
+        application.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -55,7 +55,8 @@ class Submission(models.Model):
             return
 
         self.challenge_clear = False
-
+        # FIXME: 会有多个 challenge_clear 的情况
+        # FIXME: 用 super().save() 提交?
         correct_challenge_submission = Submission.objects.filter(
             challenge=self.challenge,
             user=self.user,
@@ -120,6 +121,7 @@ class Submission(models.Model):
                 time=self.created_time
             )
 
+    # TODO: 移到 manager 中
     @classmethod
     def regen_challenge_clear(cls, challenge: Challenge):
         for submission in cls.objects.filter(challenge=challenge):
