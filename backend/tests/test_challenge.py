@@ -1,5 +1,6 @@
-from challenge.models import ExprFlag
+from challenge.models import ExprFlag, SubChallenge
 from challenge.utils import functions, eval_token_expression
+from submission.models import ChallengeClear
 
 
 def test_enabled(challenge, text_sub_challenge, expr_sub_challenge):
@@ -72,3 +73,20 @@ def test_challenge_status_change_will_update_scoreboard(client, submission, expr
 
     r = client.get('/api/board/score/')
     assert r.data[0]['score'] == text_sub_challenge.score
+
+
+def test_sub_challenge_status_change_will_update_challenge_clear(
+        challenge, submission, expr_submission, user
+):
+    s2 = SubChallenge.objects.create(
+        challenge=challenge,
+        name='text2',
+        score=100,
+        enabled=True,
+        flag_type='text',
+        flag='flag{abcd}'
+    )
+    assert ChallengeClear.objects.filter(challenge=challenge, user=user).exists() is False
+    s2.enabled = False
+    s2.save()
+    assert ChallengeClear.objects.filter(challenge=challenge, user=user).exists() is True

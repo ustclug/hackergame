@@ -8,7 +8,8 @@ from rest_framework.exceptions import NotFound
 from rest_framework.permissions import BasePermission
 
 from challenge.models import Challenge
-from submission.models import Submission, ChallengeFirstBlood, SubChallengeFirstBlood, Scoreboard
+from submission.models import Submission, ChallengeFirstBlood, SubChallengeFirstBlood, \
+                            Scoreboard, ChallengeClear
 from submission.serializer import SubmissionSerializer, ScoreboardSerializer, \
                             ChallengeFirstBloodSerializer, SubChallengeFirstBloodSerializer
 from group.models import Group
@@ -91,8 +92,7 @@ class ChallengeClearAPI(APIView):
         for challenge in challenges:
             data = {
                 'challenge': challenge.id,
-                'clear': Submission.objects.filter(challenge=challenge, user=request.user,
-                                                   challenge_clear=True).exists(),
+                'clear': ChallengeClear.objects.filter(challenge=challenge, user=request.user).exists(),
                 'sub_challenges': []
             }
             sub_challenge_clear = Submission.objects.filter(

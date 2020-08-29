@@ -3,7 +3,7 @@ from datetime import timedelta
 from django.contrib.auth.models import Group as AuthGroup
 
 from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood, \
-                            Scoreboard
+                            Scoreboard, ChallengeClear
 from challenge.models import ExprFlag
 
 
@@ -29,7 +29,7 @@ def test_submission_api(challenge, text_sub_challenge, expr_sub_challenge, clien
     r = client.post('/api/submission/', data)
     assert r.data['detail'] == 'correct'
     submission = Submission.objects.get(flag=data['flag'])
-    assert submission.challenge_clear is True
+    assert ChallengeClear.objects.filter(user=user, challenge=challenge).exists()
 
     # 重复提交
     r = client.post('/api/submission/', data)
@@ -99,7 +99,7 @@ def test_no_board_group_does_not_participate_board(submission, user):
     no_score = AuthGroup.objects.get(name='no_score')
     user.groups.add(no_score)
 
-    Submission.regen_board()
+    Submission.objects.regen_board()
 
     assert len(Scoreboard.objects.all()) == 0
     assert len(SubChallengeFirstBlood.objects.all()) == 0

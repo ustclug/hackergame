@@ -76,21 +76,18 @@ class SubChallenge(models.Model, DirtyFieldsMixin):
     def save(self, *args, **kwargs):
         from submission.models import Submission
 
-        # 启用状态改变时更新榜单
-        if self.pk and self.get_dirty_fields().get('enabled'):
-            enabled = True
-        else:
-            enabled = False
+        # 启用状态改变或新增子题时更新榜单
+        enabled_changed = True if self.get_dirty_fields().get('enabled') is not None else False
 
         flag_updated = True if self.get_dirty_fields().get('flag') else False
 
         super().save(*args, **kwargs)
 
         # 这一步必须在模型保存之后, 否则查询到的 enabled 仍为 True
-        if enabled:
-            Submission.regen_challenge_clear(self.challenge)
-            Submission.regen_scoreboard()
-            Submission.regen_first_blood()
+        if enabled_changed:
+            Submission.objects.regen_challenge_clear(self.challenge)
+            Submission.objects.regen_scoreboard()
+            Submission.objects.regen_first_blood()
 
         # flag 表达式有更新时更新 ExprFlag 表, ExprFlag 有 SubChallenge 的外键故更新要放到 save() 之后
         if self.flag_type == 'expr' and flag_updated:

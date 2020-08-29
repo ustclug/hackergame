@@ -7,56 +7,80 @@ from group.models import Group
 from challenge.models import Challenge, SubChallenge
 
 
+class SubmissionManager(models.Manager):
+    def regen_challenge_clear(self, challenge: Challenge):
+        ChallengeClear.objects.all().delete()
+        for submission in self.filter(challenge=challenge, sub_challenge_clear__isnull=False):
+            submission.update_challenge_clear()
+
+    def regen_scoreboard(self):
+        Scoreboard.objects.all().delete()
+        for submission in self.filter(
+                sub_challenge_clear__isnull=False,
+                sub_challenge_clear__enabled=True
+        ):
+            submission.update_scoreboard()
+            submission.update_scoreboard(submission.challenge.category)
+
+    def regen_first_blood(self):
+        ChallengeFirstBlood.objects.all().delete()
+        SubChallengeFirstBlood.objects.all().delete()
+        for submission in self.filter(
+                sub_challenge_clear__isnull=False,
+                sub_challenge_clear__enabled=True
+        ):
+            submission.update_first_blood()
+
+    def regen_board(self):
+        self.regen_scoreboard()
+        self.regen_first_blood()
+
+
 class Submission(models.Model):
     """每一次提交"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
     flag = models.TextField()
+
+    # 以下字段无需在创建时指定
     created_time = models.DateTimeField(default=timezone.now)
     correctness = models.BooleanField(default=False)
-    challenge_clear = models.BooleanField(default=False)
     sub_challenge_clear = models.ForeignKey(SubChallenge, on_delete=models.CASCADE, null=True)
     violation_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='violation_submission',
                                        null=True, verbose_name="和该用户的某一 flag 重复")
+
+    objects = SubmissionManager()
 
     def __str__(self):
         return f'Submission {self.id} user={self.user}, challenge={self.challenge}, ' \
                f'created_time={self.created_time}, sub_challenge_clear={self.sub_challenge_clear}'
 
     def save(self, *args, **kwargs):
-        self.update_sub_challenge_clear()
-        self.update_challenge_clear()
-
-        super().save(*args, **kwargs)
-
-        self.update_board()
-
-    def update_sub_challenge_clear(self) -> None:
-        # 判断重复提交
+        # 重复提交无需更新 sub_challenge_clear, violation_user
         if Submission.objects.filter(user=self.user, challenge=self.challenge, flag=self.flag,
                                      sub_challenge_clear__isnull=False).exists():
             self.correctness = True
-            return
 
-        self.correctness = False
-        self.sub_challenge_clear = None
-        self.violation_user = None
+        # sub_challenge_clear, violation_user, correctness 不会在创建后被改变
+        elif not self.pk:
+            for sub_challenge in self.challenge.sub_challenge.filter(enabled=True):
+                if sub_challenge.check_correctness(self.flag, self.user):
+                    self.correctness = True
+                    self.sub_challenge_clear = sub_challenge
+                else:
+                    violation_user = sub_challenge.check_violation(self.flag, self.user)
+                    if violation_user is not None:
+                        self.violation_user = violation_user
 
-        for sub_challenge in self.challenge.sub_challenge.filter(enabled=True):
-            if sub_challenge.check_correctness(self.flag, self.user):
-                self.correctness = True
-                self.sub_challenge_clear = sub_challenge
-            violation_user = sub_challenge.check_violation(self.flag, self.user)
-            if violation_user is not None:
-                self.violation_user = violation_user
+        super().save(*args, **kwargs)
+
+        self.update_challenge_clear()
+        self.update_board()
 
     def update_challenge_clear(self) -> None:
-        if self.sub_challenge_clear is None:
+        if self.sub_challenge_clear is None or self.sub_challenge_clear.enabled is False:
             return
 
-        self.challenge_clear = False
-        # FIXME: 会有多个 challenge_clear 的情况
-        # FIXME: 用 super().save() 提交?
         correct_challenge_submission = Submission.objects.filter(
             challenge=self.challenge,
             user=self.user,
@@ -64,10 +88,12 @@ class Submission(models.Model):
             sub_challenge_clear__enabled=True,
         ).exclude(
             id=self.id
+        ).filter(
+            created_time__lt=self.created_time
         )
         if correct_challenge_submission.count() == \
                 self.challenge.sub_challenge.filter(enabled=True).count() - 1:
-            self.challenge_clear = True
+            ChallengeClear.objects.create(user=self.user, time=self.created_time, challenge=self.challenge)
 
     def update_board(self) -> None:
         """更新榜单"""
@@ -99,7 +125,7 @@ class Submission(models.Model):
             if self.sub_challenge_clear:
                 self._update_first_blood_obj(SubChallengeFirstBlood, g,
                                              {'sub_challenge': self.sub_challenge_clear})
-            if self.challenge_clear:
+            if ChallengeClear.objects.filter(user=self.user, challenge=self.challenge).exists():
                 self._update_first_blood_obj(ChallengeFirstBlood, g, {'challenge': self.challenge})
 
     def update_scoreboard(self, category: str = '') -> None:
@@ -121,50 +147,28 @@ class Submission(models.Model):
                 time=self.created_time
             )
 
-    # TODO: 移到 manager 中
-    @classmethod
-    def regen_challenge_clear(cls, challenge: Challenge):
-        for submission in cls.objects.filter(challenge=challenge):
-            submission.save()
-
-    @classmethod
-    def regen_scoreboard(cls):
-        Scoreboard.objects.all().delete()
-        for submission in Submission.objects.filter(
-                sub_challenge_clear__isnull=False,
-                sub_challenge_clear__enabled=True
-        ):
-            submission.update_scoreboard()
-            submission.update_scoreboard(submission.challenge.category)
-
-    @classmethod
-    def regen_first_blood(cls):
-        ChallengeFirstBlood.objects.all().delete()
-        SubChallengeFirstBlood.objects.all().delete()
-        for submission in Submission.objects.filter(
-                sub_challenge_clear__isnull=False,
-                sub_challenge_clear__enabled=True
-        ):
-            submission.update_first_blood()
-
-    @classmethod
-    def regen_board(cls):
-        cls.regen_scoreboard()
-        cls.regen_first_blood()
-
     class Meta:
         default_permissions = []
         constraints = [
-            # FIXME: regen_challenge_clear 时会出现多个 challenge_clear 为 True 的情况
-            # models.UniqueConstraint(
-            #     fields=['user', 'challenge', 'challenge_clear'],
-            #     condition=Q(challenge_clear=True),
-            #     name='unique_challenge_clear'
-            # ),
             models.UniqueConstraint(
                 fields=['user', 'sub_challenge_clear'],
                 name='unique_sub_challenge_clear'
             ),
+        ]
+
+
+class ChallengeClear(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    challenge = models.ForeignKey(Challenge, on_delete=models.CASCADE)
+    time = models.DateTimeField()
+
+    class Meta:
+        default_permissions = []
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'challenge'],
+                name='unique_challenge_clear'
+            )
         ]
 
 
