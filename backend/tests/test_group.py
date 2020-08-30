@@ -27,7 +27,7 @@ class TestManagement:
 
     def test_list(self, client, group):
         r = client.get('/api/group/')
-        assert len(r.data) == 1
+        assert len(r.data['results']) == 1
 
     def test_retrieve(self, client, group):
         r = client.get(f'/api/group/{group.id}/')
@@ -68,7 +68,7 @@ class TestApplication:
 
     def test_list(self, client, application, group):
         r = client.get(f'/api/group/{group.id}/application/')
-        assert r.data[0]['apply_message'] == 'xxx'
+        assert r.data['results'][0]['apply_message'] == 'xxx'
 
         # 查看一个不存在的组
         r = client.get('/api/group/100/application/')

@@ -164,17 +164,22 @@
 
   - Url: `group/`
   - GET
+  - Query String: `verified=<true>&limit=<results per page>&offset=<offset>`
 
 - Response
 
-  - ```
-    [
-        {...},
-        {...},
-    ]
+  - ```json5
+    {
+      "count": 2, //结果计数
+      "next": null, //下一页的 url
+      "previous": null, //上一页的 url
+      "results": [
+        {},
+      ]
+    }
     ```
 
-  - 字段同创建, 多了`id`, `verified`, `verify_message`
+  - results 中字段同创建, 多了`id`, `verified`, `verify_message`
 
 ### 查看组信息
 
@@ -417,13 +422,18 @@
       
 - Response
     - ```json5
-        [
+        {
+          "count": 2, //结果计数
+          "next": null, //下一页的 url
+          "previous": null, //上一页的 url
+          "results": [
             {
                 "user": 1, //id
                 "score": 100,
                 "time": "2020-05-24T02:44:12.498Z"
             }
-        ]
+          ]
+        }
         ```
 
 ### 获取一血榜单

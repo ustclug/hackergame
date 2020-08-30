@@ -39,13 +39,13 @@ def test_submission_api(challenge, text_sub_challenge, expr_sub_challenge, clien
 def test_board(client, submission, expr_submission, text_sub_challenge, expr_sub_challenge, challenge, group):
     score = text_sub_challenge.score + expr_sub_challenge.score
     r = client.get('/api/board/score/')
-    assert r.data[0]['score'] == score
+    assert r.data['results'][0]['score'] == score
 
     r = client.get(f'/api/board/score/?category={challenge.category}')
-    assert r.data[0]['score'] == score
+    assert r.data['results'][0]['score'] == score
 
     r = client.get(f'/api/board/score/?group={group.id}')
-    assert r.data[0]['score'] == score
+    assert r.data['results'][0]['score'] == score
 
     r = client.get('/api/board/firstblood/')
     assert r.data['sub_challenges'][0]['user'] == submission.user.id
@@ -73,14 +73,14 @@ def test_group_change_will_update_board(user, another_user, challenge, applicati
         'status': 'accepted'
     })
     r = client.get(f'/api/board/score/?group={group.id}')
-    assert another_user.id in map(lambda a: a['user'], r.data)
+    assert another_user.id in map(lambda a: a['user'], r.data['results'])
     r = client.get(f'/api/board/firstblood/?group={group.id}')
     assert r.data['sub_challenges'][0]['user'] == another_user.id
 
     # 退出组
     client.delete(f'/api/group/{group.id}/member/{another_user.id}/')
     r = client.get(f'/api/board/score/?group={group.id}')
-    assert another_user.id not in map(lambda a: a['user'], r.data)
+    assert another_user.id not in map(lambda a: a['user'], r.data['results'])
     r = client.get(f'/api/board/firstblood/?group={group.id}')
     assert r.data['sub_challenges'][0]['user'] == user.id
 

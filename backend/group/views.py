@@ -24,11 +24,14 @@ def generate_rules_meet(rules, user):
 
 
 class GroupAPI(ModelViewSet):
-    # TODO: 分页
-    # TODO: Verified Group
-    queryset = Group.objects.all()
     serializer_class = GroupSerializer
     permission_classes = ModelViewSet.permission_classes + [IsGroupAdminOrReadOnly]
+
+    def get_queryset(self):
+        if self.request.query_params.get('verified'):
+            return Group.objects.filter(verified=True)
+        else:
+            return Group.objects.all()
 
     def perform_create(self, serializer):
         user = serializer.context['request'].user

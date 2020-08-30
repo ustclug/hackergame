@@ -72,7 +72,7 @@ def test_challenge_status_change_will_update_scoreboard(client, submission, expr
     expr_sub_challenge.save()
 
     r = client.get('/api/board/score/')
-    assert r.data[0]['score'] == text_sub_challenge.score
+    assert r.data['results'][0]['score'] == text_sub_challenge.score
 
 
 def test_sub_challenge_status_change_will_update_challenge_clear(

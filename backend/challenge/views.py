@@ -17,3 +17,4 @@ class ChallengeAPI(ListAPIView):
     permission_classes = ListAPIView.permission_classes + [IsViewChallengeAllowed]
     queryset = Challenge.objects.filter(sub_challenge__enabled=True)
     serializer_class = ChallengeSerializer
+    pagination_class = None

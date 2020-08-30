@@ -58,7 +58,7 @@ class ScoreboardAPI(GenericAPIView, mixins.ListModelMixin):
         if group:
             group = get_object_or_404(Group, pk=group)
             self.check_object_permissions(self.request, group)
-            return scoreboard.filter(user__in=group.users)  # FIXME: user__group=group
+            return scoreboard.filter(user__application__status='accepted', user__application__group=group)
         else:
             return scoreboard
 

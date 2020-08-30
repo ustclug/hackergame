@@ -8,6 +8,7 @@ from challenge.models import Challenge
 
 class AnnouncementAPI(ListAPIView):
     serializer_class = AnnouncementSerializer
+    pagination_class = None
 
     def get_queryset(self):
         challenge_id = self.request.query_params.get('challenge')
