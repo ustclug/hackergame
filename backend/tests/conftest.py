@@ -99,36 +99,55 @@ def challenge(stage):
     )
     SubChallenge.objects.create(
         challenge=challenge,
-        name='expr',
-        score=50,
-        enabled=True,
-        flag_type='expr',
-        flag='"flag{"+md5("secret"+token)+"}"'
-    )
-    SubChallenge.objects.create(
-        challenge=challenge,
-        name='text',
+        name='text1',
         score=100,
         enabled=True,
         flag_type='text',
         flag='flag{abc}'
+    )
+    SubChallenge.objects.create(
+        challenge=challenge,
+        name='text2',
+        score=50,
+        enabled=True,
+        flag_type='text',
+        flag='flag{abcd}'
     )
     return challenge
 
 
 @pytest.fixture
 def expr_sub_challenge(challenge):
-    return SubChallenge.objects.get(name='expr')
+    """这个子题不被默认包括在 challenge 中"""
+    return SubChallenge.objects.create(
+        challenge=challenge,
+        name='expr',
+        score=50,
+        enabled=True,
+        flag_type='expr',
+        flag='"flag{"+md5("secret"+token)+"}"'
+    )
 
 
 @pytest.fixture
-def text_sub_challenge(challenge):
-    return SubChallenge.objects.get(name='text')
+def sub_challenge1(challenge):
+    return SubChallenge.objects.get(name='text1')
 
 
 @pytest.fixture
-def submission(challenge, text_sub_challenge, user):
-    submission = Submission.objects.create(user=user, challenge=challenge, flag=text_sub_challenge.flag)
+def sub_challenge2(challenge):
+    return SubChallenge.objects.get(name='text2')
+
+
+@pytest.fixture
+def sub1_submission(challenge, sub_challenge1, user):
+    submission = Submission.objects.create(user=user, challenge=challenge, flag=sub_challenge1.flag)
+    return submission
+
+
+@pytest.fixture
+def sub2_submission(challenge, sub_challenge2, user):
+    submission = Submission.objects.create(user=user, challenge=challenge, flag=sub_challenge2.flag)
     return submission
 
 

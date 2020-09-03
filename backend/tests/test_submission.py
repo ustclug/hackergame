@@ -5,9 +5,10 @@ from django.contrib.auth.models import Group as AuthGroup
 from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood, \
                             Scoreboard, ChallengeClear
 from challenge.models import ExprFlag
+from tests.utils import join_group, leave_group
 
 
-def test_submission_api(challenge, text_sub_challenge, expr_sub_challenge, client, user):
+def test_submission_api(challenge, sub_challenge1, sub_challenge2, expr_sub_challenge, client, user):
     data = {
         'challenge': challenge.id,
         'flag': "wrong_answer"
@@ -15,11 +16,14 @@ def test_submission_api(challenge, text_sub_challenge, expr_sub_challenge, clien
     r = client.post('/api/submission/', data)
     assert r.data['detail'] == 'wrong'
 
-    data['flag'] = text_sub_challenge.flag
+    data['flag'] = sub_challenge1.flag
     r = client.post('/api/submission/', data)
     assert r.data['detail'] == 'correct'
-    submission = Submission.objects.get(flag=text_sub_challenge.flag)
-    assert submission.sub_challenge_clear == text_sub_challenge
+    submission = Submission.objects.get(flag=sub_challenge1.flag)
+    assert submission.sub_challenge_clear == sub_challenge1
+
+    data['flag'] = sub_challenge2.flag
+    client.post('/api/submission/', data)
 
     # 重复提交
     r = client.post('/api/submission/', data)
@@ -28,7 +32,6 @@ def test_submission_api(challenge, text_sub_challenge, expr_sub_challenge, clien
     data['flag'] = ExprFlag.objects.get(user=user, sub_challenge=expr_sub_challenge).flag
     r = client.post('/api/submission/', data)
     assert r.data['detail'] == 'correct'
-    submission = Submission.objects.get(flag=data['flag'])
     assert ChallengeClear.objects.filter(user=user, challenge=challenge).exists()
 
     # 重复提交
@@ -36,8 +39,8 @@ def test_submission_api(challenge, text_sub_challenge, expr_sub_challenge, clien
     assert r.data['detail'] == 'correct'
 
 
-def test_board(client, submission, expr_submission, text_sub_challenge, expr_sub_challenge, challenge, group):
-    score = text_sub_challenge.score + expr_sub_challenge.score
+def test_board(client, sub1_submission, sub2_submission, sub_challenge1, sub_challenge2, challenge, group, user):
+    score = sub_challenge1.score + sub_challenge2.score
     r = client.get('/api/board/score/')
     assert r.data['results'][0]['score'] == score
 
@@ -48,54 +51,53 @@ def test_board(client, submission, expr_submission, text_sub_challenge, expr_sub
     assert r.data['results'][0]['score'] == score
 
     r = client.get('/api/board/firstblood/')
-    assert r.data['sub_challenges'][0]['user'] == submission.user.id
-    assert r.data['challenges'][0]['user'] == submission.user.id
+    assert r.data['sub_challenges'][0]['user'] == user.id
+    assert r.data['challenges'][0]['user'] == user.id
 
     r = client.get(f'/api/board/firstblood/?group={group.id}')
-    assert r.data['sub_challenges'][0]['user'] == submission.user.id
+    assert r.data['sub_challenges'][0]['user'] == user.id
 
 
-def test_board_permission(submission, challenge, client_another_user, group):
+def test_board_permission(sub1_submission, challenge, client_another_user, group):
+    """不属于该组的用户无法访问该组的排行榜"""
     r = client_another_user.get(f'/api/board/score/?group={group.id}')
     assert r.status_code == 403
 
 
-def test_group_change_will_update_board(user, another_user, challenge, application, text_sub_challenge,
-                                        client, client_another_user, submission, group):
+def test_group_change_will_update_board(user, another_user, challenge, sub_challenge1,
+                                        client, client_another_user, sub1_submission, group):
     submission2 = Submission.objects.create(user=another_user, challenge=challenge,
-                                            flag=text_sub_challenge.flag)
+                                            flag=sub_challenge1.flag)
     # submission2 的提交时间比 submission 要早
     Submission.objects.filter(id=submission2.id) \
-                      .update(created_time=submission.created_time - timedelta(minutes=1))
+                      .update(created_time=sub1_submission.created_time - timedelta(minutes=1))
 
     # 加入组
-    client.put(f'/api/group/{group.id}/application/{application.id}/', {
-        'status': 'accepted'
-    })
+    join_group(another_user, group)
     r = client.get(f'/api/board/score/?group={group.id}')
     assert another_user.id in map(lambda a: a['user'], r.data['results'])
     r = client.get(f'/api/board/firstblood/?group={group.id}')
     assert r.data['sub_challenges'][0]['user'] == another_user.id
 
     # 退出组
-    client.delete(f'/api/group/{group.id}/member/{another_user.id}/')
+    leave_group(another_user, group)
     r = client.get(f'/api/board/score/?group={group.id}')
     assert another_user.id not in map(lambda a: a['user'], r.data['results'])
     r = client.get(f'/api/board/firstblood/?group={group.id}')
     assert r.data['sub_challenges'][0]['user'] == user.id
 
 
-def test_challenge_progress_api(text_sub_challenge, submission, client):
+def test_challenge_progress_api(sub_challenge1, sub1_submission, client):
     r = client.get('/api/challenge/clear/')
     assert r.data[0]['clear'] is False
     data = {
-        "sub_challenge": text_sub_challenge.id,
+        "sub_challenge": sub_challenge1.id,
         "clear": True,
     }
     assert data in r.data[0]['sub_challenges']
 
 
-def test_no_board_group_does_not_participate_board(submission, user):
+def test_no_board_group_does_not_participate_board(sub1_submission, user):
     no_score = AuthGroup.objects.get(name='no_score')
     user.groups.add(no_score)
 
