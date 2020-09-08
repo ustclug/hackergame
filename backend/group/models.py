@@ -1,6 +1,6 @@
 from django.db import models
 from django.db.models import Q
-from django.db.models.signals import post_delete
+from django.db.models.signals import post_delete, m2m_changed
 from django.dispatch import receiver
 from django.core.exceptions import ValidationError
 from dirtyfields import DirtyFieldsMixin
@@ -11,8 +11,7 @@ from user.models import User
 class Group(models.Model):
     """组, 区分参赛者所属的组织"""
     name = models.TextField()
-    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
-                              blank=True, related_name="group_admin")
+    admin = models.ManyToManyField(User, related_name='admin_group')
     rule_has_phone_number = models.BooleanField()
     rule_has_email = models.BooleanField()
     rule_email_suffix = models.CharField(max_length=50, blank=True)
@@ -30,17 +29,16 @@ class Group(models.Model):
         applications = Application.users.filter(group=self)
         return list(map(lambda appl: appl.user, applications))
 
-    def save(self, *args, **kwargs):
-        created = 0
-        if not self.pk:
-            created = 1
-        super().save(*args, **kwargs)
-        # 为创建组的用户添加 Application
-        if created and self.admin:
-            Application.objects.create(group=self, user=self.admin, status='accepted')
-
     class Meta:
         default_permissions = []
+
+
+@receiver(m2m_changed, sender=Group.admin.through)
+def admin_changed(instance, action, pk_set, **kwargs):
+    # 为组管理员添加 Application
+    if action == 'post_add':
+        for user_pk in pk_set:
+            Application.objects.create(group=instance, user_id=user_pk, status='accepted')
 
 
 class ApplicationUserManager(models.Manager):

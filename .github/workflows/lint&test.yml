@@ -35,7 +35,6 @@ jobs:
                 host: ${{ secrets.HOST }}
                 username: root
                 key: ${{ secrets.KEY }}
-                script_stop: true
                 script: |
                   [ ! -d "hackergame" ] && git clone --single-branch --branch refactor https://github.com/cjc7373/hackergame.git
                   cd hackergame

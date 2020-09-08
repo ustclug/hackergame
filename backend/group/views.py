@@ -35,7 +35,7 @@ class GroupAPI(ModelViewSet):
 
     def perform_create(self, serializer):
         user = serializer.context['request'].user
-        serializer.validated_data['admin'] = user
+        serializer.validated_data['admin'] = [user]
         serializer.save()
 
     def retrieve(self, request, *args, **kwargs):

@@ -25,6 +25,7 @@ class GroupAdmin(admin.ModelAdmin):
             'fields': ('verified', 'verify_message')
         })
     )
+    filter_horizontal = ('admin',)
 
 
 admin.site.register(Application)

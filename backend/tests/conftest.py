@@ -70,7 +70,6 @@ def stage_fixture():
 def group(user):
     group = Group.objects.create(
         name='某大学',
-        admin=user,
         rule_has_phone_number=False,
         rule_has_email=True,
         rule_email_suffix='xx.edu.cn',
@@ -80,6 +79,7 @@ def group(user):
         verified=True,
         verify_message='This group has been verified.'
     )
+    group.admin.add(user)
     return group
 
 

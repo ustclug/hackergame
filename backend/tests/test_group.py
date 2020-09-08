@@ -22,7 +22,7 @@ class TestManagement:
 
         # 测试创建者在组内并为管理员
         group = Group.objects.all()[0]
-        assert group.admin == user
+        assert user in group.admin.all()
         assert group.users[0] == user
 
     def test_list(self, client, group):
