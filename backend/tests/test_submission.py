@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import Group as AuthGroup
+from rest_framework import status
 
 from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood, \
                             Scoreboard, ChallengeClear
@@ -115,3 +116,14 @@ def test_no_board_group_does_not_participate_board(sub1_submission, user):
     assert len(Scoreboard.objects.all()) == 0
     assert len(SubChallengeFirstBlood.objects.all()) == 0
     assert len(ChallengeFirstBlood.objects.all()) == 0
+
+
+def test_submission_throttling(challenge, client):
+    data = {
+        'challenge': challenge.id,
+        'flag': "wrong_answer"
+    }
+    for i in range(15):
+        client.post('/api/submission/', data)
+    r = client.post('/api/submission/', data)
+    assert r.status_code == status.HTTP_429_TOO_MANY_REQUESTS

@@ -409,6 +409,8 @@
             "detail": "correct" // 或者为 wrong
         }
         ```
+    - 每分钟请求限制为 10 次, 超过后将返回 429 Too Many Requests, 并在 Header 中 Retry-After 
+      字段指示在多少秒后重试
       
 ## 榜单
 

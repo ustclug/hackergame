@@ -39,8 +39,6 @@ superuser: 用户名: root, 密码: root
 
 ## TODO
 
-- throttling
-- Group admin 任意多个?
 - Superuser 是否可以无视比赛阶段的限制呢
 - 后期可以考虑重新生成一下 migrations
 

@@ -6,6 +6,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.exceptions import NotFound
 from rest_framework.permissions import BasePermission
+from rest_framework.throttling import UserRateThrottle
 
 from challenge.models import Challenge
 from submission.models import Submission, ChallengeFirstBlood, SubChallengeFirstBlood, \
@@ -26,6 +27,7 @@ class IsSubmissionAllowed(BasePermission):
 
 class SubmissionAPI(APIView):
     permission_classes = APIView.permission_classes + [IsSubmissionAllowed]
+    throttle_classes = [UserRateThrottle]
 
     def post(self, request):
         serializer = SubmissionSerializer(data=request.data)
