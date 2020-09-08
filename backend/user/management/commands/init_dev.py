@@ -114,15 +114,16 @@ class Command(BaseCommand):
         groups = []
         for i in range(1, options['groups'] + 1):
             print(f'Group {i}')
-            groups.append(Group.objects.create(
+            g = Group.objects.create(
                 name=f'Group {i}',
-                admin=random.choice(users),
                 rule_has_phone_number=False,
                 rule_has_email=True,
                 rule_email_suffix='xx.edu.cn',
                 rule_has_name=False,
                 rule_must_be_verified_by_admin=True,
-            ))
+            )
+            g.admin.add(random.choice(users))
+            groups.append(g)
 
         for user in users:
             for i in range(random.randrange(10)):
