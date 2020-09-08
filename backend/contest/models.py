@@ -4,17 +4,21 @@ from django.core.exceptions import ValidationError
 
 
 class StageManager(models.Manager):
-    def get(self):
+    def _get(self):
+        if self.get_queryset().count() == 0:
+            raise ValidationError("Stage 表未被初始化")
         return self.get_queryset().all()[0]
 
     @classmethod
-    def now(cls):
+    def _now(cls):
+        """便于测试 monkeypatch 这个方法"""
         return timezone.now()
 
     @property
     def current_status(self):
-        cur_time = self.now()
-        stage = self.get()
+        """比赛的当前状态, 共有五种可能的情况"""
+        cur_time = self._now()
+        stage = self._get()
         pauses = Pause.objects.all()
         if cur_time < stage.start_time:
             return "not start"
@@ -46,6 +50,7 @@ class Stage(models.Model):
 
 
 class Pause(models.Model):
+    """表示比赛暂停的时段"""
     start_time = models.DateTimeField()
     end_time = models.DateTimeField()
     note = models.TextField(blank=True)

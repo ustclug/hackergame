@@ -1,4 +1,4 @@
-from challenge.models import ExprFlag, SubChallenge
+from challenge.models import ExprFlag
 from challenge.utils import functions, eval_token_expression
 from submission.models import ChallengeClear
 

@@ -13,6 +13,9 @@ http://sin.coherence.codes:8001/
 
 superuser: 用户名: root, 密码: root
 
+## 权限
+权限控制都放在了 Views 层. 也就是说管理面板拥有所有权限.
+
 ## 用户
 
 ### 封禁
@@ -39,9 +42,13 @@ superuser: 用户名: root, 密码: root
 - throttling
 - Group admin 任意多个?
 - Superuser 是否可以无视比赛阶段的限制呢
+- 后期可以考虑重新生成一下 migrations
 
 ## 其他
-- AuthGroup 的两个组的初始化在 `user/migrations/0002_init_auth_group.py` 中进行
+- AuthGroup 的 no_score 和 banned 两个组的初始化在 `user/migrations/0002_init_auth_group.py` 中进行
 - 以下两种情况需更新 ExprFlag 表:
     - User 创建
     - 类型为 `expr` 的 SubChallenge 的创建或 flag 字段的更新
+    
+## 初始化
+- 在 Stage 表中新建一行

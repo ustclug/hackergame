@@ -15,11 +15,11 @@ class Group(models.Model):
                               blank=True, related_name="group_admin")
     rule_has_phone_number = models.BooleanField()
     rule_has_email = models.BooleanField()
-    rule_email_suffix = models.CharField(max_length=50, null=True, blank=True)
+    rule_email_suffix = models.CharField(max_length=50, blank=True)
     rule_has_name = models.BooleanField()
     rule_must_be_verified_by_admin = models.BooleanField()
-    apply_hint = models.TextField(verbose_name='给申请者的提示', blank=True)
-    verified = models.BooleanField(verbose_name='是否为认证过的组', default=False)
+    apply_hint = models.TextField(blank=True, help_text='给申请者的提示')
+    verified = models.BooleanField(default=False, help_text='是否为认证过的组')
     verify_message = models.TextField(blank=True)
 
     def __str__(self):
@@ -27,7 +27,7 @@ class Group(models.Model):
 
     @property
     def users(self):
-        applications = Application.objects.filter(group=self, status='accepted')
+        applications = Application.users.filter(group=self)
         return list(map(lambda appl: appl.user, applications))
 
     def save(self, *args, **kwargs):
@@ -36,11 +36,16 @@ class Group(models.Model):
             created = 1
         super().save(*args, **kwargs)
         # 为创建组的用户添加 Application
-        if created:
+        if created and self.admin:
             Application.objects.create(group=self, user=self.admin, status='accepted')
 
     class Meta:
         default_permissions = []
+
+
+class ApplicationUserManager(models.Manager):
+    def get_queryset(self):
+        return super().get_queryset().filter(status='accepted')
 
 
 class Application(models.Model, DirtyFieldsMixin):
@@ -54,11 +59,14 @@ class Application(models.Model, DirtyFieldsMixin):
     apply_message = models.TextField(blank=True)
     status = models.CharField(max_length=10, choices=STATUS, default='pending')
 
+    users = ApplicationUserManager()  # The default manager
+    objects = models.Manager()
+
     def __str__(self):
         return f'{self.id}:{self.group.name}:{self.user}'
 
     def save(self, *args, **kwargs):
-        from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood
+        from submission.models import Submission
 
         if self.pk and self.get_dirty_fields().get('status') == 'accepted':
             raise ValidationError("状态无法从 accepted 改为 pending.")

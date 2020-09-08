@@ -68,23 +68,32 @@ def test_group_change_will_update_board(user, another_user, challenge, sub_chall
                                         client, client_another_user, sub1_submission, group):
     submission2 = Submission.objects.create(user=another_user, challenge=challenge,
                                             flag=sub_challenge1.flag)
-    # submission2 的提交时间比 submission 要早
+    # submission2 的提交时间比 sub1_submission 要早
     Submission.objects.filter(id=submission2.id) \
                       .update(created_time=sub1_submission.created_time - timedelta(minutes=1))
 
-    # 加入组
+    # 加入组后排行榜上有该用户
     join_group(another_user, group)
     r = client.get(f'/api/board/score/?group={group.id}')
     assert another_user.id in map(lambda a: a['user'], r.data['results'])
     r = client.get(f'/api/board/firstblood/?group={group.id}')
     assert r.data['sub_challenges'][0]['user'] == another_user.id
 
-    # 退出组
+    # 退出组后排行榜上无该用户
     leave_group(another_user, group)
     r = client.get(f'/api/board/score/?group={group.id}')
     assert another_user.id not in map(lambda a: a['user'], r.data['results'])
     r = client.get(f'/api/board/firstblood/?group={group.id}')
     assert r.data['sub_challenges'][0]['user'] == user.id
+
+    # 该题被禁用后排行榜上无此题
+    sub_challenge1.enabled = False
+    sub_challenge1.save()
+
+    join_group(another_user, group)
+    assert not SubChallengeFirstBlood.objects.filter(group=group).exists()
+    leave_group(another_user, group)
+    assert not SubChallengeFirstBlood.objects.filter(group=group).exists()
 
 
 def test_challenge_progress_api(sub_challenge1, sub1_submission, client):

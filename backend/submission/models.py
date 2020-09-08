@@ -9,26 +9,20 @@ from challenge.models import Challenge, SubChallenge
 
 class SubmissionManager(models.Manager):
     def regen_challenge_clear(self, challenge: Challenge):
-        ChallengeClear.objects.all().delete()
-        for submission in self.filter(challenge=challenge, sub_challenge_clear__isnull=False):
+        ChallengeClear.objects.filter(challenge=challenge).delete()
+        for submission in self.filter(challenge=challenge):
             submission.update_challenge_clear()
 
     def regen_scoreboard(self):
         Scoreboard.objects.all().delete()
-        for submission in self.filter(
-                sub_challenge_clear__isnull=False,
-                sub_challenge_clear__enabled=True
-        ):
+        for submission in self.all():
             submission.update_scoreboard()
             submission.update_scoreboard(submission.challenge.category)
 
     def regen_first_blood(self):
         ChallengeFirstBlood.objects.all().delete()
         SubChallengeFirstBlood.objects.all().delete()
-        for submission in self.filter(
-                sub_challenge_clear__isnull=False,
-                sub_challenge_clear__enabled=True
-        ):
+        for submission in self.all():
             submission.update_first_blood()
 
     def regen_board(self):
@@ -122,7 +116,7 @@ class Submission(models.Model):
             groups = list(Group.objects.filter(application__user=self.user, application__status='accepted')) \
                      + [None]
         for g in groups:
-            if self.sub_challenge_clear:
+            if self.sub_challenge_clear and self.sub_challenge_clear.enabled is True:
                 self._update_first_blood_obj(SubChallengeFirstBlood, g,
                                              {'sub_challenge': self.sub_challenge_clear})
             if ChallengeClear.objects.filter(user=self.user, challenge=self.challenge).exists():
@@ -132,8 +126,9 @@ class Submission(models.Model):
         """累加某题的分数, 若分类为空则为总榜"""
         if self.user.groups.filter(name='no_score').exists():
             return
-        # 必须是一个过题的提交
-        assert self.sub_challenge_clear
+        # 必须是一个过题的提交且该子题为启用状态
+        if self.sub_challenge_clear is None or self.sub_challenge_clear.enabled is False:
+            return
         try:
             scoreboard = Scoreboard.objects.get(user=self.user, category=category)
             scoreboard.score = F('score') + self.sub_challenge_clear.score
@@ -144,7 +139,7 @@ class Submission(models.Model):
                 user=self.user,
                 category=category,
                 score=self.sub_challenge_clear.score,
-                time=self.created_time
+                time=self.created_time  # FIXME: 是否会出现榜单时间并不属于最新提交?
             )
 
     class Meta:

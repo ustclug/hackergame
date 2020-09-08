@@ -34,10 +34,10 @@ def test_pause_validation(stage):
 
 @contextmanager
 def monkey_patch_now(cur_time):
-    origin_now = StageManager.now
-    StageManager.now = lambda cls: cur_time
+    origin_now = StageManager._now
+    StageManager._now = lambda cls: cur_time
     yield cur_time
-    StageManager.now = origin_now
+    StageManager._now = origin_now
 
 
 @pytest.fixture

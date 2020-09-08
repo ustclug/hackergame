@@ -109,12 +109,12 @@ class GroupMemberAPI(GenericAPIView):
 
     def get(self, request, group_id):
         group = self.get_object()
-        queryset = Application.objects.filter(status='accepted', group=group)
+        queryset = Application.users.filter(group=group)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data)
 
     def delete(self, request, group_id, user_id):
         group = self.get_object()
-        application = get_object_or_404(Application, group=group, user__id=user_id, status='accepted')
+        application = get_object_or_404(Application, group=group, user__id=user_id)
         application.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
