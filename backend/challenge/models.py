@@ -7,6 +7,11 @@ from user.models import User
 from challenge.utils import eval_token_expression
 
 
+class ChallengeManager(models.Manager):
+    def enabled(self):
+        self.get_queryset().filter(sub_challenge__enabled=True).distinct()
+
+
 class Challenge(models.Model):
     index = models.IntegerField(db_index=True, verbose_name='顺序')
     name = models.TextField(unique=True)
@@ -16,6 +21,8 @@ class Challenge(models.Model):
         help_text='会被放入 div 的 HTML，其中的 {token} 会被替换为 URL encode 后的用户 token'
     )
     prompt = models.TextField(blank=True, verbose_name='提示')
+
+    objects = ChallengeManager()
 
     def __str__(self):
         return self.name

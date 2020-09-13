@@ -10,7 +10,7 @@ class IsViewChallengeAllowed(BasePermission):
     message = '比赛当前阶段无法查看题目'
 
     def has_permission(self, request, view):
-        return Stage.objects.current_status in ('underway', 'practice', 'ended')
+        return Stage.objects.current_status in ('underway', 'practice', 'ended') or request.user.is_superuser
 
 
 class ChallengeAPI(ListAPIView):
