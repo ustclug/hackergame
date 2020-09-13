@@ -43,7 +43,14 @@ def test_submission_api(challenge, sub_challenge1, sub_challenge2, expr_sub_chal
 def test_board(client, sub1_submission, sub2_submission, sub_challenge1, sub_challenge2, challenge, group, user):
     score = sub_challenge1.score + sub_challenge2.score
     r = client.get('/api/board/score/')
-    assert r.data['results'][0]['score'] == score
+    rank = r.data['results'][0]
+    assert rank['score'] == score
+    for c in rank['challenge_clear']:
+        if c['challenge'] == challenge.id:
+            assert c['clear_status'] == 'clear'
+            subs = list(map(lambda a: a['sub_challenge'], c['sub_challenge_clear']))
+            assert sub_challenge1.id in subs
+            assert sub_challenge2.id in subs
 
     r = client.get(f'/api/board/score/?category={challenge.category}')
     assert r.data['results'][0]['score'] == score
@@ -99,12 +106,12 @@ def test_group_change_will_update_board(user, another_user, challenge, sub_chall
 
 def test_challenge_progress_api(sub_challenge1, sub1_submission, client):
     r = client.get('/api/challenge/clear/')
-    assert r.data[0]['clear'] is False
+    assert r.data[0]['clear_status'] == 'partly'
     data = {
         "sub_challenge": sub_challenge1.id,
-        "clear": True,
+        "time": sub1_submission.created_time,
     }
-    assert data in r.data[0]['sub_challenges']
+    assert data in r.data[0]['sub_challenge_clear']
 
 
 def test_no_board_group_does_not_participate_board(sub1_submission, user):
@@ -127,3 +134,9 @@ def test_submission_throttling(challenge, client):
         client.post('/api/submission/', data)
     r = client.post('/api/submission/', data)
     assert r.status_code == status.HTTP_429_TOO_MANY_REQUESTS
+
+
+def test_score_history(user, sub1_submission, sub2_submission, client):
+    r = client.get(f'/api/board/history/{user.id}/')
+    assert len(r.data) == 2
+    assert r.data[-1]['score'] == Scoreboard.objects.get(user=user, category='').score

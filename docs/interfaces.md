@@ -378,11 +378,12 @@
         [
           {
             "challenge": 1,
-            "clear": true,
-            "sub_challenges": [
+            "clear_status": "clear", // 或 "partly" 表示部分完成
+            "time": "2020-05-24T02:44:12.498Z",
+            "sub_challenge_clear": [ // 表示已经完成的子题
               {
                 "sub_challenge": 1,
-                "clear": true
+                "time": "2020-05-24T02:44:12.498Z",
               }
             ]
           }
@@ -431,6 +432,7 @@
           "results": [
             {
                 "user": 1, //id
+                "challenge_clear": [], // 格式与获取做题进度的接口一致
                 "score": 100,
                 "time": "2020-05-24T02:44:12.498Z"
             }
@@ -464,6 +466,22 @@
           },
         ]
       }
+      ```
+
+### 获取做题历史
+
+- Request
+    - Url: `board/history/<user_id>/`
+    - Method: GET
+    
+- Response
+    - ```json5
+        [
+           {
+              "score": 100,
+              "time": "2020-05-24T02:44:12.498Z"
+           } // 按时间升序排序
+        ]
         ```
       
 ## 公告
