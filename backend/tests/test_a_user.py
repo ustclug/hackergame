@@ -7,10 +7,8 @@ from rest_framework import status
 from user.models import User, Term
 
 
-def test_create_term():
-    User.objects.create_user(username="test_user", password="test_password")
-    Term.objects.create(name='term', content='test')
-    assert Term.objects.enabled_term()[0].name == 'term'
+def test_create_term(user, term):
+    assert Term.objects.enabled_term()[0].name == term.name
 
 
 def test_register(client_without_login):
@@ -46,6 +44,22 @@ def test_login(client_without_login, user, term):
     data['allow_terms'] = True
     r = client_without_login.post('/api/user/login/', data)
     assert r.status_code == status.HTTP_204_NO_CONTENT
+
+
+def test_modify_term(client, user, term):
+    term.content = 'modified'
+    term.save()
+
+    r = client.get('/api/user/')
+    assert r.status_code == status.HTTP_403_FORBIDDEN
+
+    data = {
+        "username": "test_user",
+        "password": "test_password",
+    }
+    r = client.post('/api/user/login/', data)
+    assert r.data['term'][0]['name'] == 'term'
+
 
 
 def test_user_profile(client):

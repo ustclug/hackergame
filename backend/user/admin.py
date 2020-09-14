@@ -1,11 +1,13 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
+
 
 from user.models import User, Term
 # from user.utils import generate_uuid_and_token
 
 
 @admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(UserAdmin):
     fieldsets = (
         (None, {
             'fields': ('username', 'password', 'last_name', 'email', 'phone_number')
@@ -17,11 +19,6 @@ class UserAdmin(admin.ModelAdmin):
     list_display = ('username', 'email', 'last_name', 'phone_number')
     list_filter = ('groups',)
     readonly_fields = ('token',)
-    filter_horizontal = ('groups',)
-
-    def save_model(self, request, obj, form, change):
-        # FIXME: how to deal with password?
-        super().save_model(request, obj, form, change)
 
 
 @admin.register(Term)

@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.sessions.models import Session
 
 from user.utils import generate_uuid_and_token
 from challenge.utils import eval_token_expression
@@ -21,10 +22,13 @@ class Term(models.Model):
 
     def save(self, *args, **kwargs):
         # 任何条款变化后都需要用户重新同意
-        # FIXME: 清除登录状态
         for user in User.objects.all():
             user.term_agreed = False
             user.save()
+
+        # 清除所有用户登录状态
+        Session.objects.all().delete()
+
         super().save(*args, **kwargs)
 
     def __str__(self):
