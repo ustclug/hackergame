@@ -1,0 +1,19 @@
+{% extends "admin/base_site.html" %}
+
+{% block content %}
+    <form enctype="multipart/form-data" method="post">
+        {% csrf_token %}
+        {{ form }}
+        <input type="submit" value="提交">
+    </form>
+
+    {% if success %}
+        <h1>上传成功</h1>
+        {% for url in urls %}
+            <a href={{ url }}>{{ url }}</a>
+            <br>
+            <img src={{ url }} alt={{ url }}>
+            <br>
+        {% endfor %}
+    {% endif %}
+{% endblock %}

@@ -13,6 +13,12 @@ http://sin.coherence.codes:8001/
 
 superuser: 用户名: root, 密码: root
 
+## 测试
+```bash
+export DJANGO_SETTINGS_MODULE=backend.dev
+pytest
+```
+
 ## 权限
 权限控制都放在了 Views 层. 也就是说管理面板拥有所有权限.
 
@@ -36,6 +42,11 @@ superuser: 用户名: root, 密码: root
 
 管理员默认不参与排行榜, 用 auth_group 的一个组 no_score 表示.
 因为 superuser 默认拥有所有权限, 所以不能使用权限来表示是否参与排行榜
+
+## 题目
+### 对图片的处理
+图片会在导入题目时被上传至一个用 uuid 命名的文件夹中. 
+同时, 在后台编辑题目时能够上传新的图片.
 
 ## TODO
 

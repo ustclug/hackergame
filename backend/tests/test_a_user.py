@@ -61,7 +61,6 @@ def test_modify_term(client, user, term):
     assert r.data['term'][0]['name'] == 'term'
 
 
-
 def test_user_profile(client):
     r = client.get('/api/user/')
     assert r.data['username'] == 'test_user'

@@ -15,8 +15,13 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.conf.urls.static import static
+from django.conf import settings
+
+from challenge.admin_views import ImageUploadView
 
 urlpatterns = [
+    path('admin/challenge/upload_image/', ImageUploadView.as_view()),
     path('admin/', admin.site.urls),
     path('api/user/', include('user.urls')),
     path('api/group/', include('group.urls')),
@@ -25,3 +30,5 @@ urlpatterns = [
     path('api/', include('submission.urls')),
     path('api/announcement/', include('announcement.urls')),
 ]
+
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

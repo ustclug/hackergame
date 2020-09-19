@@ -19,3 +19,6 @@ db.sqlite3
 env/
 venv/
 ENV/
+
+# Django media files
+media/

@@ -111,6 +111,8 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 # custom settings
+MEDIA_URL = '/media/'
+
 AUTH_USER_MODEL = 'user.User'
 
 REST_FRAMEWORK = {
