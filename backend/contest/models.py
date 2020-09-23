@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError
 
 
 class StageManager(models.Manager):
-    def _get(self):
+    def get(self):
         if self.get_queryset().count() == 0:
             raise ValidationError("Stage 表未被初始化")
         return self.get_queryset().all()[0]
@@ -18,7 +18,7 @@ class StageManager(models.Manager):
     def current_status(self):
         """比赛的当前状态, 共有五种可能的情况"""
         cur_time = self._now()
-        stage = self._get()
+        stage = self.get()
         pauses = Pause.objects.all()
         if cur_time < stage.start_time:
             return "not start"
