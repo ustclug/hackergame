@@ -96,4 +96,4 @@ def post_delete_application(sender, instance, **kwargs):
     SubChallengeFirstBlood.objects.filter(group=instance.group).delete()
     ChallengeFirstBlood.objects.filter(group=instance.group).delete()
     for submission in Submission.objects.filter(user__in=instance.group.users):
-        submission.update_first_blood(instance.group)
+        submission.update_first_blood(instance.group)  # FIXME: 有性能问题

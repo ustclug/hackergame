@@ -22,3 +22,9 @@ ENV/
 
 # Django media files
 media/
+
+# Django secret key
+secret.key
+
+# test
+.pytest_cache

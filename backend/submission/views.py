@@ -84,7 +84,7 @@ class ScoreboardAPI(GenericAPIView):
 
     def get_queryset(self):
         params = self.request.query_params
-        scoreboard = Scoreboard.objects.filter(category=params.get('category', ''))
+        scoreboard = Scoreboard.objects.filter(category=params.get('category', '')).order_by('-score')
         group = params.get('group')
         if group:
             group = get_object_or_404(Group, pk=group)

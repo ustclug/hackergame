@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'user.middleware.LogoutBannedUserMiddleware',
+    'user.middleware.StatMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'

@@ -32,6 +32,10 @@ class Command(BaseCommand):
     def handle(self, **options):
         management.call_command('migrate')
 
+        if Stage.objects.count() != 0:
+            print("The database has already been initialized.")
+            return
+
         start_time = datetime(2020, 7, 24, 22, 47, 0, tzinfo=pytz.utc)
         end_time = start_time + timedelta(weeks=52 * 100)
         practice_start_time = end_time + timedelta(days=2)
