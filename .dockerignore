@@ -1,0 +1,22 @@
+.git
+
+# Database files
+**/db.sqlite3
+
+# log
+**/*.log
+
+# IDE
+**/.idea
+**/.vscode
+
+**/.env
+
+# Django media files
+**/media/
+
+# Django secret key
+**/secret.key
+
+# test
+**/.pytest_cache

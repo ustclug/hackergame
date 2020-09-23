@@ -1,0 +1,32 @@
+version: "3"
+services:
+  database:
+    image: postgres:12
+    container_name: hackergame-postgres
+    restart: always
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=hackergame
+      - POSTGRES_USER=hackergame
+      - POSTGRES_PASSWORD=hackergame
+
+  backend:
+    image: hackergame-backend:0.1
+    container_name: hackergame-backend
+    restart: always
+    depends_on:
+      - database
+    volumes:
+      - ./data:/data
+
+  server:
+    image: hackergame-nginx:0.1
+    container_name: hackergame-nginx
+    restart: always
+    depends_on:
+      - backend
+    volumes:
+      - ./data:/data
+    ports:
+      - "0.0.0.0:8000:80"
