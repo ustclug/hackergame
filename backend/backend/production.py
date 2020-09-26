@@ -1,4 +1,4 @@
-from .base import *
+from .base import *  # noqa: F401, F403
 
 with open('/data/secret.key') as f:
     SECRET_KEY = f.read().strip()
@@ -29,7 +29,7 @@ LOGGING = {
     },
 }
 
-DEBUG = True  # This should be false in production server
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 

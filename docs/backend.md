@@ -1,14 +1,23 @@
 ## 开发服务器
 ### 本地运行
+首先需要安装 postgresql.
 ```bash
 virtualenv .env
 . .env/bin activate
 pip install -r requirements.txt
 python manage.py init_dev
+```
+#### 使用 Django 开发服务器
+```bash
 python manage.py runserver
 ```
+#### 使用 gunicorn
+```bash
+export DJANGO_SETTINGS_MODULE='backend.dev'
+gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+```
 
-### 测试服务器
+### 测试服务器 (由 CI 部署)
 http://sin.coherence.codes:8001/
 
 superuser: 用户名: root, 密码: root

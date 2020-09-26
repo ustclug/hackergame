@@ -6,9 +6,9 @@ if [ ! -f "$DATA/secret.key" ]; then
     echo $(cat /dev/urandom | head -2 | sha512sum | head -c 64) > "$DATA/secret.key"
 fi
 
-export DJANGO_SETTINGS_MODULE='backend.production_test'
+export DJANGO_SETTINGS_MODULE='backend.production'
 
-while ! python manage.py init_dev -U 300 -S 2000; do
+while ! python manage.py migrate; do
   echo "psql not ready, sleeping..."
   sleep 0.5
 done
