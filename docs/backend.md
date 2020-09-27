@@ -14,7 +14,7 @@ python manage.py runserver
 #### 使用 gunicorn
 ```bash
 export DJANGO_SETTINGS_MODULE='backend.dev'
-gunicorn backend.wsgi:application --bind 0.0.0.0:8000
+gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --reload
 ```
 
 ### 测试服务器 (由 CI 部署)

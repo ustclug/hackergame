@@ -37,7 +37,7 @@ class Submission(models.Model):
     flag = models.TextField()
 
     # 以下字段无需在创建时指定
-    created_time = models.DateTimeField(default=timezone.now)
+    created_time = models.DateTimeField(default=timezone.now, db_index=True)
     correctness = models.BooleanField(default=False)
     sub_challenge_clear = models.ForeignKey(SubChallenge, on_delete=models.CASCADE, null=True)
     violation_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='violation_submission',

@@ -99,7 +99,7 @@ class ScoreboardAPI(GenericAPIView):
         page = self.paginate_queryset(queryset)
 
         serializer = self.get_serializer(page, many=True)
-        for i, res in enumerate(serializer.data):
+        for i, res in enumerate(serializer.data):  # FIXME: 有性能问题, query 次数过多
             serializer.data[i]['challenge_clear'] = get_progress(res['user'])
         return self.get_paginated_response(serializer.data)
 

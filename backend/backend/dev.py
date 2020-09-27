@@ -32,6 +32,7 @@ LOGGING = {
         'django.db.backends': {
             'level': 'DEBUG',
             'handlers': ['databaselog'],
+            'propagate': False
         },
     },
     'handlers': {
@@ -41,6 +42,13 @@ LOGGING = {
             'filename': os.path.join(BASE_DIR, 'database.log'),
             'mode': 'w',
         },
+        'console': {
+            'class': 'logging.StreamHandler',
+        },
+    },
+    'root': {
+        'handlers': ['console'],
+        'level': 'DEBUG',
     },
 }
 
