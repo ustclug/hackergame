@@ -11,6 +11,11 @@ services:
       - POSTGRES_USER=hackergame
       - POSTGRES_PASSWORD=hackergame
 
+  memcached:
+    image: memcached:1.6
+    container_name: hackergame-memcached
+    restart: always
+
   backend:
     image: hackergame-backend:0.1
     container_name: hackergame-backend

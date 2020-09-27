@@ -1,6 +1,8 @@
 ## 开发服务器
 ### 本地运行
-首先需要安装 postgresql.
+- 数据库: 安装 postgresql, 设置 hackergame 用户, 创建 hackergame 数据库, 并启动; 
+    或自行更改数据库配置
+- 缓存: 安装 memcached 并启动; 或自行更改缓存配置
 ```bash
 virtualenv .env
 . .env/bin activate

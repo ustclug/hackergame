@@ -17,3 +17,6 @@ docker build --no-cache -t hackergame-backend:[TAG] -f deploy/Dockerfile .
 ```bash
 docker build --no-cache -t hackergame-nginx:TAG -f deploy/Dockerfile_nginx .
 ```
+
+或使用构建脚本 `build_docker_image.sh`
+构建完毕之后即可使用 docker-compose 部署.

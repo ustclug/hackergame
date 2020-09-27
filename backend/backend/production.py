@@ -15,6 +15,13 @@ DATABASES = {
     },
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'LOCATION': 'memcached:11211',
+    }
+}
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,

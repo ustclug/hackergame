@@ -1,5 +1,7 @@
 from django.shortcuts import get_object_or_404
 from django.http import Http404
+from django.views.decorators.cache import cache_page
+from django.utils.decorators import method_decorator
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -27,10 +29,10 @@ def get_progress(user):
 
     rtn = []
     for submission in subs_clear:
-        if len(rtn) == 0 or rtn[-1]['challenge'] != submission.challenge.id:
+        if len(rtn) == 0 or rtn[-1]['challenge'] != submission.challenge_id:
             rtn.append({
-                "challenge": submission.challenge.id,
-                "clear_status": "clear" if submission.challenge.id in challenges_clear else "partly",
+                "challenge": submission.challenge_id,
+                "clear_status": "clear" if submission.challenge_id in challenges_clear else "partly",
                 "time": submission.created_time,
                 "sub_challenge_clear": [
                     {
@@ -93,6 +95,7 @@ class ScoreboardAPI(GenericAPIView):
         else:
             return scoreboard
 
+    @method_decorator(cache_page(60))
     def get(self, request, *args, **kwargs):
         queryset = self.filter_queryset(self.get_queryset())
 
