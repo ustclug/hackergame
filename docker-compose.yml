@@ -19,6 +19,11 @@ services:
       - database
     volumes:
       - ./data:/data
+    environment:
+      - START_TIME=2020-01-01T08:00+08:00
+      - END_TIME=2030-01-01T08:00+08:00
+      - PRACTICE_START_TIME=2040-01-01T08:00+08:00
+      - ROOT_PASSWD=root
 
   server:
     image: hackergame-nginx:0.1

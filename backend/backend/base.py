@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'challenge',
     'submission',
     'announcement',
+    'misc',
 
     'rest_framework',
 
@@ -49,7 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'user.middleware.LogoutBannedUserMiddleware',
-    'user.middleware.StatMiddleware',
+    'misc.middleware.StatMiddleware',
 ]
 
 ROOT_URLCONF = 'backend.urls'

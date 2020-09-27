@@ -10,10 +10,10 @@
 ## Docker
 构建后端:
 ```bash
-docker build --no-cache -t hackergame-backend:[TAG] .
+docker build --no-cache -t hackergame-backend:[TAG] -f deploy/Dockerfile .
 ```
 
 构建 nginx:
 ```bash
-docker build --no-cache -t hackergame-nginx:TAG -f Dockerfile_nginx .
+docker build --no-cache -t hackergame-nginx:TAG -f deploy/Dockerfile_nginx .
 ```

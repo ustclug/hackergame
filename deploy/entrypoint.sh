@@ -12,6 +12,7 @@ while ! python manage.py migrate; do
   echo "psql not ready, sleeping..."
   sleep 0.5
 done
+python manage.py init_production
 python manage.py collectstatic --noinput
 
 gunicorn backend.wsgi:application --bind 0.0.0.0:8000
