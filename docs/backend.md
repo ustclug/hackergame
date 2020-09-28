@@ -26,7 +26,7 @@ superuser: 用户名: root, 密码: root
 
 ## 测试
 ```bash
-export DJANGO_SETTINGS_MODULE=backend.dev
+export DJANGO_SETTINGS_MODULE=backend.test
 pytest
 ```
 

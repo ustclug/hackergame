@@ -2,6 +2,7 @@ asgiref==3.2.10
 attrs==19.3.0
 cffi==1.14.0
 Django==3.1.1
+django-debug-toolbar==3.1
 django-dirtyfields==1.4
 djangorestframework==3.11.1
 iniconfig==1.0.1

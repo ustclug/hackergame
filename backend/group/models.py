@@ -79,7 +79,7 @@ class Application(models.Model, DirtyFieldsMixin):
         # 用户加入组后
         if self.status == 'accepted':
             # 用该用户的提交更新该组的一血榜
-            for submission in Submission.objects.filter(user=self.user, sub_challenge_clear__isnull=True):
+            for submission in Submission.objects.filter(user=self.user, sub_challenge_clear__isnull=False):
                 submission.update_first_blood(self.group)
 
     class Meta:

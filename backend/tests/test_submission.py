@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from django.contrib.auth.models import Group as AuthGroup
+from django.test import override_settings
 from rest_framework import status
 
 from submission.models import Submission, SubChallengeFirstBlood, ChallengeFirstBlood, \
@@ -125,6 +126,7 @@ def test_no_board_group_does_not_participate_board(sub1_submission, user):
     assert len(ChallengeFirstBlood.objects.all()) == 0
 
 
+@override_settings(CACHES={'default': {'BACKEND': 'django.core.cache.backends.locmem.LocMemCache'}})
 def test_submission_throttling(challenge, client):
     data = {
         'challenge': challenge.id,

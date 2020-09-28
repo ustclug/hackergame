@@ -24,7 +24,7 @@ jobs:
             - name: test
               run: |
                 cd backend
-                export DJANGO_SETTINGS_MODULE=backend.dev
+                export DJANGO_SETTINGS_MODULE=backend.test
                 pytest
 
     deploy_dev_server:
