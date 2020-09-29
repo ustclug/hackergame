@@ -4,6 +4,7 @@
     或自行更改数据库配置
 - 缓存: 安装 memcached 并启动; 或自行更改缓存配置
 ```bash
+cd backend
 virtualenv .env
 . .env/bin activate
 pip install -r requirements.txt
@@ -19,10 +20,10 @@ export DJANGO_SETTINGS_MODULE='backend.dev'
 gunicorn backend.wsgi:application --bind 0.0.0.0:8000 --reload
 ```
 
-### 测试服务器 (由 CI 部署)
-http://sin.coherence.codes:8001/
-
-superuser: 用户名: root, 密码: root
+## PEP 8 检查
+```bash
+flake8 . --statistics --exclude .env,migrations,dev.py --max-line-length 127
+```
 
 ## 测试
 ```bash
@@ -45,7 +46,7 @@ pytest
 ## 榜单
 榜单表中将不会出现被禁用的题目/子题
 
-需要重建榜单的情形
+需要更新榜单的情形:
 - 用户被封禁
 - 某道题的启用状态改变
 - 某题新增/删除了一个子题
@@ -59,9 +60,19 @@ pytest
 图片会在导入题目时被上传至一个用 uuid 命名的文件夹中. 
 同时, 在后台编辑题目时能够上传新的图片.
 
+## 打开题目
+考虑到打开链接、下载源代码、下载文件这几个操作均可能有多个, 数据库中没有设置字段存放打开题目的方式,
+打开题目的方式应直接写在题目描述中.
+
 ## TODO
 
 - 后期可以考虑重新生成一下 migrations
+- 第三方账号登录 (如 Microsoft, Github)
+- 展示首页内容的 API
+- 邮件服务配置
+- 题目导入
+- 测试的覆盖率报告
+- 使用 CI 进行 Docker 构建
 
 ## 其他
 - AuthGroup 的 no_score 和 banned 两个组的初始化在 `user/migrations/0002_init_auth_group.py` 中进行

@@ -208,7 +208,7 @@ class Scoreboard(models.Model):
     """分数榜单"""
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     category = models.TextField(blank=True)  # 为空的话为总分
-    score = models.IntegerField()
+    score = models.IntegerField(db_index=True)
     time = models.DateTimeField(verbose_name='最后一次更新榜单的时间')
 
     class Meta:
