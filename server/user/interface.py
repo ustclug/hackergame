@@ -52,7 +52,7 @@ class User:
     }
     profile_required = {
         'staff': ['nickname'],
-        'ustc': ['nickname', 'name', 'sno', 'tel', 'email', 'gender'],
+        'ustc': ['nickname', 'name', 'sno', 'tel', 'email'],
         'jlu': ['nickname', 'sno', 'email'],
         'nankai': ['nickname', 'name', 'sno', 'tel'],
         'bupt': ['nickname', 'name', 'sno', 'gender', 'school', 'grade'],
