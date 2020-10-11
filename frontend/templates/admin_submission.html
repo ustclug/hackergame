@@ -6,7 +6,7 @@
         <ul class="object-tools">
             <li><a href="#" @click.prevent="refresh">刷新</a></li>
         </ul>
-        <div class="module" id="changelist">
+        <div class="module" id="changelist" style="display: block">
             <p class="filter">
                 <a href="#" :class="{selected: !filters.violations&&filters.match===null}" @click.prevent="change_filter({violations: false, match: null})">全部</a>
                 <a href="#" :class="{selected: !filters.violations&&filters.match===true}" @click.prevent="change_filter({violations: false, match: true})">成功提交</a>

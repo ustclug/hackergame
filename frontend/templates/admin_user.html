@@ -63,7 +63,7 @@
                 <input type="submit" class="default" value="保存">
             </div>
         </form>
-        <div class="module" id="changelist">
+        <div class="module" id="changelist" style="display: block">
             <p class="filter">
                 <a href="#" :class="{selected: filters.group===null}" @click.prevent="filters.group=null">全部</a>
                 <a v-for="(name, group) in groups" href="#" :class="{selected: filters.group===group}" @click.prevent="filters.group=group">{{ name }}</a>
