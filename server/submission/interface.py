@@ -414,8 +414,10 @@ class Submission:
                 .update(group=new['group'])
             models.ChallengeFirst.objects.filter(user=old['pk']).delete()
             models.ChallengeFirst.objects.filter(group=new['group']).delete()
+            models.ChallengeFirst.objects.filter(group=None).delete()
             models.FlagFirst.objects.filter(user=old['pk']).delete()
             models.FlagFirst.objects.filter(group=new['group']).delete()
+            models.FlagFirst.objects.filter(group=None).delete()
             cls._refill_first()
             models.Score.objects.filter(user=old['pk']) \
                 .update(group=new['group'])
