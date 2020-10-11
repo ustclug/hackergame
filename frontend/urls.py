@@ -14,6 +14,8 @@ urlpatterns = [
     path('terms/', views.TermsView.as_view(), name='terms'),
     path('user/', views.UserView.as_view()),
 
+    path('profile/ustc/', views.UstcProfileView.as_view(), name='ustcprofile'),
+
     path('accounts/', include('frontend.auth_providers.debug')),
     path('accounts/', include('frontend.auth_providers.ustc')),
     path('accounts/', include('frontend.auth_providers.jlu')),

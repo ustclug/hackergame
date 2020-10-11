@@ -7,12 +7,13 @@ from django.contrib import messages
 from django.shortcuts import redirect
 from django.urls import path
 
+from ..models import UstcSnos
 from .base import BaseLoginView
 
 
 class LoginView(BaseLoginView):
     provider = 'ustc'
-    group = 'ustc'
+    group = 'other'  # XXX: 先加入 other，确认在读后移动至 ustc
     service: str
     ticket: str
     sno: str
@@ -45,6 +46,21 @@ class LoginView(BaseLoginView):
         self.identity = tree.find('attributes').find(cas + 'gid').text.strip()
         self.sno = tree.find(cas + 'user').text.strip()
         return True
+
+    def on_get_account(self, account):
+        def to_set(s):
+            return set(s.split(',')) if s else set()
+        def from_set(vs):
+            return ','.join(sorted(vs))
+        try:
+            o = account.ustcsnos
+            new_snos = from_set(to_set(o.snos) | {self.sno})
+            if new_snos != o.snos:
+                o.snos = new_snos
+                o.save()
+        except UstcSnos.DoesNotExist:
+            UstcSnos.objects.create(account=account, snos=self.sno)
+        return account
 
 
 urlpatterns = [

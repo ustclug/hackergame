@@ -53,11 +53,15 @@ class BaseLoginView(View):
         messages.error(self.request, '校验码错误')
         return False
 
+    def on_get_account(self, account):
+        pass
+
     def login(self, **kwargs):
         account, created = Account.objects.get_or_create(
             provider=self.provider,
             identity=self.identity,
         )
+        self.on_get_account(account)
         if not account.user:
             account.user = User.create(
                 Context(elevated=True),

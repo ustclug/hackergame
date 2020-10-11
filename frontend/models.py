@@ -69,3 +69,13 @@ class Code(models.Model):
             return True
         except cls.DoesNotExist:
             return False
+
+
+class UstcSnos(models.Model):
+    account = models.OneToOneField(Account, models.CASCADE, primary_key=True)
+    snos = models.TextField()
+
+
+class UstcEligible(models.Model):
+    user = models.OneToOneField(get_user_model(), models.CASCADE, primary_key=True)
+    eligible = models.BooleanField()

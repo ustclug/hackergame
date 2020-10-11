@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <h1>选择参赛组</h1>
+    <div class="msg-info">
+        只有在读同学有资格参加中国科学技术大学校内排行榜和获得奖项，选择后不可更改！
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="eligible" value="yes" />
+        <button type="submit" class="pure-button pure-button-primary">我是在读同学，参与校内排行与评奖</button>
+    </form>
+    <p></p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="eligible" value="no" />
+        <button type="submit" class="pure-button pure-button-primary">我已经离校，不参与校内排行与评奖</button>
+    </form>
+{% endblock %}

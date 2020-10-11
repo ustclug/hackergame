@@ -17,10 +17,18 @@ from server.user.interface import User, LoginRequired, ProfileRequired
 from server.context import Context
 from server.exceptions import Error, NotFound, WrongFormat
 
+from frontend.models import Account, UstcEligible
+
 
 # noinspection PyMethodMayBeStatic
 class HubView(View):
     def get(self, request):
+        if request.user.is_authenticated:
+            if Account.objects.filter(provider='ustc', user=request.user).exists():
+                try:
+                    request.user.ustceligible
+                except UstcEligible.DoesNotExist:
+                    return redirect('ustcprofile')
         context = Context.from_request(request)
         try:
             challenges = Challenge.get_enabled(context)
@@ -163,6 +171,36 @@ class TermsView(View):
 class UserView(View):
     def get(self, request):
         return TemplateResponse(request, 'user.html')
+
+
+class UstcProfileView(View):
+    def check(self):
+        request = self.request
+        if request.user.is_authenticated:
+            if Account.objects.filter(provider='ustc', user=request.user).exists():
+                try:
+                    request.user.ustceligible
+                    return False
+                except UstcEligible.DoesNotExist:
+                    return True
+        return False
+
+    def get(self, request):
+        if not self.check():
+            return redirect('hub')
+        return TemplateResponse(request, 'ustcprofile.html')
+
+    def post(self, request):
+        if not self.check():
+            return redirect('hub')
+        eligible = request.POST['eligible']
+        if eligible == 'yes':
+            UstcEligible.objects.create(user=request.user, eligible=True)
+            user = User.get(Context.from_request(request).copy(elevated=True), request.user.pk)
+            user.update(group='ustc')
+        elif eligible == 'no':
+            UstcEligible.objects.create(user=request.user, eligible=False)
+        return redirect('hub')
 
 
 # noinspection PyMethodMayBeStatic
