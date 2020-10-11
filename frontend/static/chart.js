@@ -56,20 +56,20 @@ function drawchart() {
         },
         responsive: false,
         scales: {
-					xAxes: [{
+          xAxes: [{
             type: 'time',
             ticks: {
               minRotation: 50,
             },
-						time: {
+            time: {
               unit: 'hour',
               displayFormats: {
                 hour: "MM-DD HH:mm",
               },
               tooltipFormat: "YYYY-MM-DD HH:mm:ss",
             }
-					}]
-				}
+          }]
+        }
       }
     });
   });

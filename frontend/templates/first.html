@@ -17,8 +17,8 @@
         <div class="float-right">
             <a v-if="profile_fields.length" href="#" @click.prevent="show_profile=!show_profile">切换个人信息显示</a>
         </div>
-        <h1>{{ filters.category?`${filters.category} 类`:'' }}{{ filters.group?groups[filters.group]:'总' }}最终一血榜</h1>
-        <table class="pure-table pure-table-horizontal center" style="background-color: #fffbec">
+        <h1>{{ filters.category?`${filters.category} 类`:'' }}{{ filters.group?groups[filters.group]:'总' }}一血榜</h1>
+        <table class="pure-table pure-table-horizontal center">
             <thead>
             <tr class="center">
                 <td>题目</td>

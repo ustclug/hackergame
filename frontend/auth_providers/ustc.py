@@ -1,3 +1,4 @@
+from urllib.error import URLError
 from urllib.parse import urlencode
 from urllib.request import urlopen
 from xml.etree import ElementTree
@@ -27,11 +28,16 @@ class LoginView(BaseLoginView):
         return redirect('hub')
 
     def check_ticket(self):
-        with urlopen(
-            'https://passport.ustc.edu.cn/serviceValidate?' +
-            urlencode({'service': self.service, 'ticket': self.ticket})
-        ) as req:
-            tree = ElementTree.fromstring(req.read())[0]
+        try:
+            with urlopen(
+                'https://passport.ustc.edu.cn/serviceValidate?' +
+                urlencode({'service': self.service, 'ticket': self.ticket}),
+                timeout=15,
+            ) as req:
+                tree = ElementTree.fromstring(req.read())[0]
+        except URLError:
+            messages.error(self.request, '连接统一身份认证平台出错')
+            return False
         cas = '{http://www.yale.edu/tp/cas}'
         if tree.tag != cas + 'authenticationSuccess':
             messages.error(self.request, '登录失败')
