@@ -1,3 +1,5 @@
+import psycopg2.extensions
+
 from .base import *
 
 DEBUG = False
@@ -12,6 +14,9 @@ DATABASES = {
         'USER': 'hgtest',
         'CONN_MAX_AGE': 60,
         'ATOMIC_REQUESTS': True,
+        'OPTIONS': {
+            'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_SERIALIZABLE,
+        },
     },
 }
 CACHES = {
