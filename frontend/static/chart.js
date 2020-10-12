@@ -10,15 +10,15 @@ function drawchart() {
     ))),
     axios.post('/admin/trigger/', {method: 'get_all'}),
   ]).then(([user_reqs, {data: {value: triggers}}]) => {
-    let starttime = triggers.find(i => i.state);
+    let starttime = triggers.find(i => i.can_submit);
     if (!starttime || new Date(starttime.time) > new Date()) {
       document.getElementById('charttext').innerHTML = '比赛尚未开始';
       return;
     } else {
       starttime = new Date(starttime.time);
     }
-    let last_starttime = [...triggers].reverse().find(i => i.state);
-    let endtime = [...triggers].reverse().find(i => !i.state);
+    let last_starttime = [...triggers].reverse().find(i => i.can_submit);
+    let endtime = [...triggers].reverse().find(i => !i.can_submit);
     if (!endtime || new Date(endtime.time) > new Date() || new Date(endtime.time) < new Date(last_starttime.time)) {
       endtime = new Date();
     } else {

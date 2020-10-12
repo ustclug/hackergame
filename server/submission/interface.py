@@ -1,6 +1,7 @@
 from datetime import timedelta
 
 from server.challenge.interface import Challenge
+from server.trigger.interface import Trigger, TriggerIsOff
 from server.user.interface import User
 from server.context import Context
 from server.exceptions import Error, NotFound, WrongArguments, WrongFormat
@@ -15,6 +16,7 @@ class SlowDown(Error):
 class Submission:
     @classmethod
     def submit(cls, context, user, challenge, text):
+        Trigger.test_can_try(context)
         if context.user.pk != user:
             User.test_permission(context)
         if len(text) > 200:
@@ -40,6 +42,16 @@ class Submission:
             time=context.time,
         )
         matches, violations = challenge.check_flag_with_violations(text)
+        for f, u in violations:
+            models.FlagViolation.objects.create(
+                submission=obj,
+                violation_flag=f['index'],
+                violation_user=u,
+            )
+        try:
+            Trigger.test_can_submit(context)
+        except TriggerIsOff:
+            return matches
         queryset = models.FlagClear.objects.filter(user=user.pk,
                                                    challenge=challenge.pk)
         flags = {i.flag for i in queryset}
@@ -65,12 +77,6 @@ class Submission:
                 flag=flag,
                 group=user.group,
                 defaults={'user': user.pk, 'time': context.time},
-            )
-        for f, u in violations:
-            models.FlagViolation.objects.create(
-                submission=obj,
-                violation_flag=f['index'],
-                violation_user=u,
             )
         if match_flags - flags:
             if (flags | match_flags).issuperset(range(len(challenge.flags))):

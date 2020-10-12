@@ -18,12 +18,24 @@
                     <div class="help" v-else>本地时间: {{ new Date(opened.time).toLocaleString() }}<br>UTC 时间: {{ new Date(opened.time).toJSON() }}</div>
                 </div>
                 <div class="form-row">
-                    <input type="checkbox" id="form-state" name="state" v-model="opened.state">
-                    <label class="vCheckboxLabel required" for="form-state">状态</label>
+                    <input type="checkbox" id="form-can_view_challenges" name="can_view_challenges" v-model="opened.can_view_challenges">
+                    <label class="vCheckboxLabel required" for="form-can_view_challenges">可以查看题目信息</label>
+                    <div class="help">比赛正常进行时勾选，中途停赛时不勾选，比赛结束后勾选</div>
+                </div>
+                <div class="form-row">
+                    <input type="checkbox" id="form-can_try" name="can_try" v-model="opened.can_try">
+                    <label class="vCheckboxLabel required" for="form-can_try">可以尝试提交</label>
+                    <div class="help">比赛正常进行时勾选，中途停赛时不勾选，比赛结束后短时间内不勾选，之后宣布允许练习时勾选</div>
+                </div>
+                <div class="form-row">
+                    <input type="checkbox" id="form-can_submit" name="can_submit" v-model="opened.can_submit">
+                    <label class="vCheckboxLabel required" for="form-can_submit">提交会被计分</label>
+                    <div class="help">仅在比赛正常进行时勾选</div>
                 </div>
                 <div class="form-row">
                     <label for="form-note">说明:</label>
                     <input class="vTextField" type="text" id="form-note" name="note" v-model="opened.note">
+                    <div class="help">用于报错信息，若不填则为“比赛暂时关闭”</div>
                 </div>
             </fieldset>
             <div class="submit-row" v-show="!opened_disabled">
@@ -41,7 +53,9 @@
                     <tr>
                         <th scope="col"><div class="text"><span>#</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>时间</span></div><div class="clear"></div></th>
-                        <th scope="col"><div class="text"><span>状态</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>可以查看题目信息</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>可以尝试提交</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>提交会被计分</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>说明</span></div><div class="clear"></div></th>
                     </tr>
                     </thead>
@@ -49,7 +63,9 @@
                     <tr v-for="obj in objs" @click="open(obj)">
                         <td>{{ obj.pk }}</td>
                         <td>{{ new Date(obj.time).toLocaleString() }}</td>
-                        <td><img v-if="obj.state" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
+                        <td><img v-if="obj.can_view_challenges" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
+                        <td><img v-if="obj.can_try" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
+                        <td><img v-if="obj.can_submit" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
                         <td>{{ obj.note }}</td>
                     </tr>
                     </tbody>
@@ -85,7 +101,9 @@
                     this.opened = {
                         pk: null,
                         time: new Date().toJSON(),
-                        state: false,
+                        can_view_challenges: false,
+                        can_try: false,
+                        can_submit: false,
                         note: '',
                     };
                 } else {

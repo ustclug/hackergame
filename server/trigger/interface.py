@@ -9,8 +9,10 @@ class TriggerIsOff(Error):
 
 
 class Trigger:
-    json_fields = ('pk', 'time', 'state', 'note')
-    update_fields = ('time', 'state', 'note')
+    json_fields = ('pk', 'time', 'can_view_challenges', 'can_try',
+                   'can_submit', 'note')
+    update_fields = ('time', 'can_view_challenges', 'can_try',
+                     'can_submit', 'note')
     subscribers = []
 
     def __init__(self, context, obj: models.Trigger):
@@ -18,7 +20,7 @@ class Trigger:
         self._obj = obj
 
     @classmethod
-    def test_state(cls, context):
+    def _test(cls, context, name):
         try:
             obj = (
                 models.Trigger.objects
@@ -28,8 +30,20 @@ class Trigger:
         except models.Trigger.DoesNotExist:
             raise TriggerIsOff('比赛尚未开始')
         self = cls(context, obj)
-        if not self.state:
+        if not getattr(self, name):
             raise TriggerIsOff(self.note)
+
+    @classmethod
+    def test_can_view_challenges(cls, context):
+        return cls._test(context, 'can_view_challenges')
+
+    @classmethod
+    def test_can_try(cls, context):
+        return cls._test(context, 'can_try')
+
+    @classmethod
+    def test_can_submit(cls, context):
+        return cls._test(context, 'can_submit')
 
     @classmethod
     def create(cls, context, **kwargs):
@@ -71,7 +85,7 @@ class Trigger:
             if k in {'note'}:
                 v = v or None
                 setattr(self._obj, k, v)
-            elif k in {'time', 'state'}:
+            elif k in {'time', 'can_view_challenges', 'can_try', 'can_submit'}:
                 setattr(self._obj, k, v)
             else:
                 raise WrongArguments()
@@ -79,7 +93,7 @@ class Trigger:
         self._obj.refresh_from_db()
 
     def delete(self):
-        User.test_permission(self._context, 'score.full')
+        User.test_permission(self._context, 'trigger.full')
         self._obj.delete()
         self._obj = None
 
@@ -106,8 +120,16 @@ class Trigger:
         return self._obj.time
 
     @property
-    def state(self):
-        return self._obj.state
+    def can_view_challenges(self):
+        return self._obj.can_view_challenges
+
+    @property
+    def can_try(self):
+        return self._obj.can_try
+
+    @property
+    def can_submit(self):
+        return self._obj.can_submit
 
     @property
     def note(self):

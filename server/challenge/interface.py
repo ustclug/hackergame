@@ -40,7 +40,7 @@ class Challenge:
             User.test_authenticated(context)
             Terms.test_agreed_enabled(context)
             User.test_profile(context)
-            Trigger.test_state(context)
+            Trigger.test_can_view_challenges(context)
             queryset = queryset.filter(enabled=True)
         try:
             return cls(context, queryset.get(pk=pk))
@@ -60,7 +60,7 @@ class Challenge:
         try:
             User.test_permission(context, 'challenge.full', 'challenge.view')
         except PermissionRequired:
-            Trigger.test_state(context)
+            Trigger.test_can_view_challenges(context)
         queryset = models.Challenge.objects.filter(enabled=True)
         return [cls(context, obj) for obj in queryset]
 

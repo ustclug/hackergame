@@ -61,7 +61,6 @@ class Command(BaseCommand):
                 'flag': 'flag{hackergame}',
             }],
         )
-        Submission.submit(Context(root), root.pk, c1.pk, 'flag{hackergame}')
 
         for i in range(1, fake_complex_challenges + 1):
             Challenge.create(
@@ -112,7 +111,13 @@ class Command(BaseCommand):
             timestamps.append(now - timezone.timedelta(seconds=delta))
         timestamps.sort()
 
-        Trigger.create(Context(root), time=min(timestamps), state=True)
+        Trigger.create(
+            Context(root),
+            time=min(timestamps),
+            can_view_challenges=True,
+            can_try=True,
+            can_submit=True,
+        )
 
         groups = list(set(User.groups.keys()) - {'staff', 'banned'})
         for i in range(fake_users):

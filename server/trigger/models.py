@@ -3,7 +3,9 @@ from django.db import models
 
 class Trigger(models.Model):
     time = models.DateTimeField()
-    state = models.BooleanField()
+    can_view_challenges = models.BooleanField()
+    can_try = models.BooleanField()
+    can_submit = models.BooleanField()
     note = models.TextField(null=True)
 
     class Meta:
