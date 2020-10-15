@@ -63,6 +63,7 @@ class Command(BaseCommand):
         context = Context(elevated=True)
         old_challenges = {i.name: i for i in Challenge.get_all(context)}
         new_challenges = {}
+        pathnames = {}
         for path in challenges_dir.iterdir():
             if not path.is_dir() or path.name.startswith('.'):
                 continue
@@ -75,21 +76,25 @@ class Command(BaseCommand):
             else:
                 if challenge['enabled']:
                     new_challenges[challenge['name']] = challenge
+                    pathnames[challenge['name']] = path.name
         self.stdout.write(f'Parsed {len(new_challenges)} challenges')
         for name in new_challenges:
             if name in old_challenges:
+                self.stdout.write(f'{name} ({pathnames[name]}): ', ending='')
                 if not dry_run:
                     old_challenges[name].update(**new_challenges[name])
-                self.stdout.write(f'{name}: ' + self.style.WARNING('updated'))
+                self.stdout.write(self.style.WARNING('updated'))
             else:
+                self.stdout.write(f'{name} ({pathnames[name]}): ', ending='')
                 if not dry_run:
                     Challenge.create(context, **new_challenges[name])
-                self.stdout.write(f'{name}: ' + self.style.SUCCESS('created'))
+                self.stdout.write(self.style.SUCCESS('created'))
         for name in old_challenges:
             if name not in new_challenges:
+                self.stdout.write(f'{name}: ', ending='')
                 if not dry_run:
                     old_challenges[name].delete()
-                self.stdout.write(f'{name}: ' + self.style.NOTICE('deleted'))
+                self.stdout.write(self.style.NOTICE('deleted'))
 
     def parse_challenge(self, path):
         # default values
