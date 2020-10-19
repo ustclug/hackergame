@@ -134,6 +134,7 @@ class Command(BaseCommand):
                 qq='12345',
                 school='foo',
                 grade='1',
+                aff='aff',
             )
             Terms.get(Context(u.user), terms.pk).agree(u.pk)
             Account.objects.create(provider='debug', identity=f'{i}',

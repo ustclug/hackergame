@@ -58,6 +58,10 @@
                     <label for="form-grade">年级:</label>
                     <input class="vTextField" type="text" id="form-grade" name="grade" v-model="opened.grade">
                 </div>
+                <div class="form-row">
+                    <label for="form-aff">了解比赛的渠道:</label>
+                    <input class="vTextField" type="text" id="form-aff" name="aff" v-model="opened.aff">
+                </div>
             </fieldset>
             <div class="submit-row" v-show="!opened_disabled">
                 <input type="submit" class="default" value="保存">
@@ -100,6 +104,7 @@
                         <td>{{ obj.qq }}</td>
                         <td>{{ obj.school }}</td>
                         <td>{{ obj.grade }}</td>
+                        <td>{{ obj.aff }}</td>
                     </tr>
                     </tbody>
                 </table>

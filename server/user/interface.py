@@ -34,31 +34,35 @@ def group_validator(group):
 class User:
     json_fields = ('pk', 'is_staff', 'group', 'profile_ok',
                    'display_name', 'nickname', 'name', 'sno', 'tel',
-                   'email', 'gender', 'qq', 'school', 'grade', 'token',
-                   'token_short')
+                   'email', 'gender', 'qq', 'school', 'grade', 'aff',
+                   'token', 'token_short')
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email',
-                     'gender', 'qq', 'school', 'grade')
+                     'gender', 'qq', 'school', 'grade', 'aff')
     groups = {
         'staff': '管理员',
         'ustc': '中国科学技术大学',
-        'jlu': '吉林大学',
-        'nankai': '南开大学',
-        'bupt': '北京邮电大学',
-        'cqu': '重庆大学',
+        'zju': '浙江大学',
         'hit': '哈尔滨工业大学',
+        'xjtu': '西安交通大学',
+        'cqu': '重庆大学',
+        'bupt': '北京邮电大学',
+        'jlu': '吉林大学',
         'neu': '东北大学',
+        'nuaa': '南京航空航天大学',
         'other': '其他选手',
         'banned': '已封禁',
     }
     profile_required = {
         'staff': ['nickname'],
         'ustc': ['nickname', 'name', 'sno', 'tel', 'email'],
-        'jlu': ['nickname', 'sno', 'email'],
-        'nankai': ['nickname', 'name', 'sno', 'tel'],
-        'bupt': ['nickname', 'name', 'sno', 'gender', 'school', 'grade'],
-        'cqu': ['nickname', 'sno'],
-        'hit': ['nickname', 'sno', '/qq/tel/1'],
-        'neu': ['nickname', 'name', 'sno'],
+        'zju': ['nickname', 'name', 'sno', 'email'],
+        'hit': ['nickname', 'name', 'sno', 'school', 'email'],
+        'xjtu': ['nickname', 'name', 'sno', 'email'],
+        'cqu': ['nickname', 'name', 'sno', 'email'],
+        'bupt': ['nickname', 'name', 'sno', 'email'],
+        'jlu': ['nickname', 'name', 'sno', 'email'],
+        'neu': ['nickname', 'name', 'qq', 'email'],
+        'nuaa': ['nickname', 'name', 'sno', 'email', 'aff'],
         'other': ['nickname'],
         'banned': ['nickname'],
     }
@@ -78,6 +82,7 @@ class User:
         'qq': RegexValidator(r'^.{5,50}$', 'QQ 号码格式错误'),
         'school': RegexValidator(r'^.{1,30}$', '学院格式错误'),
         'grade': RegexValidator(r'^.{1,10}$', '年级格式错误'),
+        'aff': RegexValidator(r'^.{1,100}$', '了解比赛的渠道格式错误'),
     }
     _private_key = OpenSSL.crypto.load_privatekey(
         OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
@@ -153,7 +158,7 @@ class User:
     def _update(self, **kwargs):
         for k, v in kwargs.items():
             if k in {'group', 'nickname', 'name', 'sno', 'tel', 'email',
-                     'gender', 'qq', 'school', 'grade'}:
+                     'gender', 'qq', 'school', 'grade', 'aff'}:
                 v = v or None
                 try:
                     v is None or self._validators[k](v)
@@ -284,6 +289,13 @@ class User:
             User.test_permission(self._context, 'user.full',
                                  f'user.view_{self.group}')
         return self._obj.grade
+
+    @property
+    def aff(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
+        return self._obj.aff
 
     @property
     def token(self):
