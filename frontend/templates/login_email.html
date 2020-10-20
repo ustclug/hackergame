@@ -1,10 +1,19 @@
 {% extends 'login_base.html' %}
 
-{% block info %}<div class="msg-info">邮件送达可能较慢，请耐心等待，并检查垃圾邮件</div>{% endblock %}
-
 {% block heading %}{{ provider_name }}邮箱登录{% endblock %}
 
 {% block identity %}
 <label for="identity">邮箱</label>
 <input type="email" id="identity" name="identity" v-model="identity" required>
+{% endblock %}
+
+{% block info %}
+<div class="msg-info">
+    <p>收不到邮件怎么办？</p>
+    <ul>
+        <li>部分合作高校邮件送达可能较慢，请耐心等待，并检查垃圾邮件；</li>
+        <li>校验码有效期为一小时，收到后再打开此页面，无须重新获取，直接填写即可注册；</li>
+        <li>如果还是收不到，请先作为“其他选手”注册，再联系组委会为你修改参赛组别。</li>
+    </ul>
+</div>
 {% endblock %}

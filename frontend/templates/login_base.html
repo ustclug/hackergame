@@ -13,7 +13,6 @@
 
 {% block content %}
     {% block form %}
-        {% block info %}{% endblock %}
         <h1>{% block heading %}登录{% endblock %}</h1>
         <form id="app" class="pure-form pure-form-aligned" method="post">
             {% csrf_token %}
@@ -34,6 +33,7 @@
                 <button type="submit" class="pure-button pure-button-primary">登录</button>
             </div>
         </form>
+        {% block info %}{% endblock %}
     {% endblock %}
     <script>
         app = new Vue({
