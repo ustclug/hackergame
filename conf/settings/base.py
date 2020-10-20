@@ -70,9 +70,9 @@ TEMPLATES = [
 EMAIL_SUBJECT_PREFIX = '[Hackergame] '
 ADMINS = [('Hypercube', 'hypercube@0x01.me')]
 DEFAULT_FROM_EMAIL_NAME = 'Hackergame'
-DEFAULT_FROM_EMAIL_EMAIL = 'hack@lug.ustc.edu.cn'
+DEFAULT_FROM_EMAIL_EMAIL = 'hackergame@ustclug.org'
 DEFAULT_FROM_EMAIL = f'{DEFAULT_FROM_EMAIL_NAME} <{DEFAULT_FROM_EMAIL_EMAIL}>'
-SERVER_EMAIL = 'hack@lug.ustc.edu.cn'
+SERVER_EMAIL = 'hackergame@ustclug.org'
 
 # I18N and L10N
 USE_I18N = True
