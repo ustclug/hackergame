@@ -55,7 +55,8 @@
             <input type="text" id="qq" name="qq" v-model="user.qq" :required="fields.qq">
         </div>
         <div v-if="fields.school!==undefined" class="pure-control-group">
-            <label for="school">学院</label>
+            <!-- XXX: 2020 只有 HIT 要这一项信息，并且希望这样显示，所以直接修改 -->
+            <label for="school">学院/专业集群</label>
             <input type="text" id="school" name="school" v-model="user.school" :required="fields.school">
         </div>
         <div v-if="fields.grade!==undefined" class="pure-control-group">
