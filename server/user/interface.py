@@ -1,5 +1,6 @@
 import base64
 import OpenSSL
+from hashlib import sha256
 from uuid import uuid4
 
 from django.conf import settings
@@ -35,7 +36,7 @@ class User:
     json_fields = ('pk', 'is_staff', 'group', 'profile_ok',
                    'display_name', 'nickname', 'name', 'sno', 'tel',
                    'email', 'gender', 'qq', 'school', 'grade', 'aff',
-                   'token', 'token_short')
+                   'token', 'token_short', 'code')
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email',
                      'gender', 'qq', 'school', 'grade', 'aff')
     groups = {
@@ -67,6 +68,7 @@ class User:
         'banned': ['nickname'],
     }
     no_board_groups = ['staff', 'other', 'banned']
+    no_code_groups = ['staff', 'other', 'banned']
     no_score_groups = ['staff', 'banned']
     subscribers = []
     _validators = {
@@ -310,3 +312,13 @@ class User:
                                  f'user.view_{self.group}')
         token = self._obj.token
         return token[: token.find(':') + 11] + '...'
+
+    @property
+    def code(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full',
+                                 f'user.view_{self.group}')
+        if self.group in self.no_code_groups:
+            return None
+        token = self._obj.token
+        return f'{self.pk}-{int(sha256(token.encode()).hexdigest(), 16)%10000:04}'

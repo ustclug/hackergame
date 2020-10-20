@@ -21,6 +21,7 @@
             <button type="submit">查询</button>
         </div>
         <div v-if="obj">
+            <div>加群验证码：{{ obj.code===undefined ? '你还没有权限查看' : (obj.code || '不是科大或合作高校') }}</div>
             <div>Token: {{ obj.token_short }}</div>
             <div>用户组: {{ groups[obj.group]||obj.group }}</div>
             <div>昵称: {{ obj.nickname }}</div>

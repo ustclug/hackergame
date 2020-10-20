@@ -46,6 +46,11 @@
                 </template>
             </template>
         </div>
+        <div v-if="user && user.code" class="msg-info">
+            欢迎加入科大及合作高校参赛交流 QQ 群：1060568108。你的加群验证码：
+            <button @click="code_show=!code_show">{{ code_show?'隐藏':'显示' }}</button>
+            <input v-show="code_show" type="text" id="code" size="10" :value="user.code" readonly>
+        </div>
         <div class="challenges">
             <table class="pure-table pure-table-horizontal">
                 <thead>
@@ -157,6 +162,7 @@
                 opened,
                 token_show: false,
                 token_copy_text: '复制',
+                code_show: false,
             },
             computed: {
                 categories() {
