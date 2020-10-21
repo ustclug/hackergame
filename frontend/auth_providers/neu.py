@@ -27,7 +27,6 @@ class GetCodeView(BaseGetCodeView):
     validate_identity = DomainEmailValidator('stu.neu.edu.cn')
 
     def send(self, identity, code):
-        url = self.request.build_absolute_uri("/")
         requests.post(
             url='https://api.sendgrid.com/v3/mail/send',
             json={
@@ -38,10 +37,10 @@ class GetCodeView(BaseGetCodeView):
                     'name': settings.DEFAULT_FROM_EMAIL_NAME,
                     'email': settings.DEFAULT_FROM_EMAIL_EMAIL,
                 },
-                'subject': f'登录校验码：{code}',
+                'subject': f'Hackergame 2020 登录校验码：{code}',
                 'content': [{
                     'type': 'text/plain',
-                    'value': f'{code}\n请使用该校验码登录 {url}\n',
+                    'value': f'{code}\n请使用该校验码登录 Hackergame 2020\n',
                 }]},
             headers={'Authorization': 'Bearer ' + settings.SENDGRID_API_KEY},
         )

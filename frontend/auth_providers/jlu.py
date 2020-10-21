@@ -25,10 +25,9 @@ class GetCodeView(BaseGetCodeView):
     validate_identity = DomainEmailValidator('mails.jlu.edu.cn')
 
     def send(self, identity, code):
-        url = self.request.build_absolute_uri("/")
         EmailMessage(
-            subject=f'登录校验码：{code}',
-            body=f'{code}\n请使用该校验码登录 {url}\n',
+            subject=f'Hackergame 2020 登录校验码：{code}',
+            body=f'{code}\n请使用该校验码登录 Hackergame 2020\n',
             to=[identity],
         ).send()
 

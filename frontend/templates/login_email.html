@@ -3,7 +3,7 @@
 {% block heading %}{{ provider_name }}邮箱登录{% endblock %}
 
 {% block identity %}
-<label for="identity">邮箱</label>
+<label for="identity">{{ provider_name }}邮箱</label>
 <input type="email" id="identity" name="identity" v-model="identity" required>
 {% endblock %}
 
