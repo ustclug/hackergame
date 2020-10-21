@@ -24,6 +24,8 @@ CACHES = {
 }
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
 LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
     'formatters': {
         'django.server': {
             '()': 'django.utils.log.ServerFormatter',
