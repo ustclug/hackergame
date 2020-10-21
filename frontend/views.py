@@ -173,6 +173,13 @@ class UserView(View):
         return TemplateResponse(request, 'user.html')
 
 
+class ErrorView(View):
+    def get(self, request):
+        if request.user.is_superuser:
+            raise ValueError('ErrorView')
+        return redirect('hub')
+
+
 class UstcProfileView(View):
     def check(self):
         request = self.request

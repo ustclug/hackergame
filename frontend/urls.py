@@ -13,6 +13,7 @@ urlpatterns = [
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('terms/', views.TermsView.as_view(), name='terms'),
     path('user/', views.UserView.as_view()),
+    path('error/', views.ErrorView.as_view()),
 
     path('profile/ustc/', views.UstcProfileView.as_view(), name='ustcprofile'),
 
