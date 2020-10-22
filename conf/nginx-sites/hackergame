@@ -8,6 +8,7 @@ server {
 
     location /media {
         root /var/opt/hackergame;
+        add_header Content-Type application/octet-stream;
         expires -1;
     }
     location /static {
