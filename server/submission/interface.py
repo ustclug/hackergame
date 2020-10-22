@@ -8,6 +8,9 @@ from server.exceptions import Error, NotFound, WrongArguments, WrongFormat
 from . import models
 
 
+ALL = '$all'
+
+
 class SlowDown(Error):
     code = 'slow_down'
     message = '提交过于频繁'
@@ -69,7 +72,7 @@ class Submission:
                 models.FlagFirst.objects.get_or_create(
                     challenge=challenge.pk,
                     flag=flag,
-                    group=None,
+                    group=ALL,
                     defaults={'user': user.pk, 'time': context.time},
                 )
             models.FlagFirst.objects.get_or_create(
@@ -89,7 +92,7 @@ class Submission:
                 if user.group not in User.no_score_groups:
                     models.ChallengeFirst.objects.get_or_create(
                         challenge=challenge.pk,
-                        group=None,
+                        group=ALL,
                         defaults={'user': user.pk, 'time': context.time},
                     )
                 models.ChallengeFirst.objects.get_or_create(
@@ -106,6 +109,8 @@ class Submission:
     def _add_score(cls, user, group, time, score, category=None):
         if category is not None:
             cls._add_score(user, group, time, score)
+        if category is None:
+            category = ALL
         try:
             o = models.Score.objects.get(user=user, category=category)
             o.score += score
@@ -163,6 +168,10 @@ class Submission:
     # noinspection PyUnusedLocal
     @classmethod
     def get_user_progress(cls, context, user):
+        def f(d):
+            if d['category'] == ALL:
+                d['category'] = None
+            return d
         return {
             'challenges': list(
                 models.ChallengeClear.objects
@@ -174,15 +183,17 @@ class Submission:
                 .filter(user=user)
                 .values('challenge', 'flag', 'time')
             ),
-            'scores': list(
+            'scores': list(map(f,
                 models.Score.objects
                 .filter(user=user)
                 .values('category', 'score', 'time')
-            ),
+            )),
         }
 
     @classmethod
     def get_user_ranking(cls, context, user, *, category=None, group=None):
+        if category is None:
+            category = ALL
         try:
             obj = models.Score.objects.get(user=user, category=category)
             score, time = obj.score, obj.time
@@ -218,6 +229,8 @@ class Submission:
     def _filter_group(cls, queryset, group):
         if group is None:
             return queryset.exclude(group__in=User.no_score_groups)
+        elif group is ALL:
+            return queryset.exclude(group__in=User.no_score_groups)
         else:
             return queryset.filter(group=group)
 
@@ -242,6 +255,8 @@ class Submission:
     def get_first(cls, context, *, group=None):
         if group in User.no_board_groups:
             User.test_permission(context, 'submission.full', 'submission.view')
+        if group is None:
+            group = ALL
         return {
             'challenges': list(
                 models.ChallengeFirst.objects
@@ -261,6 +276,8 @@ class Submission:
                   category=None, group=None):
         if group in User.no_board_groups:
             User.test_permission(context, 'submission.full', 'submission.view')
+        if category is None:
+            category = ALL
         return list(
             cls._filter_group(models.Score.objects, group)
             .filter(category=category)
@@ -300,7 +317,7 @@ class Submission:
     def _refill_first(cls):
         """尝试把 ChallengeFirst 和 FlagFirst 中的空位都填上"""
         for challenge in Challenge.get_all(Context(elevated=True)):
-            for group in {None, *User.groups}.difference(
+            for group in {ALL, *User.groups}.difference(
                 models.ChallengeFirst.objects
                 .filter(challenge=challenge.pk)
                 .values_list('group', flat=True)
@@ -320,7 +337,7 @@ class Submission:
                 except models.ChallengeClear.DoesNotExist:
                     pass
             for flag in range(len(challenge.flags)):
-                for group in {None, *User.groups}.difference(
+                for group in {ALL, *User.groups}.difference(
                     models.FlagFirst.objects
                     .filter(challenge=challenge.pk, flag=flag)
                     .values_list('group', flat=True)
@@ -420,10 +437,10 @@ class Submission:
                 .update(group=new['group'])
             models.ChallengeFirst.objects.filter(user=old['pk']).delete()
             models.ChallengeFirst.objects.filter(group=new['group']).delete()
-            models.ChallengeFirst.objects.filter(group=None).delete()
+            models.ChallengeFirst.objects.filter(group=ALL).delete()
             models.FlagFirst.objects.filter(user=old['pk']).delete()
             models.FlagFirst.objects.filter(group=new['group']).delete()
-            models.FlagFirst.objects.filter(group=None).delete()
+            models.FlagFirst.objects.filter(group=ALL).delete()
             cls._refill_first()
             models.Score.objects.filter(user=old['pk']) \
                 .update(group=new['group'])

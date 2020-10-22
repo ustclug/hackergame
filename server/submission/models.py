@@ -51,7 +51,7 @@ class FlagViolation(models.Model):
 
 class ChallengeFirst(models.Model):
     challenge = models.IntegerField()
-    group = models.TextField(null=True, db_index=True)
+    group = models.TextField(db_index=True)
     user = models.IntegerField()
     time = models.DateTimeField()
 
@@ -63,7 +63,7 @@ class ChallengeFirst(models.Model):
 class FlagFirst(models.Model):
     challenge = models.IntegerField()
     flag = models.IntegerField()
-    group = models.TextField(null=True, db_index=True)
+    group = models.TextField(db_index=True)
     user = models.IntegerField()
     time = models.DateTimeField()
 
@@ -75,7 +75,7 @@ class FlagFirst(models.Model):
 class Score(models.Model):
     user = models.IntegerField(db_index=True)
     group = models.TextField()
-    category = models.TextField(null=True, db_index=True)
+    category = models.TextField(db_index=True)
     score = models.IntegerField()
     time = models.DateTimeField()
 
