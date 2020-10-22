@@ -230,7 +230,7 @@ class User:
 
     @property
     def display_name(self):
-        return self.nickname
+        return self.nickname or ''
 
     @property
     def nickname(self):
