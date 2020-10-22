@@ -29,5 +29,5 @@ class ThrottledAdminEmailHandler(AdminEmailHandler):
                 with open(d + '/' + t, 'w'):
                     pass
                 mail.mail_admins(subject, message, *args, connection=self.connection(), **kwargs)
-        except Exception:
-            pass
+        except Exception as e:
+            mail.mail_admins(f'{subject} - {type(e)}: {e}', message, *args, connection=self.connection(), **kwargs)
