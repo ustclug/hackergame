@@ -171,6 +171,16 @@ class User:
                 raise WrongArguments()
         self._obj.save()
         self._obj.refresh_from_db()
+        models.UserLog.objects.create(
+            context_user=self._context.user.id,
+            context_time=self._context.time,
+            context_elevated=self._context.elevated,
+            **{k: getattr(self._obj, k) for k in {
+                'user', 'group', 'nickname', 'name', 'sno', 'tel',
+                'email', 'gender', 'qq', 'school', 'grade', 'aff',
+                'token',
+            }},
+        )
 
     def delete(self):
         User.test_permission(self._context, 'user.full')
