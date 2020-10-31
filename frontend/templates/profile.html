@@ -15,6 +15,9 @@
     <h1>修改个人信息</h1>
     {% verbatim %}
     <form id="app" class="pure-form pure-form-aligned" @submit.prevent="submit">
+        <div v-if="false" class="msg-error">
+            如果你看到这条消息，说明你的浏览器版本过低或网络存在问题，导致比赛平台不能正常加载。请忽略以下显示的任何信息，换用最新版 Firefox 或 Chrome 浏览器访问比赛平台。
+        </div>
         <div v-if="user.group==='banned'" class="msg-error">
             由于违反规则，你的参赛资格已被取消，如有疑问请联系 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>。
         </div>
