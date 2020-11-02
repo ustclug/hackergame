@@ -232,6 +232,9 @@ class User:
 
     @property
     def is_staff(self):
+        # XXX: 允许随便获取此项信息会导致性能问题
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context)
         return self.user.is_staff
 
     @property
