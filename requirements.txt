@@ -17,7 +17,7 @@ pkg-resources==0.0.0
 psycopg2-binary==2.8.6
 pycparser==2.20
 pycryptodome==3.9.8
-Pygments==2.7.1
+Pygments==2.7.4
 pyOpenSSL==19.1.0
 python-memcached==1.59
 python3-openid==3.2.0
