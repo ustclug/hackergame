@@ -3,13 +3,13 @@ from ..local_settings import *
 ROOT_URLCONF = 'frontend.urls'
 WSGI_APPLICATION = 'frontend.wsgi.application'
 INSTALLED_APPS = [
-    'frontend.apps.FrontendConfig',
-    'server.announcement.apps.AnnouncementConfig',
-    'server.challenge.apps.ChallengeConfig',
-    'server.submission.apps.SubmissionConfig',
-    'server.terms.apps.TermsConfig',
-    'server.trigger.apps.TriggerConfig',
-    'server.user.apps.UserConfig',
+    'frontend',
+    'server.announcement',
+    'server.challenge',
+    'server.submission',
+    'server.terms',
+    'server.trigger',
+    'server.user',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -38,6 +38,9 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
+
+# Database
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Media
 MEDIA_URL = '/media/'
