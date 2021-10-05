@@ -119,7 +119,7 @@ class Command(BaseCommand):
             can_submit=True,
         )
 
-        groups = list(set(User.groups.keys()) - {'staff', 'banned'})
+        groups = list(set(User.groups.keys()) - {'noscore', 'banned'})
         for i in range(fake_users):
             print('user', i, end='\r')
             u = User.create(

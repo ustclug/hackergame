@@ -40,7 +40,7 @@ class User:
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email',
                      'gender', 'qq', 'school', 'grade', 'aff')
     groups = {
-        'staff': '管理员',
+        'noscore': '不计分',
         'ustc': '中国科学技术大学',
         'zju': '浙江大学',
         'hit': '哈尔滨工业大学',
@@ -54,7 +54,7 @@ class User:
         'banned': '已封禁',
     }
     profile_required = {
-        'staff': ['nickname'],
+        'noscore': ['nickname'],
         'ustc': ['nickname', 'name', 'sno', 'tel', 'email'],
         'zju': ['nickname', 'name', 'sno', 'email'],
         'hit': ['nickname', 'name', 'sno', 'school', 'email'],
@@ -67,9 +67,9 @@ class User:
         'other': ['nickname'],
         'banned': ['nickname'],
     }
-    no_board_groups = ['staff', 'other', 'banned']
-    no_code_groups = ['staff', 'other', 'banned']
-    no_score_groups = ['staff', 'banned']
+    no_board_groups = ['noscore', 'other', 'banned']
+    no_code_groups = ['noscore', 'other', 'banned']
+    no_score_groups = ['noscore', 'banned']
     subscribers = []
     _validators = {
         'group': group_validator,

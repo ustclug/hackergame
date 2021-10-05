@@ -35,7 +35,7 @@
                         <span class="pure-button">排行榜</span>
                         <ul class="pure-menu-children">
                             <li class="pure-menu-item"><a href="/board/" class="pure-menu-link">总排名</a></li>
-                            {% if user_.group == 'staff' %}
+                            {% if user_.is_staff %}
                                 {% for group, group_name in groups.items %}
                                     <li class="pure-menu-item"><a href="/board/?group={{ group|urlencode }}" class="pure-menu-link">{{ group_name }}排名</a></li>
                                 {% endfor %}
@@ -43,7 +43,7 @@
                                 <li class="pure-menu-item"><a href="/board/?group={{ user_.group|urlencode }}" class="pure-menu-link">组内排名</a></li>
                             {% endif %}
                             <li class="pure-menu-item"><a href="/first/" class="pure-menu-link">总一血榜</a></li>
-                            {% if user_.group == 'staff' %}
+                            {% if user_.is_staff %}
                                 {% for group, group_name in groups.items %}
                                     <li class="pure-menu-item"><a href="/first/?group={{ group|urlencode }}" class="pure-menu-link">{{ group_name }}一血榜</a></li>
                                 {% endfor %}
