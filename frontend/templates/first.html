@@ -5,6 +5,8 @@
     {{ block.super }}
     <script src="{% static 'vue.min.js' %}"></script>
     <script src="{% static 'axios.min.js' %}"></script>
+    <script src="{% static 'color.js' %}"></script>
+    <script src="{% static 'seedrandom.js' %}"></script>
     <script>
     axios.defaults.xsrfCookieName = 'csrftoken';
     axios.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -31,13 +33,13 @@
             <template v-for="challenge in challenges">
                 <tr :class="{'highlight-row': objs.challenges[challenge.pk].user===user.pk}">
                     <td>{{ challenge.name }}</td>
-                    <td style="word-break: break-all">{{ (users[objs.challenges[challenge.pk].user]||{display_name:''}).display_name }}</td>
+                    <td style="word-break: break-all"><span v-for="part in pretty_name((users[objs.challenges[challenge.pk].user]||{display_name:''}).display_name)" :style="part.style">{{ part.text }}</span></td>
                     <td style="word-break: keep-all">{{ objs.challenges[challenge.pk].time }}</td>
                     <td v-if="show_profile" v-for="field in profile_fields">{{ (users[objs.challenges[challenge.pk].user]||{[field.field]:''})[field.field] }}</td>
                 </tr>
                 <tr v-if="challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags" :class="{'highlight-row': objs.flags[[challenge.pk, flag_index]].user===user.pk}">
                     <td>{{ challenge.name }}/{{ flag.name }}</td>
-                    <td style="word-break: break-all">{{ (users[objs.flags[[challenge.pk, flag_index]].user]||{display_name:''}).display_name }}</td>
+                    <td style="word-break: break-all"><span v-for="part in pretty_name((users[objs.flags[[challenge.pk, flag_index]].user]||{display_name:''}).display_name)" :style="part.style">{{ part.text }}</span></td>
                     <td style="word-break: keep-all">{{ objs.flags[[challenge.pk, flag_index]].time }}</td>
                     <td v-if="show_profile" v-for="field in profile_fields">{{ (users[objs.flags[[challenge.pk, flag_index]].user]||{[field.field]:''})[field.field] }}</td>
                 </tr>
@@ -122,6 +124,34 @@
                     .catch(({response: {data: {error}}}) => {
                         alert(error && error.message);
                     });
+            },
+            tag_color(tag) {
+                let random = new Math.seedrandom(tag);
+                let color;
+                do {
+                    color = new CIELUV(
+                        random() * 40 + 30,
+                        random() * 400 - 200,
+                        random() * 400 - 200,
+                    ).sRGB();
+                } while (!color.valid());
+                return color.hex();
+            },
+            pretty_name(s) {
+                const [a, ...b] = s.split(' #');
+                const [c, ...d] = a.split('|');
+                const r = [];
+                return [
+                    {text: c, style: {}},
+                    {text: d.map(i => '|' + i).join(''), style: {color: '#888'}},
+                    ...b.map(i => ({text: '#' + i, style: {
+                        backgroundColor: this.tag_color(i),
+                        color: '#fff',
+                        borderRadius: '100em',
+                        padding: '0 .5em',
+                        marginLeft: '.25em',
+                    }})),
+                ];
             },
         },
     });

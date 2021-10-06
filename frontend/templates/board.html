@@ -7,6 +7,8 @@
     <script src="{% static 'axios.min.js' %}"></script>
     <script src="{% static 'chart.min.js' %}"></script>
     <script src="{% static 'chart.js' %}"></script>
+    <script src="{% static 'color.js' %}"></script>
+    <script src="{% static 'seedrandom.js' %}"></script>
     <script>
     axios.defaults.xsrfCookieName = 'csrftoken';
     axios.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -37,7 +39,7 @@
             <tbody v-if="objs">
             <tr v-for="(obj, obj_index) in objs" :class="{'highlight-row': obj.user===user.pk}">
                 <td>{{ obj_index + 1 }}</td>
-                <td v-if="!show_progress" style="word-break: break-all">{{ users[obj.user].display_name }}</td>
+                <td v-if="!show_progress" style="word-break: break-all"><span v-for="part in pretty_name(users[obj.user].display_name)" :style="part.style">{{ part.text }}</span></td>
                 <td v-if="!show_progress">{{ obj.score }}</td>
                 <td v-if="!show_progress" style="word-break: keep-all">{{ new Date(obj.time).toLocaleString() }}</td>
                 <td v-if="!show_progress&&show_profile" v-for="field in profile_fields">{{ users[obj.user][field.field] }}</td>
@@ -135,6 +137,34 @@
                 } else {
                     return '未完成';
                 }
+            },
+            tag_color(tag) {
+                let random = new Math.seedrandom(tag);
+                let color;
+                do {
+                    color = new CIELUV(
+                        random() * 40 + 30,
+                        random() * 400 - 200,
+                        random() * 400 - 200,
+                    ).sRGB();
+                } while (!color.valid());
+                return color.hex();
+            },
+            pretty_name(s) {
+                const [a, ...b] = s.split(' #');
+                const [c, ...d] = a.split('|');
+                const r = [];
+                return [
+                    {text: c, style: {}},
+                    {text: d.map(i => '|' + i).join(''), style: {color: '#888'}},
+                    ...b.map(i => ({text: '#' + i, style: {
+                        backgroundColor: this.tag_color(i),
+                        color: '#fff',
+                        borderRadius: '100em',
+                        padding: '0 .5em',
+                        marginLeft: '.25em',
+                    }})),
+                ];
             },
         },
     });

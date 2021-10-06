@@ -125,7 +125,7 @@ class Command(BaseCommand):
             u = User.create(
                 Context(elevated=True),
                 group=random.choice(groups),
-                nickname='用户 ' * 8 + str(i),
+                nickname='用户 ' + str(i) + f' | foo #a{i%3} #b{i%3}',
                 name='姓名',
                 sno='PB11111111',
                 tel='123456789',
