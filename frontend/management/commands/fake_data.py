@@ -132,6 +132,7 @@ class Command(BaseCommand):
                 email='foo@example.com',
                 gender=random.choice(('female', 'male')),
                 qq='12345',
+                website='website',
                 school='foo',
                 grade='1',
                 aff='aff',

@@ -50,6 +50,10 @@
                     <input class="vTextField" type="text" id="form-qq" name="qq" v-model="opened.qq">
                 </div>
                 <div class="form-row">
+                    <label for="form-website">个人主页/博客:</label>
+                    <input class="vTextField" type="text" id="form-website" name="website" v-model="opened.website">
+                </div>
+                <div class="form-row">
                     <label for="form-school">学院:</label>
                     <input class="vTextField" type="text" id="form-school" name="school" v-model="opened.school">
                 </div>
@@ -85,6 +89,7 @@
                         <th scope="col"><div class="text"><span>邮箱</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>性别</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>QQ</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>个人主页/博客</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>学院</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>年级</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>了解比赛的渠道</span></div><div class="clear"></div></th>
@@ -102,6 +107,7 @@
                         <td>{{ obj.email }}</td>
                         <td>{{ {'':'','female':'女','male':'男','other':'其他'}[obj.gender] }}</td>
                         <td>{{ obj.qq }}</td>
+                        <td>{{ obj.website }}</td>
                         <td>{{ obj.school }}</td>
                         <td>{{ obj.grade }}</td>
                         <td>{{ obj.aff }}</td>

@@ -37,10 +37,10 @@ class GetCodeView(BaseGetCodeView):
                     'name': settings.DEFAULT_FROM_EMAIL_NAME,
                     'email': settings.DEFAULT_FROM_EMAIL_EMAIL,
                 },
-                'subject': f'Hackergame 2020 登录校验码：{code}',
+                'subject': f'Hackergame 登录校验码：{code}',
                 'content': [{
                     'type': 'text/plain',
-                    'value': f'{code}\n请使用该校验码登录 Hackergame 2020\n',
+                    'value': f'{code}\n请使用该校验码登录 Hackergame\n',
                 }]},
             headers={'Authorization': 'Bearer ' + settings.SENDGRID_API_KEY},
         )

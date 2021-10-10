@@ -26,8 +26,8 @@ class GetCodeView(BaseGetCodeView):
 
     def send(self, identity, code):
         EmailMessage(
-            subject=f'Hackergame 2020 登录校验码：{code}',
-            body=f'{code}\n请使用该校验码登录 Hackergame 2020\n',
+            subject=f'Hackergame 登录校验码：{code}',
+            body=f'{code}\n请使用该校验码登录 Hackergame\n',
             to=[identity],
         ).send()
 

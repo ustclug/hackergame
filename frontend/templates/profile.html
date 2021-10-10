@@ -57,9 +57,12 @@
             <label for="qq">QQ</label>
             <input type="text" id="qq" name="qq" v-model="user.qq" :required="fields.qq">
         </div>
+        <div v-if="fields.website!==undefined" class="pure-control-group">
+            <label for="website">个人主页/博客</label>
+            <input type="text" id="website" name="website" v-model="user.website" :required="fields.website">
+        </div>
         <div v-if="fields.school!==undefined" class="pure-control-group">
-            <!-- XXX: 2020 只有 HIT 要这一项信息，并且希望这样显示，所以直接修改 -->
-            <label for="school">学院/专业集群</label>
+            <label for="school">学院</label>
             <input type="text" id="school" name="school" v-model="user.school" :required="fields.school">
         </div>
         <div v-if="fields.grade!==undefined" class="pure-control-group">
@@ -98,11 +101,16 @@
                     email: '邮箱',
                     gender: '性别',
                     qq: 'QQ',
+                    website: '个人主页/博客',
                     school: '学院',
                     grade: '年级',
                     aff: '了解比赛的渠道',
                 };
-                info.push(fields.map(i => names[i]).join('、') + ` 至少填 ${minimum} 项`);
+                if (minimum) {
+                    info.push(fields.map(i => names[i]).join('、') + ` 至少填 ${minimum} 项`);
+                } else {
+                    info.push(fields.map(i => names[i]).join('、') + ` 可不填`);
+                }
             } else {
                 fields_required[field] = true;
             }

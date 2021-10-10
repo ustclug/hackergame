@@ -11,6 +11,7 @@ class User(models.Model):
     email = models.TextField(null=True)
     gender = models.TextField(null=True)
     qq = models.TextField(null=True)
+    website = models.TextField(null=True)
     school = models.TextField(null=True)
     grade = models.TextField(null=True)
     aff = models.TextField(null=True)
@@ -22,13 +23,12 @@ class User(models.Model):
             ('full', '管理个人信息'),
             ('view_ustc', '查看中国科学技术大学个人信息'),
             ('view_zju', '查看浙江大学个人信息'),
-            ('view_hit', '查看哈尔滨工业大学个人信息'),
-            ('view_xjtu', '查看西安交通大学个人信息'),
-            ('view_cqu', '查看重庆大学个人信息'),
-            ('view_bupt', '查看北京邮电大学个人信息'),
             ('view_jlu', '查看吉林大学个人信息'),
-            ('view_neu', '查看东北大学个人信息'),
             ('view_nuaa', '查看南京航空航天大学个人信息'),
+            ('view_neu', '查看东北大学个人信息'),
+            ('view_sysu', '查看中山大学个人信息'),
+            ('view_xidian', '查看西安电子科技大学个人信息'),
+            ('view_hit', '查看哈尔滨工业大学个人信息'),
         ]
 
 
@@ -45,6 +45,7 @@ class UserLog(models.Model):
     email = models.TextField(null=True)
     gender = models.TextField(null=True)
     qq = models.TextField(null=True)
+    website = models.TextField(null=True)
     school = models.TextField(null=True)
     grade = models.TextField(null=True)
     aff = models.TextField(null=True)
