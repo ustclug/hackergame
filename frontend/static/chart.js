@@ -33,7 +33,7 @@ function drawchart() {
       return {
         label: username,
         data: points,
-        steppedLine: true,
+        stepped: true,
         fill: false,
         backgroundColor: color,
         borderColor: color,
@@ -56,7 +56,7 @@ function drawchart() {
         },
         responsive: false,
         scales: {
-          xAxes: [{
+          x: {
             type: 'time',
             ticks: {
               minRotation: 50,
@@ -67,10 +67,10 @@ function drawchart() {
                 hour: "MM-DD HH:mm",
               },
               tooltipFormat: "YYYY-MM-DD HH:mm:ss",
-            }
-          }]
-        }
-      }
+            },
+          },
+        },
+      },
     });
   });
 }
