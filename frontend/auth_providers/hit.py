@@ -1,6 +1,7 @@
 from datetime import timedelta
+import requests
 
-from django.core.mail import EmailMessage
+from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import path
 
@@ -25,11 +26,15 @@ class GetCodeView(BaseGetCodeView):
     validate_identity = DomainEmailValidator(('hit.edu.cn', 'stu.hit.edu.cn'))
 
     def send(self, identity, code):
-        EmailMessage(
-            subject=f'Hackergame 登录校验码：{code}',
-            body=f'{code}\n请使用该校验码登录 Hackergame\n',
-            to=[identity],
-        ).send()
+        requests.post(
+            url='https://lug.hit.edu.cn/api/v1/sendmail',
+            headers={'Authorization': 'Bearer ' + settings.HIT_MAIL_API_KEY},
+            data={
+                'to': identity,
+                'subject': f'Hackergame 登录校验码：{code}',
+                'body': f'{code}\n请使用该校验码登录 Hackergame\n',
+            },
+        )
 
 
 urlpatterns = [

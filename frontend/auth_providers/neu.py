@@ -2,7 +2,6 @@ from datetime import timedelta
 import requests
 
 from django.conf import settings
-from django.core.mail import EmailMessage, get_connection
 from django.shortcuts import redirect
 from django.urls import path
 
