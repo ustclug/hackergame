@@ -56,10 +56,13 @@ class BaseLoginView(View):
     def on_get_account(self, account):
         pass
 
+    def normalize_identity(self):
+        return self.identity
+
     def login(self, **kwargs):
         account, created = Account.objects.get_or_create(
             provider=self.provider,
-            identity=self.identity,
+            identity=self.normalize_identity(),
         )
         self.on_get_account(account)
         if not account.user:

@@ -18,6 +18,9 @@ class LoginView(BaseLoginView):
             self.login(email=self.identity)
         return redirect('hub')
 
+    def normalize_identity(self):
+        return self.identity.casefold()
+
 
 class GetCodeView(BaseGetCodeView):
     provider = 'nuaa'
