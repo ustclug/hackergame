@@ -1,6 +1,7 @@
 import markdown.treeprocessors
 import pathlib
 import shutil
+import subprocess
 import traceback
 import uuid
 import yaml
@@ -112,6 +113,8 @@ class Command(BaseCommand):
             challenge.update(next(yaml.safe_load_all(f)))
         lines = readme.read_text().splitlines(keepends=True)
         lines = lines[lines.index('---\n', 1) + 1:]
+        if (path / 'pre-import-hook.sh').exists():
+            subprocess.run([path / 'pre-import-hook.sh'], cwd=path, check=True)
         files_uuid = str(uuid.uuid5(UUID_NAMESPACE, challenge['name']))
         files_path = self.media_dir / files_uuid
         files_url = pathlib.Path('/media') / files_uuid
