@@ -11,6 +11,10 @@ class ThrottledAdminEmailHandler(AdminEmailHandler):
         try:
             d = settings.MEDIA_ROOT + '/admin_email_throttle'
             try:
+                try:
+                    os.mkdir(settings.MEDIA_ROOT)
+                except FileExistsError:
+                    pass
                 os.mkdir(d)
             except FileExistsError:
                 pass
