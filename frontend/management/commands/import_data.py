@@ -127,6 +127,6 @@ class Command(BaseCommand):
             challenge['url'] = str(files_url / challenge['url'][6:])
         challenge['detail'] = markdown.markdown(
             ''.join(lines),
-            extensions=['codehilite', ReplaceLinks(files_url)],
+            extensions=['codehilite', 'fenced_code', ReplaceLinks(files_url)],
         )
         return challenge
