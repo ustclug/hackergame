@@ -66,7 +66,7 @@ class Command(BaseCommand):
         new_challenges = {}
         pathnames = {}
         for path in challenges_dir.iterdir():
-            if not path.is_dir() or path.name.startswith('.'):
+            if not path.is_dir() or path.name.startswith('.') or path.name.startswith('_'):
                 continue
             # noinspection PyBroadException
             try:
