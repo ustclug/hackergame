@@ -24,6 +24,11 @@ kbd,
 samp {
     font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, Courier, monospace;
 }
+code {
+    background-color: #f1f1f1;
+    border-radius: 6px;
+    padding: 3px 6px;
+}
 body {
     background-color: #fff;
     color: #333;
