@@ -11,6 +11,9 @@
 {% block content %}
     {% verbatim %}
     <div id="app">
+        <div v-if="false" class="msg-error">
+            如果你看到这条消息，说明你的浏览器版本过低或网络存在问题，导致比赛平台不能正常加载。请忽略以下显示的任何信息，换用最新版 Firefox 或 Chrome 浏览器访问比赛平台。
+        </div>
         <div v-if="announcement" class="msg-info">
             <div v-html="announcement.content"></div>
             <small>{{ new Date(announcement.time).toLocaleString() }}</small>
