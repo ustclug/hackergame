@@ -6,9 +6,9 @@ from server.submission.models import Submission
 from server.terms.models import Terms
 from server.trigger.models import Trigger
 from server.user.models import User
-from .models import Page
+from .models import Page, Qa
 
-admin.site.register(Page)
+admin.site.register([Page, Qa])
 
 
 # XXX: Hack here

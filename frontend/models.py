@@ -79,3 +79,12 @@ class UstcSnos(models.Model):
 class UstcEligible(models.Model):
     user = models.OneToOneField(get_user_model(), models.CASCADE, primary_key=True)
     eligible = models.BooleanField()
+
+
+class Qa(models.Model):
+    content = models.TextField(blank=True, default='<h1>问与答</h1>',
+                               help_text='会被放入 <code>div</code> 的 HTML')
+
+    @classmethod
+    def get(cls):
+        return cls.objects.get_or_create()[0]
