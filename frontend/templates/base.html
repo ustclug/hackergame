@@ -5,7 +5,7 @@
 <head>
     <meta charset="UTF-8">
     <!-- the width translates into minimum viewport width when initial scale is set -->
-    <meta name="viewport" content="width=600, initial-scale=1">
+    <meta name="viewport" content="width=1000, initial-scale=1">
     <title>{% block title %}{{ page.title }}{% endblock %}</title>
     <meta name="description" content="{% block description %}{{ page.description }}{% endblock %}">
     <meta name="keywords" content="{% block keywords %}{{ page.keywords }}{% endblock %}">
@@ -29,6 +29,9 @@
             <ul class="pure-menu-list">
                 <li class="pure-menu-item">
                     <a class="pure-button" href="{% url 'announcements' %}">公告</a>
+                </li>
+                <li class="pure-menu-item">
+                    <a class="pure-button" href="{% url 'qa' %}">问与答</a>
                 </li>
                 {% if user_ %}
                     <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
