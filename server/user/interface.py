@@ -254,70 +254,70 @@ class User:
     def name(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.name
 
     @property
     def sno(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.sno
 
     @property
     def tel(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.tel
 
     @property
     def email(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.email
 
     @property
     def gender(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.gender
 
     @property
     def qq(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.qq
 
     @property
     def website(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.website
 
     @property
     def school(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.school
 
     @property
     def grade(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.grade
 
     @property
     def aff(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.aff
 
     @property
@@ -330,7 +330,7 @@ class User:
     def token_short(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         token = self._obj.token
         return token[: token.find(':') + 11] + '...'
 
@@ -338,7 +338,7 @@ class User:
     def code(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 f'user.view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         if self.group in self.no_code_groups:
             return None
         token = self._obj.token
