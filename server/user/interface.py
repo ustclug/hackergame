@@ -105,7 +105,7 @@ class User:
         if context.elevated:
             return
         for permission in permissions:
-            if context.user.has_perm(permission):
+            if context.has_perm(permission):
                 return
         raise PermissionRequired()
 
