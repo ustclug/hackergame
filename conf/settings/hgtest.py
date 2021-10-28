@@ -58,8 +58,11 @@ LOGGING = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mail.s.ustclug.org'
-EMAIL_SUBJECT_PREFIX = '[HG-TEST] '
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+EMAIL_SUBJECT_PREFIX = '[hgtest] '
 
 GOOGLE_APP_ID = '2574063612-p2ss2hgg9rr7c67n9d0e4g3l6j9gk8v2' \
                 '.apps.googleusercontent.com'
