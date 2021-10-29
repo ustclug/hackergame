@@ -23,6 +23,7 @@ CACHES = {
     },
 }
 SESSION_ENGINE = 'django.contrib.sessions.backends.cached_db'
+SESSION_COOKIE_AGE = 365 * 86400
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
