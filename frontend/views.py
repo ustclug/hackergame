@@ -17,7 +17,7 @@ from server.user.interface import User, LoginRequired, ProfileRequired
 from server.context import Context
 from server.exceptions import Error, NotFound, WrongFormat
 
-from frontend.models import Account, Qa, UstcEligible
+from frontend.models import Account, Credits, Qa, UstcEligible
 
 
 # noinspection PyMethodMayBeStatic
@@ -213,6 +213,11 @@ class UstcProfileView(View):
 class QaView(View):
     def get(self, request):
         return TemplateResponse(request, 'qa.html', {'qa': Qa.get()})
+
+
+class CreditsView(View):
+    def get(self, request):
+        return TemplateResponse(request, 'credits.html', {'credits': Credits.get()})
 
 
 # noinspection PyMethodMayBeStatic

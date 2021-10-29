@@ -14,6 +14,7 @@ urlpatterns = [
     path('terms/', views.TermsView.as_view(), name='terms'),
     path('user/', views.UserView.as_view()),
     path('qa/', views.QaView.as_view(), name='qa'),
+    path('credits/', views.CreditsView.as_view(), name='credits'),
     path('error/', views.ErrorView.as_view()),
 
     path('profile/ustc/', views.UstcProfileView.as_view(), name='ustcprofile'),

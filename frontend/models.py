@@ -88,3 +88,14 @@ class Qa(models.Model):
     @classmethod
     def get(cls):
         return cls.objects.get_or_create()[0]
+
+
+class Credits(models.Model):
+    content = models.TextField(blank=True,
+                               help_text='会被放入 <code>div</code> 的 HTML')
+    js = models.TextField(blank=True,
+                          help_text='会被放入 <code>script</code> 的 JS')
+
+    @classmethod
+    def get(cls):
+        return cls.objects.get_or_create()[0]

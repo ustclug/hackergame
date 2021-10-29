@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'color.js' %}"></script>
+    <script src="{% static 'seedrandom.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+    <div>{{ credits.content|safe }}</div>
+    <script>{{ credits.js|safe }}</script>
+{% endblock %}
