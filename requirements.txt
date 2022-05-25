@@ -15,7 +15,7 @@ oauthlib==3.1.1
 psycopg2-binary==2.9.1
 pycparser==2.20
 Pygments==2.10.0
-PyJWT==2.1.0
+PyJWT==2.4.0
 pyOpenSSL==21.0.0
 python-memcached==1.59
 python3-openid==3.2.0
