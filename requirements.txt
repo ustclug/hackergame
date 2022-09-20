@@ -6,7 +6,7 @@ charset-normalizer==2.0.6
 cryptography==3.4.8
 defusedxml==0.7.1
 Django==3.2.15
-django-allauth==0.45.0
+django-allauth==0.51.0
 idna==3.2
 importlib-metadata==4.8.1
 jmespath==0.10.0
