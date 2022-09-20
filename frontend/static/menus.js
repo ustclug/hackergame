@@ -59,6 +59,7 @@
             this._firstMenuLink = this._menu.querySelector(MENU_LINK_SELECTOR);
 
             // Set ARIA attributes
+            if (!this._link) return;
             this._link.setAttribute('aria-haspopup', 'true');
             this._menu.setAttribute(ARIA_ROLE, 'menu');
             this._menu.setAttribute('aria-labelledby', this._link.getAttribute('id'));
