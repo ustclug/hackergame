@@ -10,6 +10,8 @@ from django.urls import path
 from ..models import UstcSnos
 from .base import BaseLoginView
 
+ALLOWED_GID = []
+ALLOWED_SNO = []
 
 class LoginView(BaseLoginView):
     provider = 'ustc'
@@ -43,8 +45,13 @@ class LoginView(BaseLoginView):
         if tree.tag != cas + 'authenticationSuccess':
             messages.error(self.request, '登录失败')
             return False
-        self.identity = tree.find('attributes').find(cas + 'gid').text.strip()
-        self.sno = tree.find(cas + 'user').text.strip()
+        gid = tree.find('attributes').find(cas + 'gid').text.strip()
+        sno = tree.find(cas + 'user').text.strip()
+        if (gid not in ALLOWED_GID) and (sno not in ALLOWED_SNO):
+            messages.error(self.request, '非授权用户')
+            return False
+        self.identity = gid
+        self.sno = sno
         return True
 
     def on_get_account(self, account):
