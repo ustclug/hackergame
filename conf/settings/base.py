@@ -90,3 +90,8 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_ADAPTER = 'frontend.adapters.SocialAccountAdapter'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_PROVIDERS = {
+    'microsoft': {
+        'TENANT': "consumers"
+    }
+}
