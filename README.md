@@ -84,6 +84,27 @@ server/                         “后端”，只处理业务和权限逻辑
     exceptions.py               异常基础设施
 ```
 
+## 用户和权限相关
+
+在 Django 原生的 auth 模块后台（/admin/auth/）可以管理（原生的）用户和组。这些原生用户的用户名会比较乱，不好找到某个用户，建议先确定用户 id，然后随便点开一个用户后，改 URL 中的数字。Django 原生的用户概念和 hackergame 的用户概念是两种不同的对象，但 id 相同。后者在这里管理 /admin/user/。
+
+对于 Django 原生的用户和权限概念，很多是没什么意义的，代码中并没有用到，用到的有：
+- “工作人员状态”（is_staff）控制这个用户会不会在首页题目列表底部看到一个“管理”链接，点击可以跳转到后台。但不影响任何权限
+- “超级用户状态”（is_superuser）可以绕过一切权限检查
+- 可以随便自行创建用户组，来方便给多个用户授予相同的权限集合
+- 权限中，这些是比较常用的：
+  - announcement | announcement | *
+  - challenge | challenge | *
+  - frontend | credits | *
+  - frontend | page | *
+  - frontend | qa | *
+  - submission | submission | *
+  - terms | terms | *
+  - trigger | trigger | *
+  - user | user | *
+
+注意：这些权限仅仅是给用户做了一种标记，至于各种操作到底能不能成功，能看到什么结果，还取决于代码中写的条件。例如 https://github.com/ustclug/hackergame/blob/d4c7e6fac903442d27ac28138e81359e98458b7d/server/challenge/interface.py#L36-L44 如果有管理题目或查看题目权限，可以用这个接口加载任何一道题的信息。但即使没有，只要用户已登录、已同意用户条款、已填好个人信息、当前比赛处于可以看题的状态（也就是比赛中或结束后）、这道题是 enabled，这些条件全部满足，也可以加载。
+
 ## 常见问题
 
 问：怎么查看某个组别/某个分类排行榜？
