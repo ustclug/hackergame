@@ -135,6 +135,8 @@ class Command(BaseCommand):
                 website='website',
                 school='foo',
                 grade='1',
+                major='CS',
+                campus='East',
                 aff='aff',
             )
             Terms.get(Context(u.user), terms.pk).agree(u.pk)

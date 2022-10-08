@@ -14,6 +14,8 @@ class User(models.Model):
     website = models.TextField(null=True)
     school = models.TextField(null=True)
     grade = models.TextField(null=True)
+    major = models.TextField(null=True)
+    campus = models.TextField(null=True)
     aff = models.TextField(null=True)
     token = models.TextField()
 
@@ -30,6 +32,10 @@ class User(models.Model):
             ('view_sysu', '查看中山大学个人信息'),
             ('view_xidian', '查看西安电子科技大学个人信息'),
             ('view_hit', '查看哈尔滨工业大学个人信息'),
+            ('view_nudt', '查看国防科技大学个人信息'),
+            ('view_fdu', '查看复旦大学个人信息'),
+            ('view_ouc', '查看中国海洋大学个人信息'),
+            ('view_tongji', '查看同济大学个人信息'),
         ]
 
 
@@ -49,6 +55,8 @@ class UserLog(models.Model):
     website = models.TextField(null=True)
     school = models.TextField(null=True)
     grade = models.TextField(null=True)
+    major = models.TextField(null=True)
+    campus = models.TextField(null=True)
     aff = models.TextField(null=True)
     token = models.TextField()
 

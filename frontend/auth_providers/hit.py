@@ -4,8 +4,9 @@ import requests
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import path
+from django.core.mail import EmailMessage
 
-from .base import BaseLoginView, BaseGetCodeView, DomainEmailValidator
+from .base import BaseLoginView, BaseGetCodeView, DomainEmailValidator, RegexDomainEmailValidator
 
 
 class LoginView(BaseLoginView):
@@ -26,18 +27,25 @@ class LoginView(BaseLoginView):
 class GetCodeView(BaseGetCodeView):
     provider = 'hit'
     duration = timedelta(hours=1)
-    validate_identity = DomainEmailValidator(('hit.edu.cn', 'stu.hit.edu.cn'))
+    validate_identity = RegexDomainEmailValidator(r'^(\w+\.)?hit(wh|sz|)\.edu\.cn$')
 
     def send(self, identity, code):
-        requests.post(
-            url='https://lug.hit.edu.cn/api/v1/sendmail',
-            headers={'Authorization': 'Bearer ' + settings.HIT_MAIL_API_KEY},
-            data={
-                'to': identity,
-                'subject': f'Hackergame 登录校验码：{code}',
-                'body': f'{code}\n请使用该校验码登录 Hackergame\n',
-            },
-        )
+        if settings.DEBUG:
+            EmailMessage(
+                subject=f'Hackergame 登录校验码：{code}',
+                body=f'{code}\n请使用该校验码登录 Hackergame\n',
+                to=[identity],
+            ).send()
+        else:
+            requests.post(
+                url='https://lug.hit.edu.cn/api/v1/sendmail',
+                headers={'Authorization': 'Bearer ' + settings.HIT_MAIL_API_KEY},
+                data={
+                    'to': identity,
+                    'subject': f'Hackergame 登录校验码：{code}',
+                    'body': f'{code}\n请使用该校验码登录 Hackergame\n',
+                },
+            )
 
 
 urlpatterns = [

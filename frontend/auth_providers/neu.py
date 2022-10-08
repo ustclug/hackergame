@@ -4,8 +4,9 @@ import requests
 from django.conf import settings
 from django.shortcuts import redirect
 from django.urls import path
+from django.core.mail import EmailMessage
 
-from .base import BaseLoginView, BaseGetCodeView, DomainEmailValidator
+from .base import BaseLoginView, BaseGetCodeView, DomainEmailValidator, UserRegexAndDomainEmailValidator
 
 
 class LoginView(BaseLoginView):
@@ -26,26 +27,33 @@ class LoginView(BaseLoginView):
 class GetCodeView(BaseGetCodeView):
     provider = 'neu'
     duration = timedelta(hours=1)
-    validate_identity = DomainEmailValidator('stu.neu.edu.cn')
+    validate_identity = UserRegexAndDomainEmailValidator('stu.neu.edu.cn', r'^((20(19|20|21|22)\d{4})|((19|20|21|22)\d{5}))$')
 
     def send(self, identity, code):
-        requests.post(
-            url='https://api.sendgrid.com/v3/mail/send',
-            json={
-                'personalizations': [{
-                    'to': [{'email': identity}],
-                }],
-                'from': {
-                    'name': settings.DEFAULT_FROM_EMAIL_NAME,
-                    'email': settings.DEFAULT_FROM_EMAIL_EMAIL,
-                },
-                'subject': f'Hackergame 登录校验码：{code}',
-                'content': [{
-                    'type': 'text/plain',
-                    'value': f'{code}\n请使用该校验码登录 Hackergame\n',
-                }]},
-            headers={'Authorization': 'Bearer ' + settings.SENDGRID_API_KEY},
-        )
+        if settings.DEBUG:
+            EmailMessage(
+                subject=f'Hackergame 登录校验码：{code}',
+                body=f'{code}\n请使用该校验码登录 Hackergame\n',
+                to=[identity],
+            ).send()
+        else:
+            requests.post(
+                url='https://api.sendgrid.com/v3/mail/send',
+                json={
+                    'personalizations': [{
+                        'to': [{'email': identity}],
+                    }],
+                    'from': {
+                        'name': settings.DEFAULT_FROM_EMAIL_NAME,
+                        'email': settings.DEFAULT_FROM_EMAIL_EMAIL,
+                    },
+                    'subject': f'Hackergame 登录校验码：{code}',
+                    'content': [{
+                        'type': 'text/plain',
+                        'value': f'{code}\n请使用该校验码登录 Hackergame\n',
+                    }]},
+                headers={'Authorization': 'Bearer ' + settings.SENDGRID_API_KEY},
+            )
 
 
 urlpatterns = [

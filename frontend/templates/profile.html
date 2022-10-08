@@ -69,6 +69,14 @@
             <label for="grade">年级</label>
             <input type="text" id="grade" name="grade" v-model="user.grade" :required="fields.grade">
         </div>
+        <div v-if="fields.major!==undefined" class="pure-control-group">
+            <label for="major">专业</label>
+            <input type="text" id="major" name="major" v-model="user.major" :required="fields.major">
+        </div>
+        <div v-if="fields.campus!==undefined" class="pure-control-group">
+            <label for="campus">校区</label>
+            <input type="text" id="campus" name="campus" v-model="user.campus" :required="fields.campus">
+        </div>
         <div v-if="fields.aff!==undefined" class="pure-control-group">
             <label for="aff">了解比赛的渠道</label>
             <input type="text" id="aff" name="aff" v-model="user.aff" :required="fields.aff">
@@ -104,6 +112,8 @@
                     website: '个人主页/博客',
                     school: '学院',
                     grade: '年级',
+                    major: '专业',
+                    campus: '校区',
                     aff: '了解比赛的渠道',
                 };
                 if (minimum) {

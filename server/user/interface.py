@@ -36,9 +36,9 @@ class User:
     json_fields = ('pk', 'is_staff', 'group', 'profile_ok',
                    'display_name', 'nickname', 'name', 'sno', 'tel',
                    'email', 'gender', 'qq', 'website', 'school',
-                   'grade', 'aff', 'token', 'token_short', 'code')
+                   'grade', 'major', 'campus', 'aff', 'token', 'token_short', 'code')
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email',
-                     'gender', 'qq', 'website', 'school', 'grade',
+                     'gender', 'qq', 'website', 'school', 'grade', 'major', 'campus',
                      'aff')
     groups = {
         'noscore': '不计分',
@@ -50,6 +50,10 @@ class User:
         'sysu': '中山大学',
         'xidian': '西安电子科技大学',
         'hit': '哈尔滨工业大学',
+        'nudt': '国防科技大学',
+        'fdu': '复旦大学',
+        'ouc': '中国海洋大学',
+        'tongji': '同济大学',
         'other': '其他选手',
         'banned': '已封禁',
     }
@@ -63,13 +67,17 @@ class User:
     profile_required = {
         'noscore': ['nickname'],
         'ustc': ['nickname', 'name', 'sno', 'tel', 'email'],
-        'zju': ['nickname', 'name', 'sno', 'tel', 'qq', '/website/0'],
-        'jlu': ['nickname', '/name/sno/0'],
-        'nuaa': ['nickname', 'name', 'sno', 'qq'],
-        'neu': ['nickname', 'name', 'sno', '/tel/email/1', 'school'],
-        'sysu': ['nickname', 'name', 'sno', 'school', 'grade', 'tel'],
-        'xidian': ['nickname', 'name', 'sno', 'tel', 'qq'],
-        'hit': ['nickname', 'school', 'name', 'sno', 'email'],
+        'zju': ['nickname', 'name', 'sno', 'school', 'campus'],
+        'jlu': ['nickname', '/name/sno/qq/0'],
+        'nuaa': ['nickname', 'name', 'sno'],
+        'neu': ['nickname', 'name', 'sno', 'school'],
+        'sysu': ['nickname', 'name', 'sno'],
+        'xidian': ['nickname', 'name', 'sno'],
+        'hit': ['nickname', 'name', 'sno', 'campus'],
+        'nudt': ['nickname', 'name', 'email'],
+        'fdu': ['nickname', 'name', 'sno'],
+        'ouc': ['nickname', 'name', 'sno'],
+        'tongji': ['nickname', 'name', 'sno', 'school', 'major'],
         'other': ['nickname'],
         'banned': ['nickname'],
     }
@@ -91,6 +99,8 @@ class User:
         'website': RegexValidator(r'^.{1,300}$', '个人主页/博客格式错误'),
         'school': RegexValidator(r'^.{1,30}$', '学院格式错误'),
         'grade': RegexValidator(r'^.{1,10}$', '年级格式错误'),
+        'major': RegexValidator(r'^.{1,15}$', '专业格式错误'),
+        'campus': RegexValidator(r'^.{1,15}$', '校区格式错误'),
         'aff': RegexValidator(r'^.{1,100}$', '了解比赛的渠道格式错误'),
     }
     _private_key = OpenSSL.crypto.load_privatekey(
@@ -167,7 +177,7 @@ class User:
     def _update(self, **kwargs):
         for k, v in kwargs.items():
             if k in {'group', 'nickname', 'name', 'sno', 'tel', 'email',
-                     'gender', 'qq', 'website', 'school', 'grade',
+                     'gender', 'qq', 'website', 'school', 'grade', 'major', 'campus',
                      'aff'}:
                 v = v or None
                 try:
@@ -185,7 +195,7 @@ class User:
             context_elevated=self._context.elevated,
             **{k: getattr(self._obj, k) for k in {
                 'user', 'group', 'nickname', 'name', 'sno', 'tel',
-                'email', 'gender', 'qq', 'website', 'school', 'grade',
+                'email', 'gender', 'qq', 'website', 'school', 'grade', 'major', 'campus',
                 'aff', 'token',
             }},
         )
@@ -291,6 +301,20 @@ class User:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.gender
+    
+    @property
+    def major(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full',
+                                 'user_view', f'user_view_{self.group}')
+        return self._obj.major
+    
+    @property
+    def campus(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full',
+                                 'user_view', f'user_view_{self.group}')
+        return self._obj.campus
 
     @property
     def qq(self):
