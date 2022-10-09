@@ -5,6 +5,7 @@ services:
     container_name: &name hg
     hostname: *name
     image: hg:latest
+    restart: always
     environment:
       - DJANGO_SETTINGS_MODULE=conf.settings.docker
     volumes:
@@ -19,3 +20,4 @@ services:
   memcached:
     container_name: memcached
     image: memcached
+    restart: always
