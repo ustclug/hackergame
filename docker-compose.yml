@@ -1,10 +1,10 @@
 version: '2.3'
 
 services:
-  hg:
-    container_name: &name hg
+  hackergame:
+    container_name: &name hackergame
     hostname: *name
-    image: hg:latest
+    image: ghcr.io/ustclug/hackergame:latest
     restart: always
     environment:
       - DJANGO_SETTINGS_MODULE=conf.settings.docker
