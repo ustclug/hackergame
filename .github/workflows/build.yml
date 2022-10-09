@@ -1,0 +1,22 @@
+name: build
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      IMAGE: 'ghcr.io/ustclug/hackergame:latest'
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Build Docker image
+      run: docker build -t "$IMAGE" .
+    - name: Push Docker image
+      run: |
+        docker login ghcr.io -u ${{ github.actor }} --password-stdin <<< "${{ secrets.GITHUB_TOKEN }}"
+        docker push "$IMAGE"
