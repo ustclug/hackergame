@@ -1,0 +1,21 @@
+version: '2.3'
+
+services:
+  hg:
+    container_name: &name hg
+    hostname: *name
+    image: hg:latest
+    environment:
+      - DJANGO_SETTINGS_MODULE=conf.settings.docker
+    volumes:
+      - ./conf/local_settings.py:/opt/hackergame/conf/local_settings.py:ro
+      - ./conf/settings/docker.py:/opt/hackergame/conf/settings/docker.py:ro
+      - ./conf/nudt-allowlist.txt:/opt/hackergame/conf/nudt-allowlist.txt:ro
+      - /run/uwsgi/app/hackergame/:/run/uwsgi/app/hackergame/
+      - /var/opt/hackergame/:/var/opt/hackergame/
+      - /var/run/postgresql/:/var/run/postgresql/
+    depends_on:
+      - memcached
+  memcached:
+    container_name: memcached
+    image: memcached
