@@ -66,5 +66,5 @@ EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
 
 GOOGLE_APP_ID = '2574063612-kstsrirbttbimgk2da2ju1mmbh8t0ogk' \
                 '.apps.googleusercontent.com'
-MICROSOFT_APP_ID = '6a243fe9-a603-4c6e-b6bd-5af20b7f460e'
+MICROSOFT_APP_ID = '6474be41-5098-4bbe-80dc-95d7ae9660a5'
 SMS_ACCESS_KEY_ID = 'LTAI4FmgeKHNWB7WbTwTP7d9'
