@@ -4,7 +4,7 @@ from django.core.mail import EmailMessage
 from django.shortcuts import redirect
 from django.urls import path
 
-from .base import BaseLoginView, BaseGetCodeView, DomainEmailValidator, UserRegexAndDomainEmailValidator
+from .base import BaseLoginView, BaseGetCodeView, UserRegexAndDomainEmailValidator
 
 
 class LoginView(BaseLoginView):
@@ -25,7 +25,7 @@ class LoginView(BaseLoginView):
 class GetCodeView(BaseGetCodeView):
     provider = 'fdu'
     duration = timedelta(hours=1)
-    validate_identity = UserRegexAndDomainEmailValidator('fudan.edu.cn', r'^\d{11}$')
+    validate_identity = UserRegexAndDomainEmailValidator(['fudan.edu.cn', 'm.fudan.edu.cn'], r'^\d{11}$')
 
     def send(self, identity, code):
         EmailMessage(
