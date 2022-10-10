@@ -59,10 +59,10 @@ LOGGING = {
 }
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_HOST = 'email-smtp.us-west-2.amazonaws.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'apikey'
-EMAIL_HOST_PASSWORD = SENDGRID_API_KEY
+EMAIL_HOST_USER = SES_USERNAME
+EMAIL_HOST_PASSWORD = SES_PASSWORD
 
 GOOGLE_APP_ID = '2574063612-kstsrirbttbimgk2da2ju1mmbh8t0ogk' \
                 '.apps.googleusercontent.com'
