@@ -63,6 +63,7 @@ EMAIL_HOST = 'email-smtp.us-west-2.amazonaws.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = SES_USERNAME
 EMAIL_HOST_PASSWORD = SES_PASSWORD
+EMAIL_USE_TLS = True
 
 GOOGLE_APP_ID = '2574063612-kstsrirbttbimgk2da2ju1mmbh8t0ogk' \
                 '.apps.googleusercontent.com'
