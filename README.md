@@ -105,6 +105,15 @@ server/                         “后端”，只处理业务和权限逻辑
 
 注意：这些权限仅仅是给用户做了一种标记，至于各种操作到底能不能成功，能看到什么结果，还取决于代码中写的条件。例如 https://github.com/ustclug/hackergame/blob/d4c7e6fac903442d27ac28138e81359e98458b7d/server/challenge/interface.py#L36-L44 如果有管理题目或查看题目权限，可以用这个接口加载任何一道题的信息。但即使没有，只要用户已登录、已同意用户条款、已填好个人信息、当前比赛处于可以看题的状态（也就是比赛中或结束后）、这道题是 enabled，这些条件全部满足，也可以加载。
 
+## 报错邮件
+
+发生未捕获的异常时会给管理员发报错邮件，收件人列表是 `settings.ADMINS`。代码中有专门的设计来实现邮件限速，短时间内达到报错次数上限时会丢弃之后的报错。以下报错是已知常见并且不需要在意的：
+```
+Internal Server Error: /accounts/microsoft/login/callback/
+NoReverseMatch at /accounts/microsoft/login/callback/
+Reverse for 'socialaccount_signup' not found. 'socialaccount_signup' is not a valid view function or pattern name.
+```
+
 ## 常见问题
 
 问：怎么查看某个组别/某个分类排行榜？
