@@ -123,6 +123,8 @@ class BaseGetCodeView(View):
         try:
             self.send(identity, code)
         except Exception:
+            # invalidate code
+            Code.authenticate(self.provider, identity, code)
             return JsonResponse({'error': '校验码发送失败'}, status=400)
         return JsonResponse({})
 
