@@ -30,30 +30,11 @@ class GetCodeView(BaseGetCodeView):
     validate_identity = UserRegexAndDomainEmailValidator('stu.neu.edu.cn', r'^((20(19|20|21|22)\d{4})|((19|20|21|22)\d{5}))$')
 
     def send(self, identity, code):
-        if settings.DEBUG:
-            EmailMessage(
-                subject=f'Hackergame 登录校验码：{code}',
-                body=f'{code}\n请使用该校验码登录 Hackergame\n',
-                to=[identity],
-            ).send()
-        else:
-            requests.post(
-                url='https://api.sendgrid.com/v3/mail/send',
-                json={
-                    'personalizations': [{
-                        'to': [{'email': identity}],
-                    }],
-                    'from': {
-                        'name': settings.DEFAULT_FROM_EMAIL_NAME,
-                        'email': settings.DEFAULT_FROM_EMAIL_EMAIL,
-                    },
-                    'subject': f'Hackergame 登录校验码：{code}',
-                    'content': [{
-                        'type': 'text/plain',
-                        'value': f'{code}\n请使用该校验码登录 Hackergame\n',
-                    }]},
-                headers={'Authorization': 'Bearer ' + settings.SENDGRID_API_KEY},
-            )
+        EmailMessage(
+            subject=f'Hackergame 登录校验码：{code}',
+            body=f'{code}\n请使用该校验码登录 Hackergame\n',
+            to=[identity],
+        ).send()
 
 
 urlpatterns = [
