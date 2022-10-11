@@ -116,6 +116,8 @@ h1 {
 .challenges {
     float: right;
     width: 100%;
+    position: relative;
+    z-index: 1;
 }
 @media screen and (min-width: 48em) {
     .challenges {
