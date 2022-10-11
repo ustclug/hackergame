@@ -148,14 +148,17 @@
             });
         }
         function update_math() {
-            renderMathInElement(document.querySelector("#challenge-detail"), {
-                delimiters: [
-                    {left: "$$", right: "$$", display: true},
-                    {left: "$", right: "$", display: false},
-                    {left: "\\[", right: "\\]", display: true},
-                    {left: "\\(", right: "\\)", display: false},
-                ],
-            });
+            const challengeDetailNode = document.querySelector("#challenge-detail");
+            if (challengeDetailNode) {
+                renderMathInElement(challengeDetailNode, {
+                    delimiters: [
+                        {left: "$$", right: "$$", display: true},
+                        {left: "$", right: "$", display: false},
+                        {left: "\\[", right: "\\]", display: true},
+                        {left: "\\(", right: "\\)", display: false},
+                    ],
+                });
+            }
         }
         let {value: challenges = [], error: challenges_error} =
             JSON.parse(document.getElementById('json-challenges').textContent);
