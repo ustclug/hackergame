@@ -1,11 +1,18 @@
 {% extends 'base.html' %}
 {% load static %}
 
+{% block css %}
+    {{ block.super }}
+    <link rel="stylesheet" href="{% static 'katex/katex.min.css' %}">
+{% endblock %}
+
 {% block js %}
     {{ block.super }}
     <script src="{% static 'vue.min.js' %}"></script>
     <script src="{% static 'color.js' %}"></script>
     <script src="{% static 'seedrandom.js' %}"></script>
+    <script src="{% static 'katex/katex.min.js' %}"></script>
+    <script src="{% static 'katex/auto-render.min.js' %}"></script>
 {% endblock %}
 
 {% block content %}
@@ -104,7 +111,7 @@
         </div>
         <div class="main-body" v-if="opened">
             <h1>{{ opened.name }}</h1>
-            <div v-html="opened.detail.replace(/{token}/g, encodeURIComponent(user.token))"></div>
+            <div id="challenge-detail" v-html="opened.detail.replace(/{token}/g, encodeURIComponent(user.token))"></div>
             <form class="pure-form" method="post" :key="opened.pk">
                 {% endverbatim %}{% csrf_token %}{% verbatim %}
                 <a v-if="opened.url" class="pure-button pure-button-primary pure-input-rounded" target="_blank" rel="noopener" :href="opened.url.replace(/{token}/g, encodeURIComponent(user.token))">打开/下载题目</a>
@@ -138,6 +145,16 @@
                 setTimeout(function () {
                     app.token_copy_text = '复制';
                 }, 1000);
+            });
+        }
+        function update_math() {
+            renderMathInElement(document.querySelector("#challenge-detail"), {
+                delimiters: [
+                    {left: "$$", right: "$$", display: true},
+                    {left: "$", right: "$", display: false},
+                    {left: "\\[", right: "\\]", display: true},
+                    {left: "\\(", right: "\\)", display: false},
+                ],
             });
         }
         let {value: challenges = [], error: challenges_error} =
@@ -196,6 +213,16 @@
                     return color.hex();
                 },
             },
+            updated: function () {
+                this.$nextTick(function () {
+                    update_math();
+                })
+            },
+            mounted: function () {
+                this.$nextTick(function () {
+                    update_math();
+                })
+            }
         });
         {{ page.js|safe }}
     </script>
