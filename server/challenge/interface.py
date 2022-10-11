@@ -221,6 +221,11 @@ class Challenge:
         if models.Expr.objects.filter(expr=expr).exists():
             return False
         for user_obj in models.User.objects.all():
+            if models.ExprFlag.objects.filter(
+                expr=expr,
+                user=user_obj.user,
+            ).exists():
+                continue
             token = User.get(Context(elevated=True), user_obj.user).token
             models.ExprFlag.objects.create(
                 expr=expr,
@@ -236,6 +241,11 @@ class Challenge:
             return False
         token = User.get(Context(elevated=True), user).token
         for expr_obj in models.Expr.objects.values('expr').distinct():
+            if models.ExprFlag.objects.filter(
+                expr=expr_obj['expr'],
+                user=user,
+            ).exists():
+                continue
             models.ExprFlag.objects.create(
                 expr=expr_obj['expr'],
                 user=user,
