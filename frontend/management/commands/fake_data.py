@@ -3,6 +3,7 @@ import random
 from django.core.management.base import BaseCommand
 from django.db.transaction import atomic
 from django.utils import timezone
+from django.contrib.auth import get_user_model
 
 from server.challenge.interface import Challenge
 from server.submission.interface import Submission
@@ -34,6 +35,8 @@ class Command(BaseCommand):
     def handle(self, fake_complex_challenges, fake_simple_challenges,
                fake_users, fake_submissions, game_started_seconds,
                **options):
+        if get_user_model().objects.count() > 0:
+            raise RuntimeError('数据库中已有用户，停止生成假数据。')
         root = User.create(
             Context(elevated=True),
             group='other',
