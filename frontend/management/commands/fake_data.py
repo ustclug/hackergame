@@ -66,12 +66,18 @@ class Command(BaseCommand):
         )
 
         for i in range(1, fake_complex_challenges + 1):
+            if random.choice((False, False, True)):
+                detail = """<p>众所周知，对 $x$ 求导得到的结果为 1。<code>flag{FLAG_INDEX}</code></p>
+                <p>块状公式测试 <code>flag{FLAG_INDEX:USER_ID}</code></p>
+                <p>$$\\frac{1}{3} = \\frac{2}{6}$$</p>
+                """
+            else:
+                detail = '<code>flag{FLAG_INDEX}</code> 或 <code>flag{FLAG_INDEX:USER_ID}</code>'
             Challenge.create(
                 Context(root),
                 name=f'复杂题 {i}',
                 category='complex',
-                detail='<code>flag{FLAG_INDEX}</code> 或 '
-                       '<code>flag{FLAG_INDEX:USER_ID}</code>',
+                detail=detail,
                 url='',
                 prompt='flag{...}',
                 index=random.randrange(100),
