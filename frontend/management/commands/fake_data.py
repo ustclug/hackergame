@@ -40,13 +40,28 @@ class Command(BaseCommand):
         root = User.create(
             Context(elevated=True),
             group='other',
-            nickname='root',
-        ).user
+        )
+        # by default when can_update_profile does not exist
+        # all nickname will be set to "选手" by User.create
+        root._update(nickname='root')
+        root = root.user
         root.is_staff = True
         root.is_superuser = True
         root.save()
         root.refresh_from_db()
         Account.objects.create(provider='debug', identity='root', user=root)
+
+        nobody = User.create(
+            Context(elevated=True),
+            group='other',
+        )
+        nobody._update(nickname='nobody')
+        nobody = nobody.user
+        nobody.is_staff = False
+        nobody.is_superuser = False
+        nobody.save()
+        nobody.refresh_from_db()
+        Account.objects.create(provider='debug', identity='nobody', user=nobody)
 
         c1 = Challenge.create(
             Context(root),
@@ -112,6 +127,7 @@ class Command(BaseCommand):
 
         terms = Terms.create(Context(root), name='条款', content='1 2 3 ...',
                              enabled=True)
+        Terms.get(Context(nobody), terms.pk).agree(nobody.pk)
 
         now = timezone.now()
         timestamps = []
@@ -126,6 +142,7 @@ class Command(BaseCommand):
             can_view_challenges=True,
             can_try=True,
             can_submit=True,
+            can_update_profile=True,
         )
 
         groups = list(set(User.groups.keys()) - {'noscore', 'banned'})

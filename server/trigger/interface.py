@@ -10,9 +10,9 @@ class TriggerIsOff(Error):
 
 class Trigger:
     json_fields = ('pk', 'time', 'can_view_challenges', 'can_try',
-                   'can_submit', 'note')
+                   'can_submit', 'can_update_profile', 'note')
     update_fields = ('time', 'can_view_challenges', 'can_try',
-                     'can_submit', 'note')
+                     'can_submit', 'can_update_profile', 'note')
     subscribers = []
 
     def __init__(self, context, obj: models.Trigger):
@@ -20,7 +20,7 @@ class Trigger:
         self._obj = obj
 
     @classmethod
-    def _test(cls, context, name):
+    def _test(cls, context, name, default):
         try:
             obj = (
                 models.Trigger.objects
@@ -28,6 +28,8 @@ class Trigger:
                 .latest('time')
             )
         except models.Trigger.DoesNotExist:
+            if default:
+                return
             raise TriggerIsOff('比赛尚未开始')
         self = cls(context, obj)
         if not getattr(self, name):
@@ -35,15 +37,19 @@ class Trigger:
 
     @classmethod
     def test_can_view_challenges(cls, context):
-        return cls._test(context, 'can_view_challenges')
+        return cls._test(context, 'can_view_challenges', False)
 
     @classmethod
     def test_can_try(cls, context):
-        return cls._test(context, 'can_try')
+        return cls._test(context, 'can_try', False)
 
     @classmethod
     def test_can_submit(cls, context):
-        return cls._test(context, 'can_submit')
+        return cls._test(context, 'can_submit', False)
+
+    @classmethod
+    def test_can_update_profile(cls, context):
+        return cls._test(context, 'can_update_profile', True)
 
     @classmethod
     def create(cls, context, **kwargs):
@@ -85,7 +91,7 @@ class Trigger:
             if k in {'note'}:
                 v = v or None
                 setattr(self._obj, k, v)
-            elif k in {'time', 'can_view_challenges', 'can_try', 'can_submit'}:
+            elif k in {'time', 'can_view_challenges', 'can_try', 'can_submit', 'can_update_profile'}:
                 setattr(self._obj, k, v)
             else:
                 raise WrongArguments()
@@ -130,6 +136,10 @@ class Trigger:
     @property
     def can_submit(self):
         return self._obj.can_submit
+
+    @property
+    def can_update_profile(self):
+        return self._obj.can_update_profile
 
     @property
     def note(self):

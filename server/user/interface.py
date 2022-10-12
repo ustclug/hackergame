@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, EmailValidator
 
 from server.exceptions import Error, NotFound, WrongArguments, WrongFormat
+import server  # trigger support
 from . import models
 
 
@@ -144,6 +145,10 @@ class User:
         sig = base64.b64encode(OpenSSL.crypto.sign(
             self._private_key, pk.encode(), 'sha256')).decode()
         self._obj.token = pk + ':' + sig
+        try:
+            server.trigger.interface.Trigger.test_can_update_profile(context)
+        except server.trigger.interface.TriggerIsOff:
+            kwargs['nickname'] = "选手"
         self._update(group=group, **kwargs)
         new = self._json_all
         for subscriber in self.subscribers:
@@ -164,6 +169,10 @@ class User:
         return [cls(context, i) for i in models.User.objects.order_by('pk')]
 
     def update(self, **kwargs):
+        try:
+            server.trigger.interface.Trigger.test_can_update_profile(self._context)
+        except server.trigger.interface.TriggerIsOff:
+            User.test_permission(self._context, 'user.full')
         if 'group' in kwargs and kwargs['group'] != self.group:
             User.test_permission(self._context, 'user.full')
         if self._context.user.pk != self.pk:
@@ -227,6 +236,10 @@ class User:
     def profile_ok(self):
         if self.group == 'banned':
             return False
+        try:
+            server.trigger.interface.Trigger.test_can_update_profile(self._context)
+        except server.trigger.interface.TriggerIsOff:
+            return True
         for field in self.profile_required[self.group]:
             if field.startswith('/'):
                 # 这种记法表示 N 选 K

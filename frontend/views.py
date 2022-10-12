@@ -13,7 +13,7 @@ from server.challenge.interface import Challenge
 from server.submission.interface import Submission
 from server.terms.interface import Terms, TermsRequired
 from server.trigger.interface import Trigger
-from server.user.interface import User, LoginRequired, ProfileRequired
+from server.user.interface import PermissionRequired, User, LoginRequired, ProfileRequired
 from server.context import Context
 from server.exceptions import Error, NotFound, WrongFormat
 
@@ -148,6 +148,10 @@ class ProfileView(View):
             return JsonResponse({})
         except WrongFormat as e:
             return JsonResponse({'error': e.json}, status=400)
+        except PermissionRequired as e:
+            j = e.json
+            j['message'] = '您目前没有权限修改此项'
+            return JsonResponse({'error': j}, status=400)
 
 
 # noinspection PyMethodMayBeStatic

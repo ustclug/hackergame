@@ -6,6 +6,7 @@ class Trigger(models.Model):
     can_view_challenges = models.BooleanField()
     can_try = models.BooleanField()
     can_submit = models.BooleanField()
+    can_update_profile = models.BooleanField()
     note = models.TextField(null=True)
 
     class Meta:

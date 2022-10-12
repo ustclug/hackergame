@@ -33,6 +33,11 @@
                     <div class="help">仅在比赛正常进行时勾选</div>
                 </div>
                 <div class="form-row">
+                    <input type="checkbox" id="form-can_update_profile" name="can_update_profile" v-model="opened.can_update_profile">
+                    <label class="vCheckboxLabel required" for="form-can_update_profile">可以修改个人信息</label>
+                    <div class="help">比赛开始前、正常进行、中途停赛、结束后一段时间内勾选，赛后一段时间后不勾选（此时使用默认昵称「选手」）</div>
+                </div>
+                <div class="form-row">
                     <label for="form-note">说明:</label>
                     <input class="vTextField" type="text" id="form-note" name="note" v-model="opened.note">
                     <div class="help">用于报错信息，若不填则为“比赛暂时关闭”</div>
@@ -56,6 +61,7 @@
                         <th scope="col"><div class="text"><span>可以查看题目信息</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>可以尝试提交</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>提交会被计分</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>可以修改个人信息</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>说明</span></div><div class="clear"></div></th>
                     </tr>
                     </thead>
@@ -66,6 +72,7 @@
                         <td><img v-if="obj.can_view_challenges" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
                         <td><img v-if="obj.can_try" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
                         <td><img v-if="obj.can_submit" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
+                        <td><img v-if="obj.can_update_profile" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
                         <td>{{ obj.note }}</td>
                     </tr>
                     </tbody>
@@ -104,6 +111,7 @@
                         can_view_challenges: false,
                         can_try: false,
                         can_submit: false,
+                        can_update_profile: false,
                         note: '',
                     };
                 } else {
