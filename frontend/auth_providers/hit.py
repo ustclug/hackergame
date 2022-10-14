@@ -30,7 +30,7 @@ class GetCodeView(BaseGetCodeView):
     validate_identity = RegexDomainEmailValidator(r'^(\w+\.)?hit(wh|sz|)\.edu\.cn$')
 
     def send(self, identity, code):
-        if settings.DEBUG:
+        if settings.DEBUG or settings.HIT_USE_SMTP:
             EmailMessage(
                 subject=f'Hackergame 登录校验码：{code}',
                 body=f'{code}\n请使用该校验码登录 Hackergame\n',

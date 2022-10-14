@@ -13,3 +13,5 @@ SMTP_USERNAME = ''
 SMTP_PASSWORD = ''
 HIT_MAIL_API_KEY = ''
 NUDT_ALLOWLIST = '/dev/null'
+HIT_USE_SMTP = False
+
