@@ -185,3 +185,7 @@ table .narrow {
         max-width: 14em;
     }
 }
+.challenge-column {
+    max-width: 50%;
+    width: 100%;
+}
