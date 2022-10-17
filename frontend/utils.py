@@ -1,3 +1,4 @@
+import logging
 import os
 
 from django.conf import settings
@@ -35,3 +36,11 @@ class ThrottledAdminEmailHandler(AdminEmailHandler):
                 mail.mail_admins(subject, message, *args, connection=self.connection(), **kwargs)
         except Exception as e:
             mail.mail_admins(f'{subject} - {type(e)}: {e}', message, *args, connection=self.connection(), **kwargs)
+
+
+class UserInfoFilter(logging.Filter):
+    def filter(self, record):
+        if hasattr(record, 'request'):
+            record.userid = "user-" + str(record.request.user.id)
+            record.ip = record.request.META.get('REMOTE_ADDR')
+        return True

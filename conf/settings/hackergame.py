@@ -33,6 +33,14 @@ LOGGING = {
             'format': '[{server_time}] {message}',
             'style': '{',
         },
+        'request': {
+            'format': '%(asctime)s %(ip)s %(userid)s %(levelname)s %(message)s',
+        },
+    },
+    'filters': {
+        'add_user_info': {
+            '()': 'frontend.utils.UserInfoFilter'
+        },
     },
     'handlers': {
         'django.server': {
@@ -44,6 +52,10 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'frontend.utils.ThrottledAdminEmailHandler',
         },
+        'request': {
+            'class': 'logging.StreamHandler',
+            'formatter': 'request',
+        },
     },
     'loggers': {
         'django': {
@@ -53,6 +65,11 @@ LOGGING = {
         'django.server': {
             'handlers': ['django.server'],
             'level': 'INFO',
+            'propagate': False,
+        },
+        'django.request': {
+            'filters': ['add_user_info'],
+            'handlers': ['request'],
             'propagate': False,
         },
     },
