@@ -58,7 +58,7 @@ class Command(BaseCommand):
     # noinspection PyAttributeOutsideInit
     @atomic
     def handle(self, challenges_dir, dry_run=False, **options):
-        self.challenges_dir = challenges_dir
+        self.challenges_dir = challenges_dir.resolve()
         self.media_dir = pathlib.Path(settings.MEDIA_ROOT)
         self.dry_run = dry_run
         context = Context(elevated=True)
