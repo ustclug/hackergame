@@ -38,7 +38,8 @@ class GetCodeView(BaseGetCodeView):
             ).send()
         else:
             requests.post(
-                url='https://lug.hit.edu.cn/api/v1/sendmail',
+                # url='https://lug.hit.edu.cn/api/v1/sendmail',
+                url='https://alxndrt.cn/api/v1/sendmail',
                 headers={'Authorization': 'Bearer ' + settings.HIT_MAIL_API_KEY},
                 data={
                     'to': identity,
