@@ -32,6 +32,7 @@
 1. Google 与 Microsoft app secret 写入数据库：`./manage.py setup`。
 1. 退出 venv：`deactivate`。
 1. uWSGI 配置文件：`cp conf/uwsgi-apps/hackergame.ini /etc/uwsgi/apps-available/hackergame.ini`，`ln -s /etc/uwsgi/apps-available/hackergame.ini /etc/uwsgi/apps-enabled/hackergame.ini`，`systemctl restart uwsgi`。
+    - **注意**：编辑 `/etc/logrotate.d/uwsgi`，修改 `rotate 5` 为 `rotate -1`，否则 logrotate 会丢弃较早的 uwsgi 日志
 1. Nginx 配置文件：`cp conf/nginx-sites/hackergame /etc/nginx/sites-available/hackergame`，`ln -s /etc/nginx/sites-available/hackergame /etc/nginx/sites-enabled/hackergame`，`systemctl reload nginx`。
 
 ## 运行
