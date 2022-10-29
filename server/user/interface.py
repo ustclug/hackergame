@@ -319,14 +319,14 @@ class User:
     def major(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 'user_view', f'user_view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.major
     
     @property
     def campus(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
-                                 'user_view', f'user_view_{self.group}')
+                                 'user.view', f'user.view_{self.group}')
         return self._obj.campus
 
     @property
