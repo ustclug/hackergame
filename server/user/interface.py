@@ -229,6 +229,18 @@ class User:
         return result
 
     @property
+    def json_without_profile_ok(self):
+        result = {}
+        for i in self.json_fields:
+            if i == 'profile_ok':
+                continue
+            try:
+                result[i] = getattr(self, i)
+            except PermissionRequired:
+                pass
+        return result
+
+    @property
     def _json_all(self):
         return type(self)(self._context.copy(elevated=True), self._obj).json
 
@@ -314,14 +326,14 @@ class User:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.gender
-    
+
     @property
     def major(self):
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.major
-    
+
     @property
     def campus(self):
         if self._context.user.pk != self.pk:
