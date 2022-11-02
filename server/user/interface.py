@@ -168,6 +168,18 @@ class User:
     def get_all(cls, context):
         return [cls(context, i) for i in models.User.objects.order_by('pk')]
 
+    @classmethod
+    def get_all_for_board(cls, context):
+        has_special_perm = False
+        for perm in models.User._meta.permissions:
+            if context.has_perm(f'user.{perm}'):
+                has_special_perm = True
+                break
+        if has_special_perm:
+            return {u.pk: u.json_without_profile_ok for u in cls.get_all(context)}
+        else:
+            return {u.pk: {'display_name': u.display_name} for u in cls.get_all(context)}
+
     def update(self, **kwargs):
         try:
             server.trigger.interface.Trigger.test_can_update_profile(self._context)
