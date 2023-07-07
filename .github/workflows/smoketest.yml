@@ -1,0 +1,59 @@
+name: smoke test (dev)
+
+on:
+  - push
+  - pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      DJANGO_SETTINGS_MODULE: conf.settings.dev
+    strategy:
+      max-parallel: 3
+      matrix:
+        # Debian 12, 11, 10
+        python-version: [3.11, 3.9, 3.7]
+    steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+    - name: Set up Python ${{ matrix.python-version }}
+      uses: actions/setup-python@v3
+      with:
+        python-version: ${{ matrix.python-version }}
+    - name: Configuration
+      run: |
+        python3 -m venv .venv
+        source .venv/bin/activate
+        pip install --upgrade pip
+        pip install -r requirements.txt
+
+        cp conf/local_settings.py.example conf/local_settings.py
+        PRIVATE_KEY=$(openssl ecparam -name secp256k1 -genkey -noout)
+
+        sed -i "s!openssl ecparam -name secp256k1 -genkey -noout!${PRIVATE_KEY//$'\n'/\\n}!g" conf/local_settings.py
+        CERTIFICATE=$(openssl req -x509 -key conf/local_settings.py -days 30 -subj "/CN=notforproduction")
+        sed -i "s!openssl req -x509 -key conf/local_settings.py -days 30!${CERTIFICATE//$'\n'/\\n}!g" conf/local_settings.py
+
+        # set SECRET_KEY
+        sed -i "s/SECRET_KEY = ''/SECRET_KEY = 'test'/g" conf/local_settings.py
+
+        mkdir var
+    - name: Run smoke test
+      run: |
+        source .venv/bin/activate
+        ./manage.py migrate
+        ./manage.py setup
+        ./manage.py fake_data
+        ./manage.py runserver &
+
+        # wait for few seconds
+        sleep 2
+
+        # try curling
+        response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/)
+        if [ "$response" != "200" ]; then
+          echo "Failed to curl http://localhost:8000/"
+          exit 1
+        fi
