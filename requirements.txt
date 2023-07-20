@@ -14,7 +14,7 @@ Markdown==3.4.1
 oauthlib==3.2.2
 psycopg2-binary==2.9.5
 pycparser==2.21
-Pygments==2.13.0
+Pygments==2.15.0
 PyJWT==2.5.0
 pyOpenSSL==23.2.0
 python-memcached==1.59
