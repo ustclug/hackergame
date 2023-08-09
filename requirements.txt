@@ -1,11 +1,11 @@
 aliyun-python-sdk-core==2.13.36
-asgiref==3.5.2
+asgiref==3.7.2
 certifi==2022.12.7
 cffi==1.15.1
 charset-normalizer==2.1.1
 cryptography==41.0.2
 defusedxml==0.7.1
-Django==3.2.20
+Django==4.2.4
 django-allauth==0.51.0
 idna==3.4
 importlib-metadata==4.12.0
