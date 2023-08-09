@@ -15,11 +15,11 @@
 
 ## 生产环境部署
 
-生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached。以下流程在 Debian 10 测试过。
+生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached。以下流程在 Debian 12 测试过。
 
-1. 安装依赖：`apt install python3-venv nginx uwsgi-plugin-python3 postgresql memcached`。
-1. （建议）本地连接 PostgreSQL 无需鉴权：修改 `/etc/postgresql/11/main/pg_hba.conf`，将 `local all all peer` 一行改为 `local all all trust`，然后执行 `systemctl reload postgresql`。
-1. 创建数据库：`su postgres`，`psql`，`create user hackergame; create database hackergame;`。
+1. 安装依赖：`apt install python3-venv nginx uwsgi-plugin-python3 postgresql memcached uwsgi`。
+1. （建议）本地连接 PostgreSQL 无需鉴权：修改 `/etc/postgresql/15/main/pg_hba.conf`，将 `local all all peer` 一行改为 `local all all trust`，然后执行 `systemctl reload postgresql`。
+1. 创建数据库：`su postgres`，`psql`，`create user hackergame; create database hackergame;`, `\c hackergame`, `grant create on schema public to hackergame;`。
 1. 克隆代码：`cd /opt`，`git clone https://github.com/ustclug/hackergame.git`。
 1. Media 目录：`mkdir -p /var/opt/hackergame/media`，`chown www-data: /var/opt/hackergame/media`。
 1. 创建 venv：`cd /opt/hackergame`，`python3 -m venv .venv`。
