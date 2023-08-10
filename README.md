@@ -34,7 +34,18 @@
 1. uWSGI 相关配置文件：`cp conf/systemd/hackergame@.service /etc/systemd/system/`, `cp conf/logrotate/uwsgi /etc/logrotate.d/`, `systemctl daemon-reload`, `systemctl enable --now hackergame@hackergame.service`。
 1. Nginx 配置文件：`cp conf/nginx-sites/hackergame /etc/nginx/sites-available/hackergame`，`ln -s /etc/nginx/sites-available/hackergame /etc/nginx/sites-enabled/hackergame`，`systemctl reload nginx`。
 
-### uWSGI 运行情况检查
+### uWSGI 运行模型
+
+我们配置了 uWSGI 支持以下两种方式：
+
+- prefork 模式，每个连接占用一个进程；
+- gevent 模式，单进程，每个连接占用一个 gevent 绿色线程。
+
+由于部分请求比较耗时（socket 相关的代码，例如 OAuth），prefork 在部分场景下无法提供足够的并发，因此 `conf/uwsgi-apps` 下默认为 gevent 模式。如果不希望使用 gevent，可将相关配置中 `gevent` 开头的配置注释，并将 `processes` 取消注释。
+
+另外，如果需要使用 Debian 自带的 uWSGI 与 gevent plugin 等相关设施（包括 init 服务和 logrotate 配置，而非 pip 与本仓库的配置），需要取消注释 `plugin` 项。
+
+#### 运行情况检查
 
 可以使用 [`uwsgitop`](https://uwsgi-docs.readthedocs.io/en/latest/StatsServer.html#uwsgitop) 来查看 uWSGI 运行情况。
 
