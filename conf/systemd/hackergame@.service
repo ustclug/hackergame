@@ -1,0 +1,16 @@
+[Unit]
+Description=Hackergame Platform (%i)
+After=syslog.target
+
+[Service]
+ExecStart=/opt/hackergame/.venv/bin/uwsgi --ini /opt/hackergame/conf/uwsgi-apps/%i.ini --ini /opt/hackergame/conf/uwsgi.ini --set-placeholder appname=%i --daemonize /var/log/uwsgi/app/%i.log
+LogsDirectory=uwsgi/app
+RuntimeDirectory=uwsgi/app/%i
+Restart=always
+KillSignal=SIGQUIT
+Type=forking
+User=www-data
+Group=www-data
+
+[Install]
+WantedBy=multi-user.target

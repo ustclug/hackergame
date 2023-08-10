@@ -17,7 +17,7 @@
 
 生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached。以下流程在 Debian 12 测试过。
 
-1. 安装依赖：`apt install python3-venv nginx uwsgi-plugin-python3 postgresql memcached uwsgi`。
+1. 安装依赖：`apt install python3-dev python3-venv nginx postgresql memcached`。
 1. （建议）本地连接 PostgreSQL 无需鉴权：修改 `/etc/postgresql/15/main/pg_hba.conf`，将 `local all all peer` 一行改为 `local all all trust`，然后执行 `systemctl reload postgresql`。
 1. 创建数据库：`su postgres`，`psql`，`create user hackergame; create database hackergame;`, `\c hackergame`, `grant create on schema public to hackergame;`。
 1. 克隆代码：`cd /opt`，`git clone https://github.com/ustclug/hackergame.git`。
@@ -31,9 +31,15 @@
 1. Static 目录初始化：`./manage.py collectstatic`。
 1. Google 与 Microsoft app secret 写入数据库：`./manage.py setup`。
 1. 退出 venv：`deactivate`。
-1. uWSGI 配置文件：`cp conf/uwsgi-apps/hackergame.ini /etc/uwsgi/apps-available/hackergame.ini`，`ln -s /etc/uwsgi/apps-available/hackergame.ini /etc/uwsgi/apps-enabled/hackergame.ini`，`systemctl restart uwsgi`。
-    - **注意**：编辑 `/etc/logrotate.d/uwsgi`，修改 `rotate 5` 为 `rotate -1`，否则 logrotate 会丢弃较早的 uwsgi 日志
+1. uWSGI 相关配置文件：`cp conf/systemd/hackergame@.service /etc/systemd/system/`, `cp conf/logrotate/uwsgi /etc/logrotate.d/`, `systemctl daemon-reload`, `systemctl enable --now hackergame@hackergame.service`。
 1. Nginx 配置文件：`cp conf/nginx-sites/hackergame /etc/nginx/sites-available/hackergame`，`ln -s /etc/nginx/sites-available/hackergame /etc/nginx/sites-enabled/hackergame`，`systemctl reload nginx`。
+
+### uWSGI 运行情况检查
+
+可以使用 [`uwsgitop`](https://uwsgi-docs.readthedocs.io/en/latest/StatsServer.html#uwsgitop) 来查看 uWSGI 运行情况。
+
+1. 安装 `pip install uwsgitop`。
+1. 执行 `uwsgitop /run/uwsgi/app/hackergame/stats.socket` 查看。
 
 ## 运行
 
