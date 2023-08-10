@@ -12,8 +12,9 @@ jobs:
     strategy:
       max-parallel: 3
       matrix:
-        # Debian 12, 11, 10
-        python-version: [3.11, 3.9, 3.7]
+        # Debian 12, 11
+        # Debian 10 uses Python 3.7, which is not supported by Django 4.2 LTS
+        python-version: [3.11, 3.9]
     steps:
     - uses: actions/checkout@v3
       with:
