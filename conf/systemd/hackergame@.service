@@ -4,6 +4,7 @@ After=syslog.target
 
 [Service]
 ExecStart=/opt/hackergame/.venv/bin/uwsgi --ini /opt/hackergame/conf/uwsgi-apps/%i.ini --ini /opt/hackergame/conf/uwsgi.ini --set-placeholder appname=%i --daemonize /var/log/uwsgi/app/%i.log
+ExecReload=/bin/kill -HUP $MAINPID
 LogsDirectory=uwsgi/app
 RuntimeDirectory=uwsgi/app/%i
 Restart=always
