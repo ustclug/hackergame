@@ -17,7 +17,7 @@
 
 生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached。以下流程在 Debian 12 测试过。
 
-1. 安装依赖：`apt install python3-dev build-essential python3-venv nginx postgresql memcached`。
+1. 安装依赖：`apt install python3-dev build-essential python3-venv nginx postgresql memcached pgbouncer`。
 1. （建议）本地连接 PostgreSQL 无需鉴权：修改 `/etc/postgresql/15/main/pg_hba.conf`，将 `local all all peer` 一行改为 `local all all trust`，然后执行 `systemctl reload postgresql`。
 1. 创建数据库：`su postgres`，`psql`，`create user hackergame; create database hackergame;`, `\c hackergame`, `grant create on schema public to hackergame;`。
 1. 克隆代码：`cd /opt`，`git clone https://github.com/ustclug/hackergame.git`。
@@ -33,6 +33,7 @@
 1. 退出 venv：`deactivate`。
 1. uWSGI 相关配置文件：`cp conf/systemd/hackergame@.service /etc/systemd/system/`, `cp conf/logrotate/uwsgi /etc/logrotate.d/`, `systemctl daemon-reload`, `systemctl enable --now hackergame@hackergame.service`。
 1. Nginx 配置文件：`cp conf/nginx-sites/hackergame /etc/nginx/sites-available/hackergame`，`ln -s /etc/nginx/sites-available/hackergame /etc/nginx/sites-enabled/hackergame`，`systemctl reload nginx`。
+1. 其他配置文件：`cp conf/pgbouncer.ini /etc/pgbouncer/`, `systemctl reload pgbouncer`。
 
 ### uWSGI 运行模型
 

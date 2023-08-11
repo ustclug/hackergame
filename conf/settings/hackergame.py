@@ -12,9 +12,8 @@ DATABASES = {
         'USER': 'hackergame',
         'CONN_MAX_AGE': 0,
         'ATOMIC_REQUESTS': True,
-        'OPTIONS': {
-            'MAX_CONNS': 90,
-        },
+        'HOST': '/var/run/postgresql',
+        'PORT': 6432,
     },
 }
 CACHES = {
