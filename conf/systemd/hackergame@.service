@@ -1,9 +1,11 @@
 [Unit]
+# available options:
+# hackergame@hackergame.service, or hackergame@hgtest.service
 Description=Hackergame Platform (%i)
 After=syslog.target
 
 [Service]
-ExecStart=/opt/hackergame/.venv/bin/uwsgi --ini /opt/hackergame/conf/uwsgi-apps/%i.ini --ini /opt/hackergame/conf/uwsgi.ini --set-placeholder appname=%i --daemonize /var/log/uwsgi/app/%i.log
+ExecStart=/opt/%i/.venv/bin/uwsgi --ini /opt/%i/conf/uwsgi-apps/%i.ini --ini /opt/%i/conf/uwsgi.ini --set-placeholder appname=%i --daemonize /var/log/uwsgi/app/%i.log
 ExecReload=/bin/kill -HUP $MAINPID
 LogsDirectory=uwsgi/app
 RuntimeDirectory=uwsgi/app/%i
