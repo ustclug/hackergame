@@ -1,17 +1,6 @@
 import logging
 from ..local_settings import *
 
-logger = logging.getLogger(__name__)
-
-def is_gevent_active() -> bool:
-    try:
-        import gevent.socket, socket
-        if gevent.socket.socket is socket.socket:
-            logger.info('gevent is active')
-            return True
-        return False
-    except ImportError:
-        return False
 
 ROOT_URLCONF = 'frontend.urls'
 WSGI_APPLICATION = 'frontend.wsgi.application'
