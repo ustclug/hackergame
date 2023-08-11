@@ -10,7 +10,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'hgtest',
         'USER': 'hgtest',
-        'CONN_MAX_AGE': 60,
+        'CONN_MAX_AGE': 0 if is_gevent_active() else 60,
         'ATOMIC_REQUESTS': True,
     },
 }
