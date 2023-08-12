@@ -8,6 +8,10 @@ ENV PYTHONUNBUFFERED=1
 WORKDIR /opt/hackergame
 COPY requirements.txt /opt/hackergame/
 RUN pip3 install --upgrade -r requirements.txt
-COPY ./ /opt/hackergame/
+# Bind project inside instead of copying it
+# to avoid copying credentials inside container
+# COPY ./ /opt/hackergame/
 
-CMD ["/usr/local/bin/uwsgi", "--master", "--ini", "conf/uwsgi.ini", "--ini", "conf/uwsgi-apps/hackergame-docker.ini"]
+CMD ["/usr/local/bin/uwsgi", "--master", "--ini", "conf/uwsgi.ini", \
+     "--ini", "conf/uwsgi-apps/hackergame-docker.ini", \
+     "--set-placeholder", "appname=hackergame-docker"]
