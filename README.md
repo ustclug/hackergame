@@ -35,6 +35,8 @@
 1. Nginx 配置文件：`cp conf/nginx-sites/hackergame /etc/nginx/sites-available/hackergame`，`ln -s /etc/nginx/sites-available/hackergame /etc/nginx/sites-enabled/hackergame`，`systemctl reload nginx`。
 1. 其他配置文件：`cp conf/pgbouncer.ini /etc/pgbouncer/`, `systemctl reload pgbouncer`。
 
+另外我们提供 docker compose 样例，但是实际部署不使用该容器版本。
+
 ### uWSGI 运行模型
 
 uWSGI 支持以下三种方式：

@@ -1,7 +1,6 @@
-FROM python:3.9
+FROM python:3.11
 
 RUN apt-get update && \
-    apt-get -y install uwsgi-plugin-python3 && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
@@ -11,4 +10,4 @@ COPY requirements.txt /opt/hackergame/
 RUN pip3 install --upgrade -r requirements.txt
 COPY ./ /opt/hackergame/
 
-CMD ["/usr/bin/uwsgi", "--master", "--ini", "conf/uwsgi-apps/hackergame-docker.ini"]
+CMD ["/usr/local/bin/uwsgi", "--master", "--ini", "conf/uwsgi.ini", "--ini", "conf/uwsgi-apps/hackergame-docker.ini"]

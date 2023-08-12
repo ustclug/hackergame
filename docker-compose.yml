@@ -11,9 +11,10 @@ services:
     volumes:
       - ./conf/local_settings.py:/opt/hackergame/conf/local_settings.py:ro
       - ./conf/settings/docker.py:/opt/hackergame/conf/settings/docker.py:ro
-      - ./conf/nudt-allowlist.txt:/opt/hackergame/conf/nudt-allowlist.txt:ro
       - /run/uwsgi/app/hackergame/:/run/uwsgi/app/hackergame/
+      # 存储静态网页与题目文件
       - /var/opt/hackergame/:/var/opt/hackergame/
+      # 数据库，需要在容器外配置好 postgresql 和 pgbouncer
       - /var/run/postgresql/:/var/run/postgresql/
     depends_on:
       - memcached
