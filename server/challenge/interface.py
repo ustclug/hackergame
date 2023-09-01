@@ -1,4 +1,5 @@
 import json
+from typing import List, Callable
 
 from server.terms.interface import Terms
 from server.trigger.interface import Trigger
@@ -13,7 +14,7 @@ class Challenge:
                    'detail', 'url', 'prompt', 'index', 'flags')
     update_fields = ('enabled', 'name', 'category', 'detail', 'url',
                      'prompt', 'index', 'flags')
-    subscribers = []
+    subscribers: List[Callable] = []
 
     def __init__(self, context, obj: models.Challenge):
         self._context = context

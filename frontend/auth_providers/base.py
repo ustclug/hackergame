@@ -2,9 +2,12 @@ from datetime import timedelta
 import json
 import re
 
+from typing import Optional
+
 from django.contrib import messages
 from django.contrib.auth import login
-from django.core.validators import EmailValidator, ValidationError
+from django.core.validators import EmailValidator
+from django.core.exceptions import ValidationError
 from django.http.response import JsonResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
@@ -24,7 +27,7 @@ class DomainEmailValidator(EmailValidator):
             domains = [domains]
         self.domains = set(domains)
 
-    def validate_domain_part(self, domain_part):
+    def validate_domain_part(self, domain_part: str) -> bool:
         return domain_part in self.domains
     
     
@@ -36,7 +39,7 @@ class RegexDomainEmailValidator(EmailValidator):
         self.domain_regex = re.compile(domain_regex, re.IGNORECASE)
         
     def validate_domain_part(self, domain_part: str) -> bool:
-        return self.domain_regex.match(domain_part)
+        return self.domain_regex.match(domain_part) is not None
     
 
 class UserRegexAndDomainEmailValidator(DomainEmailValidator):
@@ -60,7 +63,7 @@ class AllowlistEmailValidator():
 class BaseLoginView(View):
     backend = 'django.contrib.auth.backends.ModelBackend'
     template_name: str
-    template_context = None
+    template_context: Optional[dict[str, str]] = None
     provider: str
     group: str
     identity: str

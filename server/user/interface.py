@@ -1,5 +1,5 @@
 import base64
-import OpenSSL
+from OpenSSL import crypto  # make mypy happy
 from hashlib import sha256
 from uuid import uuid4
 
@@ -7,6 +7,8 @@ from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, EmailValidator
+
+from typing import List, Callable
 
 from server.exceptions import Error, NotFound, WrongArguments, WrongFormat
 import server  # trigger support
@@ -85,7 +87,7 @@ class User:
     no_board_groups = ['noscore', 'other', 'banned']
     no_code_groups = ['noscore', 'other', 'banned']
     no_score_groups = ['noscore', 'banned']
-    subscribers = []
+    subscribers: List[Callable] = []
     _validators = {
         'group': group_validator,
         'nickname': RegexValidator(r'^.{1,30}$', '昵称应为 1～30 个字符'),
@@ -104,8 +106,8 @@ class User:
         'campus': RegexValidator(r'^.{1,15}$', '校区格式错误'),
         'aff': RegexValidator(r'^.{1,100}$', '了解比赛的渠道格式错误'),
     }
-    _private_key = OpenSSL.crypto.load_privatekey(
-        OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
+    _private_key = crypto.load_privatekey(
+        crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
 
     def __init__(self, context, obj: models.User):
         self._context = context

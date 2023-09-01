@@ -1,5 +1,7 @@
 import json
 
+from typing import Optional
+
 from django.contrib import messages
 from django.contrib.admin import site
 from django.contrib.auth import logout
@@ -226,8 +228,8 @@ class CreditsView(View):
 
 # noinspection PyMethodMayBeStatic
 class BaseAdminView(View):
-    title = None
-    template = None
+    title: Optional[str] = None
+    template: Optional[str] = None
 
     def get_extra_context(self, user):
         return {}

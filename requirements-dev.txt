@@ -1,0 +1,8 @@
+-r requirements.txt
+
+mypy==1.4.*
+django-stubs==4.2.3
+types-jmespath==0.10.0
+types-pyOpenSSL==23.2.0.2
+types-Markdown==3.4.1
+types-requests==2.31.0

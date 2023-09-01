@@ -1,7 +1,9 @@
 import base64 as b64
 import hashlib
+from types import ModuleType
+from typing import Callable, Union
 
-functions = {'hashlib': hashlib}
+functions: dict[str, Union[Callable, ModuleType]] = {'hashlib': hashlib}
 
 
 def base64(s):

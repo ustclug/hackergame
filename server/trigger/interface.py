@@ -1,3 +1,5 @@
+from typing import List, Callable
+
 from server.user.interface import User, PermissionRequired
 from server.exceptions import Error, NotFound, WrongArguments
 from . import models
@@ -13,7 +15,7 @@ class Trigger:
                    'can_submit', 'can_update_profile', 'note')
     update_fields = ('time', 'can_view_challenges', 'can_try',
                      'can_submit', 'can_update_profile', 'note')
-    subscribers = []
+    subscribers: List[Callable] = []
 
     def __init__(self, context, obj: models.Trigger):
         self._context = context

@@ -1,3 +1,5 @@
+from typing import List, Callable
+
 from server.user.interface import User, PermissionRequired
 from server.exceptions import Error, WrongArguments, NotFound
 from . import models
@@ -11,7 +13,7 @@ class TermsRequired(Error):
 class Terms:
     json_fields = ('pk', 'name', 'content', 'enabled')
     update_fields = ('name', 'content', 'enabled')
-    subscribers = []
+    subscribers: List[Callable] = []
 
     def __init__(self, context, obj: models.Terms):
         self._context = context

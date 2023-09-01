@@ -5,9 +5,11 @@ from django.shortcuts import redirect
 from django.urls import path
 from django.conf import settings
 
+from typing import List
+
 from .base import BaseLoginView, BaseGetCodeView, AllowlistEmailValidator
 
-NUDT_ALLOWLIST = []
+NUDT_ALLOWLIST: List[str] = []
 
 with open(settings.NUDT_ALLOWLIST, "r") as f:
     NUDT_ALLOWLIST.extend(filter(lambda x: len(x) > 0, map(lambda x: x.strip(), f.readlines())))

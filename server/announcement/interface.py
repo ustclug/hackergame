@@ -1,3 +1,5 @@
+from typing import List, Callable
+
 from server.user.interface import User, PermissionRequired
 from server.exceptions import NotFound
 from . import models
@@ -6,7 +8,7 @@ from . import models
 class Announcement:
     json_fields = ('pk', 'content', 'time')
     update_fields = ('content',)
-    subscribers = []
+    subscribers: List[Callable] = []
 
     def __init__(self, context, obj: models.Announcement):
         self._context = context
