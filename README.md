@@ -15,11 +15,11 @@
 
 ## 生产环境部署
 
-生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached。以下流程在 Debian 10 测试过。
+生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached、PgBouncer。以下流程在 Debian 12 测试过。
 
-1. 安装依赖：`apt install python3-venv nginx uwsgi-plugin-python3 postgresql memcached`。
-1. （建议）本地连接 PostgreSQL 无需鉴权：修改 `/etc/postgresql/11/main/pg_hba.conf`，将 `local all all peer` 一行改为 `local all all trust`，然后执行 `systemctl reload postgresql`。
-1. 创建数据库：`su postgres`，`psql`，`create user hackergame; create database hackergame;`。
+1. 安装依赖：`apt install python3-dev build-essential python3-venv nginx postgresql memcached pgbouncer`。
+1. （建议）本地连接 PostgreSQL 无需鉴权：修改 `/etc/postgresql/15/main/pg_hba.conf`，将 `local all all peer` 一行改为 `local all all trust`，然后执行 `systemctl reload postgresql`。
+1. 创建数据库：`su postgres`，`psql`，`create user hackergame; create database hackergame;`, `\c hackergame`, `grant create on schema public to hackergame;`。
 1. 克隆代码：`cd /opt`，`git clone https://github.com/ustclug/hackergame.git`。
 1. Media 目录：`mkdir -p /var/opt/hackergame/media`，`chown www-data: /var/opt/hackergame/media`。
 1. 创建 venv：`cd /opt/hackergame`，`python3 -m venv .venv`。
@@ -31,9 +31,37 @@
 1. Static 目录初始化：`./manage.py collectstatic`。
 1. Google 与 Microsoft app secret 写入数据库：`./manage.py setup`。
 1. 退出 venv：`deactivate`。
-1. uWSGI 配置文件：`cp conf/uwsgi-apps/hackergame.ini /etc/uwsgi/apps-available/hackergame.ini`，`ln -s /etc/uwsgi/apps-available/hackergame.ini /etc/uwsgi/apps-enabled/hackergame.ini`，`systemctl restart uwsgi`。
-    - **注意**：编辑 `/etc/logrotate.d/uwsgi`，修改 `rotate 5` 为 `rotate -1`，否则 logrotate 会丢弃较早的 uwsgi 日志
+1. uWSGI 相关配置文件：`cp conf/systemd/hackergame@.service /etc/systemd/system/`, `cp conf/logrotate/uwsgi /etc/logrotate.d/`, `systemctl daemon-reload`, `systemctl enable --now hackergame@hackergame.service`。
 1. Nginx 配置文件：`cp conf/nginx-sites/hackergame /etc/nginx/sites-available/hackergame`，`ln -s /etc/nginx/sites-available/hackergame /etc/nginx/sites-enabled/hackergame`，`systemctl reload nginx`。
+1. 其他配置文件：`cp conf/pgbouncer.ini /etc/pgbouncer/`, `systemctl restart pgbouncer`。
+
+另外我们提供 [docker compose 样例](./docker-compose.yml)，但是实际部署不使用该容器版本。
+
+### uWSGI 运行模型
+
+uWSGI 支持以下三种方式：
+
+- prefork 模式，每个连接占用一个进程，进程数量由 workers 或 processes 参数控制；
+  - workers 参数同时也控制了下面两者中进程的数量。
+- threaded 模式，每个连接占用一个线程，线程数量由 threaded 参数控制；
+- gevent 模式，每个连接占用一个 gevent 绿色线程，绿色线程数量由 gevent 参数控制。
+
+相关参数由 `conf/uwsgi.ini` 与 `conf/uwsgi-apps/` 下对应的 ini 文件控制，由 systemd service 的参数选择使用哪个 ini 文件（例如，`hackergame@hackergame.service` 即对应 `hackergame.ini`）。
+
+由于部分请求比较耗时（socket 相关的代码，例如 OAuth），prefork 在部分场景下无法提供足够的并发，因此 `conf/uwsgi-apps` 下默认为 gevent 模式。如果不希望使用 gevent，可将相关配置中 `gevent` 开头的配置注释，并且添加/调整其他对应的参数。
+
+另外，如果需要使用 Debian 自带的 uWSGI 与 gevent plugin 等相关设施（包括 init 服务和 logrotate 配置，而非 pip 与本仓库的配置），需要取消注释 `plugin` 项。
+
+#### 数据库连接池
+
+由于 gevent 模式不支持 Django 自带的连接池特性（`CONN_MAX_AGE`，会导致 Django 开启的数据库连接一直无法释放），这里部署时采用了 PgBouncer 作为外部的连接池（或者说是数据库连接的代理）。
+
+#### 运行情况检查
+
+可以使用 [`uwsgitop`](https://uwsgi-docs.readthedocs.io/en/latest/StatsServer.html#uwsgitop) 来查看 uWSGI 运行情况，相关信息对于非 gevent 的 uwsgi 模式来讲很有帮助。
+
+1. 安装 `pip install uwsgitop`。
+1. 执行 `uwsgitop /run/uwsgi/app/hackergame/stats.socket` 查看。
 
 ## 运行
 

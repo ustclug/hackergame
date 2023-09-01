@@ -9,11 +9,14 @@ services:
     environment:
       - DJANGO_SETTINGS_MODULE=conf.settings.docker
     volumes:
-      - ./conf/local_settings.py:/opt/hackergame/conf/local_settings.py:ro
-      - ./conf/settings/docker.py:/opt/hackergame/conf/settings/docker.py:ro
-      - ./conf/nudt-allowlist.txt:/opt/hackergame/conf/nudt-allowlist.txt:ro
-      - /run/uwsgi/app/hackergame/:/run/uwsgi/app/hackergame/
+      - .:/opt/hackergame/:ro
+      # 容器外使用 /run/uwsgi/app/hackergame-docker/socket 提供服务
+      # 需要提前将 /run/uwsgi/app/hackergame-docker/ 的 owner 修改为 www-data
+      # 参考 conf/nginx-sites/hackergame 的配置修改 nginx 配置
+      - /run/uwsgi/app/hackergame-docker/:/run/uwsgi/app/hackergame-docker/
+      # 存储静态网页与题目文件
       - /var/opt/hackergame/:/var/opt/hackergame/
+      # 数据库，需要在容器外配置好 postgresql 和 pgbouncer
       - /var/run/postgresql/:/var/run/postgresql/
     depends_on:
       - memcached

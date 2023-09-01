@@ -41,6 +41,10 @@ class ThrottledAdminEmailHandler(AdminEmailHandler):
 class UserInfoFilter(logging.Filter):
     def filter(self, record):
         if hasattr(record, 'request'):
-            record.userid = "user-" + str(record.request.user.id)
+            try:
+                record.userid = "user-" + str(record.request.user.id)
+            except AttributeError:
+                # 'WSGIRequest' object has no attribute 'user'
+                record.userid = "user-unknown"
             record.ip = record.request.META.get('REMOTE_ADDR')
         return True

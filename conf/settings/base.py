@@ -1,6 +1,7 @@
 import logging
 from ..local_settings import *
 
+
 ROOT_URLCONF = 'frontend.urls'
 WSGI_APPLICATION = 'frontend.wsgi.application'
 INSTALLED_APPS = [
