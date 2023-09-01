@@ -201,7 +201,7 @@
                     // take care of encoding Unicode characters.
                     // To decode this:
                     // decodeURIComponent(location.hash.slice(1))
-                    location.hash = '#' + challenge.name.replace('%', '%25');
+                    location.hash = '#' + challenge.name.replaceAll('%', '%25');
                 },
                 category_color(category) {
                     let random = new Math.seedrandom(category);
