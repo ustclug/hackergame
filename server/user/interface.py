@@ -144,7 +144,7 @@ class User:
             user = get_user_model().objects.create_user(str(uuid4()))
         self = cls(context, models.User(user=user.pk))
         pk = str(user.pk)
-        sig = base64.b64encode(OpenSSL.crypto.sign(
+        sig = base64.b64encode(crypto.sign(
             self._private_key, pk.encode(), 'sha256')).decode()
         self._obj.token = pk + ':' + sig
         try:
