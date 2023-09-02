@@ -1,5 +1,5 @@
 import base64
-from OpenSSL import crypto  # make mypy happy
+import OpenSSL
 from hashlib import sha256
 from uuid import uuid4
 
@@ -8,7 +8,8 @@ from django.contrib.auth import get_user_model
 from django.core.exceptions import ValidationError
 from django.core.validators import RegexValidator, EmailValidator
 
-from typing import List, Callable
+from django.contrib.auth.models import AbstractUser
+from typing import List, Callable, Optional
 
 from server.exceptions import Error, NotFound, WrongArguments, WrongFormat
 import server  # trigger support
@@ -30,7 +31,7 @@ class ProfileRequired(Error):
     message = '请完善个人信息'
 
 
-def group_validator(group):
+def group_validator(group: str) -> None:
     if group not in User.groups:
         raise ValidationError('用户组不存在')
 
@@ -88,7 +89,7 @@ class User:
     no_code_groups = ['noscore', 'other', 'banned']
     no_score_groups = ['noscore', 'banned']
     subscribers: List[Callable] = []
-    _validators = {
+    _validators: dict[str, Callable] = {
         'group': group_validator,
         'nickname': RegexValidator(r'^.{1,30}$', '昵称应为 1～30 个字符'),
         'name': RegexValidator(r'^.{2,30}$', '姓名应为 2～30 个字符'),
@@ -106,22 +107,22 @@ class User:
         'campus': RegexValidator(r'^.{1,15}$', '校区格式错误'),
         'aff': RegexValidator(r'^.{1,100}$', '了解比赛的渠道格式错误'),
     }
-    _private_key = crypto.load_privatekey(
-        crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
+    _private_key = OpenSSL.crypto.load_privatekey(
+        OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
 
-    def __init__(self, context, obj: models.User):
+    def __init__(self, context: "server.context.Context", obj: models.User):
         self._context = context
         self._obj = obj
 
     @classmethod
-    def test_authenticated(cls, context):
+    def test_authenticated(cls, context: "server.context.Context") -> None:
         if context.elevated:
             return
         if not context.user.is_authenticated:
             raise LoginRequired()
 
     @classmethod
-    def test_permission(cls, context, *permissions):
+    def test_permission(cls, context: "server.context.Context", *permissions) -> None:
         if context.elevated:
             return
         for permission in permissions:
@@ -130,21 +131,22 @@ class User:
         raise PermissionRequired()
 
     @classmethod
-    def test_profile(cls, context):
+    def test_profile(cls, context: "server.context.Context") -> None:
         if context.elevated:
             return
         if not cls.get(context, context.user.pk).profile_ok:
             raise ProfileRequired()
 
     @classmethod
-    def create(cls, context, group, user=None, **kwargs):
+    def create(cls, context: "server.context.Context", group: str,
+               user: Optional[AbstractUser] = None, **kwargs) -> "User":
         User.test_permission(context)
         context = context.copy(elevated=False)
         if user is None:
             user = get_user_model().objects.create_user(str(uuid4()))
         self = cls(context, models.User(user=user.pk))
         pk = str(user.pk)
-        sig = base64.b64encode(crypto.sign(
+        sig = base64.b64encode(OpenSSL.crypto.sign(
             self._private_key, pk.encode(), 'sha256')).decode()
         self._obj.token = pk + ':' + sig
         try:
@@ -158,7 +160,7 @@ class User:
         return self
 
     @classmethod
-    def get(cls, context, pk):
+    def get(cls, context: "server.context.Context", pk: int) -> "User":
         if pk is None:
             raise WrongArguments()
         try:
@@ -167,11 +169,11 @@ class User:
             raise NotFound('用户不存在')
 
     @classmethod
-    def get_all(cls, context):
+    def get_all(cls, context: "server.context.Context") -> List["User"]:
         return [cls(context, i) for i in models.User.objects.order_by('pk')]
 
     @classmethod
-    def get_all_for_board(cls, context):
+    def get_all_for_board(cls, context: "server.context.Context"):
         has_special_perm = False
         for perm in models.User._meta.permissions:
             if context.has_perm(f'user.{perm}'):
@@ -182,7 +184,7 @@ class User:
         else:
             return {u.pk: {'display_name': u.display_name} for u in cls.get_all(context)}
 
-    def update(self, **kwargs):
+    def update(self, **kwargs) -> None:
         try:
             server.trigger.interface.Trigger.test_can_update_profile(self._context)
         except server.trigger.interface.TriggerIsOff:
@@ -197,7 +199,7 @@ class User:
         for subscriber in self.subscribers:
             subscriber(old, new)
 
-    def _update(self, **kwargs):
+    def _update(self, **kwargs) -> None:
         for k, v in kwargs.items():
             if k in {'group', 'nickname', 'name', 'sno', 'tel', 'email',
                      'gender', 'qq', 'website', 'school', 'grade', 'major', 'campus',
@@ -206,7 +208,7 @@ class User:
                 try:
                     v is None or self._validators[k](v)
                 except ValidationError as e:
-                    raise WrongFormat(e.message)
+                    raise WrongFormat(str(e.message))
                 setattr(self._obj, k, v)
             else:
                 raise WrongArguments()
@@ -223,17 +225,17 @@ class User:
             }},
         )
 
-    def delete(self):
+    def delete(self) -> None:
         User.test_permission(self._context, 'user.full')
         old = self._json_all
         self.user.delete()
         self._obj.delete()
-        self._obj = None
+        self._obj = None  # type: ignore
         for subscriber in self.subscribers:
             subscriber(old, None)
 
     @property
-    def json(self):
+    def json(self) -> dict[str, Optional[str]]:
         result = {}
         for i in self.json_fields:
             try:
@@ -243,7 +245,7 @@ class User:
         return result
 
     @property
-    def json_without_profile_ok(self):
+    def json_without_profile_ok(self) -> dict[str, Optional[str]]:
         result = {}
         for i in self.json_fields:
             if i == 'profile_ok':
@@ -255,11 +257,11 @@ class User:
         return result
 
     @property
-    def _json_all(self):
+    def _json_all(self) -> dict[str, Optional[str]]:
         return type(self)(self._context.copy(elevated=True), self._obj).json
 
     @property
-    def profile_ok(self):
+    def profile_ok(self) -> bool:
         if self.group == 'banned':
             return False
         try:
@@ -280,124 +282,124 @@ class User:
         return True
 
     @property
-    def pk(self):
+    def pk(self) -> int:
         return self._obj.user
 
     @property
-    def user(self):
+    def user(self) -> AbstractUser:
         return get_user_model().objects.get(pk=self.pk)
 
     @property
-    def is_staff(self):
+    def is_staff(self) -> bool:
         # XXX: 允许随便获取此项信息会导致性能问题
         if self._context.user.pk != self.pk:
             User.test_permission(self._context)
         return self.user.is_staff
 
     @property
-    def group(self):
+    def group(self) -> str:
         return self._obj.group
 
     @property
-    def display_name(self):
+    def display_name(self) -> str:
         return self.nickname or ''
 
     @property
-    def nickname(self):
+    def nickname(self) -> Optional[str]:
         return self._obj.nickname
 
     @property
-    def name(self):
+    def name(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.name
 
     @property
-    def sno(self):
+    def sno(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.sno
 
     @property
-    def tel(self):
+    def tel(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.tel
 
     @property
-    def email(self):
+    def email(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.email
 
     @property
-    def gender(self):
+    def gender(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.gender
 
     @property
-    def major(self):
+    def major(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.major
 
     @property
-    def campus(self):
+    def campus(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.campus
 
     @property
-    def qq(self):
+    def qq(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.qq
 
     @property
-    def website(self):
+    def website(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.website
 
     @property
-    def school(self):
+    def school(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.school
 
     @property
-    def grade(self):
+    def grade(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.grade
 
     @property
-    def aff(self):
+    def aff(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         return self._obj.aff
 
     @property
-    def token(self):
+    def token(self) -> str:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context)
         return self._obj.token
 
     @property
-    def token_short(self):
+    def token_short(self) -> str:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
@@ -405,7 +407,7 @@ class User:
         return token[: token.find(':') + 11] + '...'
 
     @property
-    def code(self):
+    def code(self) -> Optional[str]:
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')

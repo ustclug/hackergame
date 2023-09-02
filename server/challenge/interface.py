@@ -1,5 +1,5 @@
 import json
-from typing import List, Callable
+from typing import List, Callable, Optional, Union
 
 from server.terms.interface import Terms
 from server.trigger.interface import Trigger
@@ -21,7 +21,7 @@ class Challenge:
         self._obj = obj
 
     @classmethod
-    def create(cls, context, **kwargs):
+    def create(cls, context: Context, **kwargs):
         User.test_permission(context, 'challenge.full')
         self = cls(context, models.Challenge())
         flags = kwargs.pop('flags')
@@ -33,7 +33,7 @@ class Challenge:
         return self
 
     @classmethod
-    def get(cls, context, pk):
+    def get(cls, context: Context, pk: int):
         queryset = models.Challenge.objects.all()
         try:
             User.test_permission(context, 'challenge.full', 'challenge.view')
@@ -49,12 +49,12 @@ class Challenge:
             raise NotFound('题目不存在')
 
     @classmethod
-    def get_all(cls, context):
+    def get_all(cls, context: Context):
         User.test_permission(context, 'challenge.full', 'challenge.view')
         return [cls(context, obj) for obj in models.Challenge.objects.all()]
 
     @classmethod
-    def get_enabled(cls, context):
+    def get_enabled(cls, context: Context):
         User.test_authenticated(context)
         Terms.test_agreed_enabled(context)
         User.test_profile(context)
@@ -65,7 +65,7 @@ class Challenge:
         queryset = models.Challenge.objects.filter(enabled=True)
         return [cls(context, obj) for obj in queryset]
 
-    def check_flag_with_violations(self, text):
+    def check_flag_with_violations(self, text: str):
         flags = [{'index': i, **f} for i, f in enumerate(self.flags)]
         matches = []
         for i, flag in enumerate(json.loads(self._obj.flags)):
@@ -89,7 +89,7 @@ class Challenge:
                     violations.append((flags[i], match.user))
         return [], violations
 
-    def update(self, **kwargs):
+    def update(self, **kwargs) -> None:
         User.test_permission(self._context, 'challenge.full')
         old = self._json_all
         self._update(**kwargs)
@@ -97,7 +97,7 @@ class Challenge:
         for subscriber in self.subscribers:
             subscriber(old, new)
 
-    def _update(self, **kwargs):
+    def _update(self, **kwargs) -> None:
         for k, v in kwargs.items():
             if k in {'name', 'category', 'url', 'prompt'}:
                 v = v or None
@@ -120,18 +120,19 @@ class Challenge:
                 for i, flag in enumerate(flags):
                     if flag['type'] != 'expr':
                         continue
-                    self._obj.expr_set.create(flag_index=i, expr=flag['flag'])
+                    expr: str = flag['flag']  # type: ignore
+                    self._obj.expr_set.create(flag_index=i, expr=expr)
             else:
                 raise WrongArguments()
         self._obj.save()
         self._obj.refresh_from_db()
 
-    def delete(self):
+    def delete(self) -> None:
         User.test_permission(self._context, 'challenge.full')
         old = self._json_all
         self._obj.expr_set.all().delete()
         self._obj.delete()
-        self._obj = None
+        self._obj = None  # type: ignore
         for subscriber in self.subscribers:
             subscriber(old, None)
 
@@ -150,39 +151,39 @@ class Challenge:
         return type(self)(self._context.copy(elevated=True), self._obj).json
 
     @property
-    def pk(self):
+    def pk(self) -> int:
         return self._obj.pk
 
     @property
-    def score(self):
+    def score(self) -> int:
         return sum(flag['score'] for flag in self.flags)
 
     @property
-    def enabled(self):
+    def enabled(self) -> bool:
         return self._obj.enabled
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self._obj.name
 
     @property
-    def category(self):
+    def category(self) -> str:
         return self._obj.category
 
     @property
-    def detail(self):
+    def detail(self) -> str:
         return self._obj.detail
 
     @property
-    def url(self):
+    def url(self) -> Optional[str]:
         return self._obj.url
 
     @property
-    def prompt(self):
+    def prompt(self) -> Optional[str]:
         return self._obj.prompt
 
     @property
-    def index(self):
+    def index(self) -> int:
         return self._obj.index
 
     @property

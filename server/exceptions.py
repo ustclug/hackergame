@@ -1,8 +1,10 @@
+from typing import Optional
+
 class Error(Exception):
     code = 'error'
     message = '服务器错误'
 
-    def __init__(self, message=None):
+    def __init__(self, message: Optional[str] = None):
         if message is not None:
             self.message = message
 
