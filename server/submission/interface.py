@@ -193,10 +193,10 @@ class Submission:
     @classmethod
     def get_user_ranking(cls, context, user, *, category=None, group=None):
         """
-        返回用户排名信息。
+        返回用户排名信息，对于无法查询到的信息（category 不合法，或者用户未做题），返回 None。
 
-        返回值格式:
-        {"ranking": int, "total": int}
+        返回值类型:
+        Optional[{"ranking": int, "total": int}]
         """
         if category is None:
             category = ALL
@@ -204,7 +204,9 @@ class Submission:
             obj = models.Score.objects.get(user=user, category=category)
             score, time = obj.score, obj.time
         except models.Score.DoesNotExist:
-            score, time = 0, context.time
+            # score, time = 0, context.time
+            # ranking will be equal to total + 1 if continue in this case
+            return None
         return {
             'ranking': (
                 cls._filter_group(models.Score.objects, group)

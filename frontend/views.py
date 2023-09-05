@@ -90,14 +90,23 @@ class AnnouncementsView(View):
 class BoardView(View):
     def get(self, request):
         context = Context.from_request(request)
+        category = request.GET.get('category', None)
+        group = request.GET.get('group', None)
+        ranking = {}
+        if request.user.is_authenticated and category:
+            user = User.get(context, request.user.pk)
+            # is user group matching requesting group?
+            if group == user.group or group is None:
+                ranking = Submission.get_user_ranking(context, request.user.pk, group=group, category=category)
         try:
             return TemplateResponse(request, 'board.html', {
                 'filters': {
-                    'category': request.GET.get('category', None),
-                    'group': request.GET.get('group', None),
+                    'category': category,
+                    'group': group,
                 },
                 'users': User.get_all_for_board(context),
                 'challenges': [c.json for c in Challenge.get_enabled(context)],
+                'ranking': ranking,
             })
         except Error as e:
             messages.error(request, e.message)

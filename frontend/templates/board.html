@@ -25,6 +25,8 @@
             <a href="#" @click.prevent="show_progress_toggle">切换进度显示</a>
         </div>
         <h1>{{ filters.category?`${filters.category} 类`:'' }}{{ filters.group?groups[filters.group]:'总' }}排名</h1>
+        <div v-if="ranking && ranking['total']">我的排名：{{ranking["ranking"]}} / {{ranking["total"]}}</div>
+        <a v-if="filters.group" :href="urlWithoutGroup">跳转至总排名</a>
         <div v-if="!filters.category" id="charttext">正在加载</div>
         <canvas v-if="!filters.category" id="chart" style="width: 100%; height: 400px"></canvas>
         <table class="pure-table pure-table-horizontal center">
@@ -64,6 +66,7 @@
     {{ users|json_script:'json-users' }}
     {{ user_.json|json_script:'json-user' }}
     {{ challenges|json_script:'json-challenges' }}
+    {{ ranking|json_script:'json-ranking' }}
     <script>
     app = new Vue({
         el: '#app',
@@ -73,6 +76,7 @@
             users: JSON.parse(document.getElementById('json-users').textContent),
             user: JSON.parse(document.getElementById('json-user').textContent),
             challenges: JSON.parse(document.getElementById('json-challenges').textContent),
+            ranking: JSON.parse(document.getElementById('json-ranking').textContent),
             objs: undefined,
             profile_fields: [],
             show_profile: false,
@@ -173,6 +177,13 @@
                 ];
             },
         },
+        computed: {
+            urlWithoutGroup() {
+                let url = new URL(window.location.href);
+                url.searchParams.delete('group');
+                return url.href;
+            },
+        }
     });
     </script>
 {% endblock %}

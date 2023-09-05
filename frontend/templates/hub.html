@@ -37,7 +37,7 @@
                     <br>
                     当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
                     总排名：{{ ranking["all"].ranking }} / {{ ranking["all"].total }}
-                    <a :href="`/board/?group=${encodeURIComponent(user.group)}`" v-if="user.group!=='other'">，{{ groups[user.group] }}组内排名：{{ ranking["group"].ranking }} / {{ ranking["group"].total }}</a>
+                    <a :href="`/board/?group=${encodeURIComponent(user.group)}`" v-if="ranking['group']">，{{ groups[user.group] }}组内排名：{{ ranking["group"].ranking }} / {{ ranking["group"].total }}</a>
                     <br>
                 </a>
                 <template v-for="(category, category_index) in categories">
