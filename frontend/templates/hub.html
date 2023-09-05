@@ -33,16 +33,11 @@
             <button onclick="token_copy()">{{ token_copy_text }}</button>
             Token 是一些题目的登录凭证，禁止分享，否则视为作弊
             <template v-if="progress.scores.find(i=>i.category===null)">
-                <a v-if="user.group==='other'" href="/board/">
+                <a href="/board/">
                     <br>
                     当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
-                    总排名：{{ ranking.ranking }} / {{ ranking.total }}
-                    <br>
-                </a>
-                <a v-else :href="`/board/?group=${encodeURIComponent(user.group)}`">
-                    <br>
-                    当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
-                    {{ groups[user.group] }}组内排名：{{ ranking.ranking }} / {{ ranking.total }}
+                    总排名：{{ ranking["all"].ranking }} / {{ ranking["all"].total }}
+                    <a :href="`/board/?group=${encodeURIComponent(user.group)}`" v-if="user.group!=='other'">，{{ groups[user.group] }}组内排名：{{ ranking["group"].ranking }} / {{ ranking["group"].total }}</a>
                     <br>
                 </a>
                 <template v-for="(category, category_index) in categories">

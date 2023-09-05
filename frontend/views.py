@@ -45,15 +45,15 @@ class HubView(View):
             announcement = Announcement.get_latest(context).json
         except NotFound:
             announcement = None
+        ranking = {}
         if request.user.is_authenticated:
             user = User.get(context, request.user.pk)
-            if user.group == 'other':
-                ranking = Submission.get_user_ranking(context, request.user.pk)
-            else:
-                ranking = Submission.get_user_ranking(context, request.user.pk,
-                                                      group=user.group)
-        else:
-            ranking = {}
+            # 获取总排名（所有用户均显示）
+            ranking["all"] = Submission.get_user_ranking(context, request.user.pk)
+            # 获取分组排名（对非 other 用户组）
+            if user.group != 'other':
+                ranking["group"] = Submission.get_user_ranking(context, request.user.pk,
+                                                               group=user.group)
         return TemplateResponse(request, 'hub.html', {
             'announcement': announcement,
             'challenges': challenges,

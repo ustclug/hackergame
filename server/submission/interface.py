@@ -192,6 +192,12 @@ class Submission:
 
     @classmethod
     def get_user_ranking(cls, context, user, *, category=None, group=None):
+        """
+        返回用户排名信息。
+
+        返回值格式:
+        {"ranking": int, "total": int}
+        """
         if category is None:
             category = ALL
         try:
