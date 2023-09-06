@@ -11,7 +11,10 @@ SMS_ACCESS_KEY_SECRET = ''
 SMTP_HOSTNAME = ''
 SMTP_USERNAME = ''
 SMTP_PASSWORD = ''
-HIT_MAIL_API_KEY = ''
-NUDT_ALLOWLIST = '/dev/null'
-HIT_USE_SMTP = False
-
+EXTERNAL_LOGINS = {
+    'example': {
+        'url': 'https://lug.example.edu.cn/api/v1/sendmail',
+        'key': '1234567',
+        'use_smtp': False,
+    }
+}

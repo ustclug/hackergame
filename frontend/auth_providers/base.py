@@ -122,9 +122,11 @@ class BaseGetCodeView(View):
         # noinspection PyBroadException
         try:
             self.send(identity, code)
-        except Exception:
+        except Exception as e:
             # invalidate code
             Code.authenticate(self.provider, identity, code)
+            if isinstance(e, ExternalProviderError):
+                return JsonResponse({'error': e.message}, status=400)
             return JsonResponse({'error': '校验码发送失败'}, status=400)
         return JsonResponse({})
 
@@ -133,3 +135,12 @@ class BaseGetCodeView(View):
 
     def send(self, identity, code):
         raise NotImplementedError
+
+
+# avoid circular import
+class ExternalProviderError(Exception):
+    message: str
+
+    def __init__(self, message=None):
+        if message is not None:
+            self.message = message
