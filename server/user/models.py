@@ -18,6 +18,8 @@ class User(models.Model):
     campus = models.TextField(null=True)
     aff = models.TextField(null=True)
     token = models.TextField()
+    suspicious = models.BooleanField(default=False)
+    suspicious_reason = models.TextField(null=True)
 
     class Meta:
         default_permissions = ()
@@ -59,6 +61,8 @@ class UserLog(models.Model):
     campus = models.TextField(null=True)
     aff = models.TextField(null=True)
     token = models.TextField()
+    suspicious = models.BooleanField(default=False)
+    suspicious_reason = models.TextField(null=True)
 
     class Meta:
         default_permissions = ()
