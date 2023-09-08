@@ -74,12 +74,16 @@
                     <input class="vTextField" type="text" id="form-aff" name="aff" v-model="opened.aff">
                 </div>
                 <div class="form-row">
-                    <label for="form-suspicious">是否标记为可疑（第一阶段封禁）:</label>
+                    <label for="form-suspicious">是否标记为第一阶段封禁:</label>
                     <input class="vCheckboxField" type="checkbox" id="form-suspicious" name="suspicious" v-model="opened.suspicious">
                 </div>
                 <div class="form-row">
-                    <label for="form-suspicious-reason">可疑（第一阶段封禁）原因:</label>
+                    <label for="form-suspicious-reason">第一阶段封禁原因:</label>
                     <input class="vTextField" type="text" id="form-suspicious-reason" name="suspicious-reason" v-model="opened.suspicious_reason">
+                </div>
+                <div class="form-row">
+                    <label for="form-suspicious-ddl">显示的第一阶段封禁联系截止时间:</label>
+                    <input class="vCheckboxField" type="checkbox" id="form-profile-ok" name="profile-ok" v-model="opened.profile_ok">
                 </div>
             </fieldset>
             <div class="submit-row" v-show="!opened_disabled">
@@ -113,6 +117,7 @@
                         <th scope="col"><div class="text"><span>了解比赛的渠道</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>标记为第一阶段封禁</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>第一阶段封禁原因</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>第一阶段封禁联系截止时间</span></div><div class="clear"></div></th>
                     </tr>
                     </thead>
                     <tbody v-if="objs">
@@ -135,6 +140,7 @@
                         <td>{{ obj.aff }}</td>
                         <td><img v-if="obj.suspicious" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
                         <td>{{ obj.suspicious_reason }}</td>
+                        <td>{{ obj.suspicious_ddl }}</td>
                     </tr>
                     </tbody>
                 </table>

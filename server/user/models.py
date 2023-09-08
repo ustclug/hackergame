@@ -20,6 +20,7 @@ class User(models.Model):
     token = models.TextField()
     suspicious = models.BooleanField(default=False)
     suspicious_reason = models.TextField(null=True)
+    suspicious_ddl = models.DateTimeField(null=True)
 
     class Meta:
         default_permissions = ()
@@ -63,6 +64,7 @@ class UserLog(models.Model):
     token = models.TextField()
     suspicious = models.BooleanField(default=False)
     suspicious_reason = models.TextField(null=True)
+    suspicious_ddl = models.DateTimeField(null=True)
 
     class Meta:
         default_permissions = ()
