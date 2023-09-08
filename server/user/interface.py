@@ -37,10 +37,11 @@ class User:
     json_fields = ('pk', 'is_staff', 'group', 'profile_ok',
                    'display_name', 'nickname', 'name', 'sno', 'tel',
                    'email', 'gender', 'qq', 'website', 'school',
-                   'grade', 'major', 'campus', 'aff', 'token', 'token_short', 'code')
+                   'grade', 'major', 'campus', 'aff', 'token', 'token_short', 'code',
+                   'suspicious', 'suspicious_reason', 'suspicious_ddl')
     update_fields = ('group', 'nickname', 'name', 'sno', 'tel', 'email',
                      'gender', 'qq', 'website', 'school', 'grade', 'major', 'campus',
-                     'aff')
+                     'aff', 'suspicious', 'suspicious_reason', 'suspicious_ddl')
     groups = {
         'noscore': '不计分',
         'ustc': '中国科学技术大学',
@@ -103,6 +104,9 @@ class User:
         'major': RegexValidator(r'^.{1,15}$', '专业格式错误'),
         'campus': RegexValidator(r'^.{1,15}$', '校区格式错误'),
         'aff': RegexValidator(r'^.{1,100}$', '了解比赛的渠道格式错误'),
+        'suspicious': lambda x: isinstance(x, bool),
+        'suspicious_reason': None,
+        'suspicious_ddl': None,
     }
     _private_key = OpenSSL.crypto.load_privatekey(
         OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
@@ -197,7 +201,10 @@ class User:
             server.trigger.interface.Trigger.test_can_update_profile(self._context)
         except server.trigger.interface.TriggerIsOff:
             User.test_permission(self._context, 'user.full')
-        if 'group' in kwargs and kwargs['group'] != self.group:
+        if ('group' in kwargs and kwargs['group'] != self.group) or \
+           ('suspicious' in kwargs and kwargs['suspicious'] != self.suspicious) or \
+           ('suspicious_reason' in kwargs and kwargs['suspicious_reason'] != self.suspicious_reason) or \
+           ('suspicious_ddl' in kwargs and kwargs['suspicious_ddl'] != self.suspicious_ddl):
             User.test_permission(self._context, 'user.full')
         if self._context.user.pk != self.pk:
             User.test_permission(self._context, 'user.full')
@@ -211,10 +218,10 @@ class User:
         for k, v in kwargs.items():
             if k in {'group', 'nickname', 'name', 'sno', 'tel', 'email',
                      'gender', 'qq', 'website', 'school', 'grade', 'major', 'campus',
-                     'aff'}:
+                     'aff', 'suspicious', 'suspicious_reason', 'suspicious_ddl'}:
                 v = v or None
                 try:
-                    v is None or self._validators[k](v)
+                    v is None or (self._validators[k] and self._validators[k](v))
                 except ValidationError as e:
                     raise WrongFormat(e.message)
                 setattr(self._obj, k, v)
@@ -229,7 +236,7 @@ class User:
             **{k: getattr(self._obj, k) for k in {
                 'user', 'group', 'nickname', 'name', 'sno', 'tel',
                 'email', 'gender', 'qq', 'website', 'school', 'grade', 'major', 'campus',
-                'aff', 'token',
+                'aff', 'token', 'suspicious', 'suspicious_reason', 'suspicious_ddl'
             }},
         )
 
@@ -423,3 +430,21 @@ class User:
             return None
         token = self._obj.token
         return f'{self.pk}-{int(sha256(token.encode()).hexdigest(), 16)%10000:04}'
+    
+    @property
+    def suspicious(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full')
+        return self._obj.suspicious
+    
+    @property
+    def suspicious_reason(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full')
+        return self._obj.suspicious_reason
+    
+    @property
+    def suspicious_ddl(self):
+        if self._context.user.pk != self.pk:
+            User.test_permission(self._context, 'user.full')
+        return self._obj.suspicious_ddl
