@@ -83,7 +83,9 @@
                 </div>
                 <div class="form-row">
                     <label for="form-suspicious-ddl">显示的第一阶段封禁联系截止时间:</label>
-                    <input class="vCheckboxField" type="checkbox" id="form-profile-ok" name="profile-ok" v-model="opened.profile_ok">
+                    <input class="vTextField" type="text" id="form-suspicious-ddl" name="suspicious-ddl" v-model="opened.suspicious_ddl">
+                    <div class="help" v-if="isNaN(new Date(opened.suspicious_ddl).valueOf())"><strong>格式错误！</strong></div>
+                    <div class="help" v-else>本地时间: {{ new Date(opened.suspicious_ddl).toLocaleString() }}<br>UTC 时间: {{ new Date(opened.suspicious_ddl).toJSON() }}</div>
                 </div>
             </fieldset>
             <div class="submit-row" v-show="!opened_disabled">

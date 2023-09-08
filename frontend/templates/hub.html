@@ -28,7 +28,7 @@
         </div>
         <div v-if="user.suspicious" class="msg-error">
             经裁判组检查，你的账号有以下疑似违规行为：{{ user.suspicious_reason }}。
-            你的账号将会在 {{ user.suspicious_ddl }} 被封禁。
+            你的账号将会在 {{ new Date(user.suspicious_ddl).toLocaleString() }} 之后被封禁。
             如果你有异议，请尽快联系 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>，
             提供你的 Token 以及申诉理由。在封禁之前，你仍可正常参加比赛。
         </div>
