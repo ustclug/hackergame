@@ -73,6 +73,20 @@
                     <label for="form-aff">了解比赛的渠道:</label>
                     <input class="vTextField" type="text" id="form-aff" name="aff" v-model="opened.aff">
                 </div>
+                <div class="form-row">
+                    <label for="form-suspicious">是否标记为第一阶段封禁:</label>
+                    <input class="vCheckboxField" type="checkbox" id="form-suspicious" name="suspicious" v-model="opened.suspicious">
+                </div>
+                <div class="form-row">
+                    <label for="form-suspicious-reason">第一阶段封禁原因:</label>
+                    <input class="vTextField" type="text" id="form-suspicious-reason" name="suspicious-reason" v-model="opened.suspicious_reason">
+                </div>
+                <div class="form-row">
+                    <label for="form-suspicious-ddl">显示的第一阶段封禁联系截止时间:</label>
+                    <input class="vTextField" type="text" id="form-suspicious-ddl" name="suspicious-ddl" v-model="opened.suspicious_ddl">
+                    <div class="help" v-if="isNaN(new Date(opened.suspicious_ddl).valueOf())"><strong>格式错误！</strong></div>
+                    <div class="help" v-else>本地时间: {{ new Date(opened.suspicious_ddl).toLocaleString() }}<br>UTC 时间: {{ new Date(opened.suspicious_ddl).toJSON() }}</div>
+                </div>
             </fieldset>
             <div class="submit-row" v-show="!opened_disabled">
                 <input type="submit" class="default" value="保存">
@@ -103,6 +117,9 @@
                         <th scope="col"><div class="text"><span>专业</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>校区</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>了解比赛的渠道</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>标记为第一阶段封禁</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>第一阶段封禁原因</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>第一阶段封禁联系截止时间</span></div><div class="clear"></div></th>
                     </tr>
                     </thead>
                     <tbody v-if="objs">
@@ -123,6 +140,9 @@
                         <td>{{ obj.major }}</td>
                         <td>{{ obj.campus }}</td>
                         <td>{{ obj.aff }}</td>
+                        <td><img v-if="obj.suspicious" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
+                        <td>{{ obj.suspicious_reason }}</td>
+                        <td>{{ obj.suspicious_ddl }}</td>
                     </tr>
                     </tbody>
                 </table>
