@@ -18,6 +18,7 @@ urlpatterns = [
     path('qa/', views.QaView.as_view(), name='qa'),
     path('credits/', views.CreditsView.as_view(), name='credits'),
     path('error/', views.ErrorView.as_view()),
+    path('data/core.json', views.CoreDataView.as_view(), name='coredata'),
 
     path('profile/ustc/', views.UstcProfileView.as_view(), name='ustcprofile'),
 

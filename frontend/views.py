@@ -193,6 +193,17 @@ class ErrorView(View):
         return redirect('hub')
 
 
+class CoreDataView(View):
+    def get(self, request):
+        context = Context()
+        return JsonResponse({
+            'challenges': Challenge.get_public_data(context),
+            'groups': [{'id': k, 'name': v} for k, v in User.groups.items()],
+            'users': User.get_public_data(context),
+            'submissions': Submission.get_public_data(context),
+        })
+
+
 class UstcProfileView(View):
     def check(self):
         request = self.request

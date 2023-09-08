@@ -1,7 +1,7 @@
 import json
 
 from server.terms.interface import Terms
-from server.trigger.interface import Trigger
+from server.trigger.interface import Trigger, TriggerIsOff
 from server.user.interface import User, PermissionRequired
 from server.context import Context
 from server.exceptions import NotFound, WrongArguments
@@ -63,6 +63,25 @@ class Challenge:
             Trigger.test_can_view_challenges(context)
         queryset = models.Challenge.objects.filter(enabled=True)
         return [cls(context, obj) for obj in queryset]
+
+    @classmethod
+    def get_public_data(cls, context):
+        try:
+            Trigger.test_can_view_challenges(context)
+        except TriggerIsOff:
+            return []
+        def f(o):
+            o['flags'] = [{
+                'id': i,
+                'name': f['name'],
+                'score': f['score'],
+            } for i, f in enumerate(json.loads(o['flags']))]
+            return o
+        return list(map(f,
+            models.Challenge.objects
+            .filter(enabled=True)
+            .values('id', 'name', 'category', 'flags')
+        ))
 
     def check_flag_with_violations(self, text):
         flags = [{'index': i, **f} for i, f in enumerate(self.flags)]

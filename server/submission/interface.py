@@ -234,6 +234,15 @@ class Submission:
         return history
 
     @classmethod
+    def get_public_data(cls, context):
+        return list(
+            models.FlagClear.objects
+            .exclude(group__in=User.no_score_groups)
+            .order_by('time')
+            .values('user', 'challenge', 'flag', 'time')
+        )
+
+    @classmethod
     def _filter_group(cls, queryset, group):
         if group is None:
             return queryset.exclude(group__in=User.no_score_groups)

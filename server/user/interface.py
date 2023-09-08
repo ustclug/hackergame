@@ -180,6 +180,18 @@ class User:
         else:
             return {u.pk: {'display_name': u.display_name} for u in cls.get_all(context)}
 
+    @classmethod
+    def get_public_data(cls, context):
+        def f(o):
+            o['display_name'] = o['nickname'] or ''
+            del o['nickname']
+            return o
+        return list(map(f,
+            models.User.objects
+            .order_by('id')
+            .values('id', 'group', 'nickname')
+        ))
+
     def update(self, **kwargs):
         try:
             server.trigger.interface.Trigger.test_can_update_profile(self._context)
