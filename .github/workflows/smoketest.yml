@@ -53,8 +53,8 @@ jobs:
         sleep 2
 
         # try curling
-        response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/)
+        response=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/welcome/)
         if [ "$response" != "200" ]; then
-          echo "Failed to curl http://localhost:8000/"
+          echo "Failed to curl http://localhost:8000/welcome/"
           exit 1
         fi
