@@ -26,18 +26,18 @@ class DomainEmailValidator(EmailValidator):
 
     def validate_domain_part(self, domain_part):
         return domain_part in self.domains
-    
-    
+
+
 class RegexDomainEmailValidator(EmailValidator):
     message = '邮箱格式错误'
-    
+
     def __init__(self, domain_regex, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.domain_regex = re.compile(domain_regex, re.IGNORECASE)
-        
+
     def validate_domain_part(self, domain_part: str) -> bool:
         return self.domain_regex.match(domain_part)
-    
+
 
 class UserRegexAndDomainEmailValidator(DomainEmailValidator):
     def __init__(self, domains, user_regex, *args, **kwargs):
@@ -51,7 +51,7 @@ class AllowlistEmailValidator():
 
     def __init__(self, allowlist):
         self.allowlist = allowlist
-        
+
     def __call__(self, value):
         if not value or value not in self.allowlist:
             raise ValidationError(self.message, code=self.code, params={'value': value})
