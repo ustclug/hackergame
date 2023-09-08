@@ -73,7 +73,7 @@ class BaseLoginView(View):
     def post(self, request):
         if self.check_code():
             self.login()
-        return redirect('hub')
+        return redirect('root')
 
     def check_code(self):
         self.identity = self.request.POST.get('identity')

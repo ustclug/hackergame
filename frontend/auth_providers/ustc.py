@@ -26,7 +26,7 @@ class LoginView(BaseLoginView):
                             urlencode({'service': self.service}))
         if self.check_ticket():
             self.login(sno=self.sno)
-        return redirect('hub')
+        return redirect('root')
 
     def check_ticket(self):
         try:

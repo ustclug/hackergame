@@ -13,7 +13,7 @@ class ExternalLoginView(BaseLoginView):
     def post(self, request):
         if self.check_code():
             self.login(email=self.identity)
-        return redirect('hub')
+        return redirect('root')
 
     def normalize_identity(self):
         return self.identity.casefold()

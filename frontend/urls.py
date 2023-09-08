@@ -6,11 +6,14 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    path('', views.HubView.as_view(), name='hub'),
+    path('', views.RootView.as_view(), name='root'),
+    path('welcome/', views.WelcomeView.as_view(), name='welcome'),
+    path('challenges/', views.ChallengesView.as_view(), name='challenges'),
     path('announcements/', views.AnnouncementsView.as_view(),
          name='announcements'),
     path('board/', views.BoardView.as_view(), name='board'),
     path('first/', views.FirstView.as_view(), name='first'),
+    path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('terms/', views.TermsView.as_view(), name='terms'),

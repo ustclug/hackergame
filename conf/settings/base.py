@@ -89,7 +89,7 @@ TIME_ZONE = 'Asia/Shanghai'
 LANGUAGE_CODE = 'zh-Hans'
 
 # allauth
-LOGIN_REDIRECT_URL = 'hub'
+LOGIN_REDIRECT_URL = 'root'
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_ADAPTER = 'frontend.adapters.SocialAccountAdapter'
 ACCOUNT_EMAIL_VERIFICATION = 'none'

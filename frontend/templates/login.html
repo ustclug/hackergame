@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>注册/登录</h1>
+    {% if debug %}
+        <div class="login-provider-group">
+            <a class="login-provider" href="/accounts/debug/login/">调试</a>
+        </div>
+    {% endif %}
+    <div class="login-provider-group">
+        <a class="login-provider" href="/accounts/ustc/login/">中国科学技术大学</a>
+        <a class="login-provider" href="/accounts/zju/login/">浙江大学</a>
+        <a class="login-provider" href="/accounts/jlu/login/">吉林大学</a>
+        <a class="login-provider" href="/accounts/nuaa/login/">南京航空航天大学</a>
+        <a class="login-provider" href="/accounts/neu/login/">东北大学</a>
+        <a class="login-provider" href="/accounts/sysu/login/">中山大学</a>
+        <a class="login-provider" href="/accounts/xidian/login/">西安电子科技大学</a>
+        <a class="login-provider" href="/accounts/hit/login/">哈尔滨工业大学</a>
+        <a class="login-provider" href="/accounts/nudt/login/">国防科技大学</a>
+        <a class="login-provider" href="/accounts/fdu/login/">复旦大学</a>
+        <a class="login-provider" href="/accounts/ouc/login/">中国海洋大学</a>
+        <a class="login-provider" href="/accounts/tongji/login/">同济大学</a>
+    </div>
+    <div class="login-provider-group">
+        <a class="login-provider" href="/accounts/sms/login/">手机号码</a>
+        <a class="login-provider" href="/accounts/google/login/">Google 账号</a>
+        <a class="login-provider" href="/accounts/microsoft/login/">Microsoft 账号</a>
+    </div>
+{% endblock %}

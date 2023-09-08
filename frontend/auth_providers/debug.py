@@ -17,7 +17,7 @@ class LoginView(BaseLoginView):
         }[self.provider]
         self.identity = request.POST['identity']
         self.login()
-        return redirect('hub')
+        return redirect('root')
 
 
 urlpatterns = [

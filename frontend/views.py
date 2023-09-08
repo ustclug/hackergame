@@ -20,9 +20,24 @@ from server.exceptions import Error, NotFound, WrongFormat
 from frontend.models import Account, Credits, Qa, UstcEligible
 
 
-# noinspection PyMethodMayBeStatic
-class HubView(View):
+class RootView(View):
     def get(self, request):
+        if request.user.is_authenticated:
+            return redirect('challenges')
+        else:
+            return redirect('welcome')
+
+
+class WelcomeView(View):
+    def get(self, request):
+        return TemplateResponse(request, 'welcome.html')
+
+
+class ChallengesView(View):
+    def get(self, request):
+        if not request.user.is_authenticated:
+            messages.info(request, '登录后才能查看题目')
+            return redirect('welcome')
         if request.user.is_authenticated:
             if Account.objects.filter(provider='ustc', user=request.user).exists():
                 try:
@@ -54,7 +69,7 @@ class HubView(View):
             if user.group != 'other':
                 ranking["group"] = Submission.get_user_ranking(context, request.user.pk,
                                                                group=user.group)
-        return TemplateResponse(request, 'hub.html', {
+        return TemplateResponse(request, 'challenges.html', {
             'announcement': announcement,
             'challenges': challenges,
             'progress': Submission.get_user_progress(context, request.user.pk),
@@ -74,7 +89,7 @@ class HubView(View):
                 messages.error(request, '答案错误')
         except Error as e:
             messages.info(request, e.message)
-        return redirect('hub')
+        return redirect('challenges')
 
 
 # noinspection PyMethodMayBeStatic
@@ -110,7 +125,7 @@ class BoardView(View):
             })
         except Error as e:
             messages.error(request, e.message)
-            return redirect('hub')
+            return redirect('root')
 
 
 # noinspection PyMethodMayBeStatic
@@ -127,14 +142,19 @@ class FirstView(View):
             })
         except Error as e:
             messages.error(request, e.message)
-            return redirect('hub')
+            return redirect('root')
+
+
+class LoginView(View):
+    def get(self, request):
+        return TemplateResponse(request, 'login.html')
 
 
 # noinspection PyMethodMayBeStatic
 class LogoutView(View):
     def post(self, request):
         logout(request)
-        return redirect('hub')
+        return redirect('root')
 
 
 # noinspection PyMethodMayBeStatic
@@ -143,7 +163,7 @@ class ProfileView(View):
         try:
             User.test_authenticated(Context.from_request(request))
         except LoginRequired:
-            return redirect('hub')
+            return redirect('root')
         return TemplateResponse(request, 'profile.html', {
             'profile_required': User.profile_required,
         })
@@ -174,10 +194,10 @@ class TermsView(View):
         try:
             User.test_authenticated(context)
         except LoginRequired:
-            return redirect('hub')
+            return redirect('root')
         for pk in request.POST.getlist('terms'):
             Terms.get(context, pk=pk).agree(request.user.pk)
-        return redirect('hub')
+        return redirect('root')
 
 
 # noinspection PyMethodMayBeStatic
@@ -190,7 +210,7 @@ class ErrorView(View):
     def get(self, request):
         if request.user.is_superuser:
             raise ValueError('ErrorView')
-        return redirect('hub')
+        return redirect('root')
 
 
 class CoreDataView(View):
@@ -218,12 +238,12 @@ class UstcProfileView(View):
 
     def get(self, request):
         if not self.check():
-            return redirect('hub')
+            return redirect('root')
         return TemplateResponse(request, 'ustcprofile.html')
 
     def post(self, request):
         if not self.check():
-            return redirect('hub')
+            return redirect('root')
         eligible = request.POST['eligible']
         if eligible == 'yes':
             UstcEligible.objects.create(user=request.user, eligible=True)
@@ -231,7 +251,7 @@ class UstcProfileView(View):
             user.update(group='ustc')
         elif eligible == 'no':
             UstcEligible.objects.create(user=request.user, eligible=False)
-        return redirect('hub')
+        return redirect('root')
 
 
 class QaView(View):
@@ -261,7 +281,7 @@ class BaseAdminView(View):
             })
         except Error as e:
             messages.error(request, e.message)
-            return redirect('hub')
+            return redirect('root')
 
     def post(self, request):
         body = json.loads(request.body)
