@@ -47,6 +47,7 @@ jobs:
         ./manage.py migrate
         ./manage.py setup
         ./manage.py fake_data
+        ./manage.py test
         ./manage.py runserver &
 
         # wait for few seconds
