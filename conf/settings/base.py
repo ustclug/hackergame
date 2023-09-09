@@ -34,6 +34,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'frontend.middleware.UserRequestMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 # Auth
