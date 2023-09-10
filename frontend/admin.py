@@ -1,5 +1,8 @@
 from django.contrib import admin
 
+from django.contrib.auth.admin import UserAdmin as BaseDjangoUserAdmin
+from django.contrib.auth.models import User as DjangoUser
+
 from server.announcement.models import Announcement
 from server.challenge.models import Challenge
 from server.submission.models import Submission
@@ -10,6 +13,29 @@ from .models import Page, Account, Code, UstcSnos, UstcEligible, Qa, Credits
 
 admin.site.register([Page, Account, Code, UstcSnos, UstcEligible, Qa, Credits])
 
+
+class PermissionListFilter(admin.SimpleListFilter):
+    title = '权限'
+    parameter_name = 'permission'
+
+    def lookups(self, request, model_admin):
+        return [
+            ("has_permission", "有非空「用户权限」的用户"),
+        ]
+    
+    def queryset(self, request, queryset):
+        if self.value() == "has_permission":
+            return queryset.filter(user_permissions__isnull=False)
+
+
+class DjangoUserAdmin(BaseDjangoUserAdmin):
+    def __init__(self, model, admin_site) -> None:
+        super().__init__(model, admin_site)
+        self.list_filter += (PermissionListFilter, )
+
+
+admin.site.unregister(DjangoUser)
+admin.site.register(DjangoUser, DjangoUserAdmin)
 
 # XXX: Hack here
 # I also replaced template `admin/index.html`, so that these entries
