@@ -121,7 +121,7 @@ class Challenge:
                 if len(matches) == 1:
                     violations.append((self._context.user.pk, f"在题目 {flags[i]['name']} 中提交了 ID 为 {matches[0].user} 的选手的 flag"))
                     violations.append((matches[0].user, f"在题目 {flags[i]['name']} 中被 ID 为 {self._context.user.pk} 的选手提交了自己的 flag"))
-                else:
+                elif len(matches) > 1:
                     violations.append((self._context.user.pk, f"在题目 {flags[i]['name']} 中提交了其他 {len(matches)} 名选手的 flag"))
         return [], violations
 
