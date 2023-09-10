@@ -103,7 +103,8 @@ class Command(BaseCommand):
             'enabled': True,
             'name': path.name,
             'category': None,
-            'url': None,
+            'url_orig': None,
+            'check_url_clicked': False,
             'prompt': 'flag{...}',
             'index': 0,
             'flags': [],
@@ -123,8 +124,8 @@ class Command(BaseCommand):
             if not self.dry_run:
                 shutil.rmtree(files_path, ignore_errors=True)
                 shutil.copytree(files, files_path)
-        if challenge['url'] and challenge['url'].startswith('files/'):
-            challenge['url'] = str(files_url / challenge['url'][6:])
+        if challenge['url_orig'] and challenge['url_orig'].startswith('files/'):
+            challenge['url_orig'] = str(files_url / challenge['url_orig'][6:])
         challenge['detail'] = markdown.markdown(
             ''.join(lines),
             extensions=['codehilite', 'fenced_code', ReplaceLinks(files_url)],
