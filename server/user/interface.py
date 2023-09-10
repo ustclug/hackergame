@@ -218,10 +218,19 @@ class User:
         for k, v in kwargs.items():
             if k in {'group', 'nickname', 'name', 'sno', 'tel', 'email',
                      'gender', 'qq', 'website', 'school', 'grade', 'major', 'campus',
-                     'aff', 'suspicious', 'suspicious_reason', 'suspicious_ddl'}:
+                     'aff', 'suspicious_reason', 'suspicious_ddl'}:
                 v = v or None
                 try:
                     v is None or (self._validators[k] and self._validators[k](v))
+                except ValidationError as e:
+                    raise WrongFormat(e.message)
+                setattr(self._obj, k, v)
+            elif k in {'suspicious'}:
+                # non-nullable values should not be set to None like above
+                if v is None:
+                    raise WrongFormat()
+                try:
+                    self._validators[k] and self._validators[k](v)
                 except ValidationError as e:
                     raise WrongFormat(e.message)
                 setattr(self._obj, k, v)
