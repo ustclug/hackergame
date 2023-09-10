@@ -21,6 +21,9 @@
                     <input class="vTextField" type="text" id="form-nickname" name="nickname" v-model="opened.nickname" required>
                 </div>
                 <div class="form-row">
+                    <a :href="`/admin/auth/user/${opened.pk}/change`">跳转到 Django 用户模型页面……</a>
+                </div>
+                <div class="form-row">
                     <label for="form-name">姓名:</label>
                     <input class="vTextField" type="text" id="form-name" name="name" v-model="opened.name">
                 </div>
@@ -172,6 +175,16 @@
                 axios.post('.', {method: 'get_all'})
                     .then(({data: {value}}) => {
                         this.objs = value;
+                        // read hash
+                        if (location.hash.startsWith('#edit-')) {
+                            let pk = parseInt(location.hash.slice(6));
+                            for (let obj of this.objs) {
+                                if (obj.pk === pk) {
+                                    this.open(obj);
+                                    break;
+                                }
+                            }
+                        }
                     })
                     .catch(({response: {data: {error}}}) => {
                         alert(error && error.message);
@@ -179,6 +192,7 @@
             },
             open(obj) {
                 this.opened = {...obj};
+                location.hash = `#edit-${obj.pk}`;
             },
             opened_save() {
                 this.opened_disabled = true;
