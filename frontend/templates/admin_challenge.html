@@ -25,12 +25,12 @@
                     <div class="help">会被放入 <code>div</code> 的 HTML，其中的 <code>{token}</code> 会被替换为 URL encode 后的用户 token</div>
                 </div>
                 <div class="form-row">
-                    <label for="form-url">原始链接:</label>
-                    <input class="vTextField" type="text" id="form-url" name="url" v-model="opened.url_orig">
+                    <label for="form-url-orig">原始链接:</label>
+                    <input class="vTextField" type="text" id="form-url-orig" name="url-orig" v-model="opened.url_orig">
                     <div class="help">其中的 <code>{token}</code> 会被替换为 URL encode 后的用户 token</div>
                 </div>
                 <div class="form-row">
-                    <input type="checkbox" id="form-check-url-clicked" name="enabled" v-model="opened.check_url_clicked">
+                    <input type="checkbox" id="form-check-url-clicked" name="check-url-clicked" v-model="opened.check_url_clicked">
                     <label class="vCheckboxLabel" for="form-check-url-clicked">检查链接是否被点击</label>
                     <div class="help">
                         勾选此项时，未从平台点击按钮但提交 flag 的提交记录视为违例。
@@ -159,9 +159,10 @@
                         enabled: false,
                         name: '',
                         detail: '',
-                        url: '',
+                        url_orig: '',
                         prompt: 'flag{...}',
                         index: 0,
+                        check_url_clicked: false,
                         flags: [{
                             name: '',
                             score: 100,

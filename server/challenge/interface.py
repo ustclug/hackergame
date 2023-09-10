@@ -214,23 +214,23 @@ class Challenge:
         if self._obj.url_orig is None:
             return None
         return reverse('challenge_url', args=[self.pk])
-    
+
     @property
     def url_orig(self):
         try:
             User.test_permission(self._context, 'challenge.full',
                                  'challenge.view')
             return self._obj.url_orig
-        except:
+        except PermissionRequired:
             return None
-    
+
     @property
     def check_url_clicked(self):
         try:
             User.test_permission(self._context, 'challenge.full',
                                  'challenge.view')
             return self._obj.check_url_clicked
-        except:
+        except PermissionRequired:
             return None
 
     @property

@@ -210,9 +210,7 @@ class ChallengeURLView(View):
         context = Context.from_request(request)
         challenge = Challenge.get(context, challenge_id)
         user = User.get(context, request.user.pk)
-        url = challenge.get_and_log_url_orig().format(
-            token=quote(user.token),
-        )
+        url = challenge.get_and_log_url_orig().replace('{token}', quote(user.token))
         return redirect(url)
 
 
