@@ -22,30 +22,46 @@
                 <a v-for="(name, group) in groups" href="#" :class="{selected: filters.group===group}" @click.prevent="change_filter({group: group})">{{ name }}</a>
             </p>
             <div class="results">
-                <table id="result_list">
+                <table v-if="!filter.violations" id="result_list">
                     <thead>
                     <tr>
-                        <th v-if="!filters.violations" scope="col"><div class="text"><span>#</span></div><div class="clear"></div></th>
-                        <th scope="col"><div class="text"><span v-if="filters.violations">提交项用户</span><span v-else>用户</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>#</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>用户</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>题目</span></div><div class="clear"></div></th>
-                        <th v-if="!filters.violations" scope="col"><div class="text"><span>文本</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>文本</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>时间</span></div><div class="clear"></div></th>
-                        <th v-if="!filters.violations" scope="col"><div class="text"><span>匹配的 flag</span></div><div class="clear"></div></th>
-                        <th v-else scope="col"><div class="text"><span>违例原因</span></div><div class="clear"></div></th>
-                        <th v-if="filters.violations" scope="col"><div class="text"><span>违例用户</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>匹配的 flag</span></div><div class="clear"></div></th>
                     </tr>
                     </thead>
                     <tbody v-if="objs">
                     <tr v-for="obj in objs">
-                        <td v-if="!filters.violations">{{ obj.pk }}</td>
-                        <td>{{ users[obj.user]||obj.user }}</td>
+                        <td>{{ obj.pk }}</td>
+                        <td>{{ show_user(obj.user) }}</td>
                         <td>{{ challenge_names[obj.challenge]||obj.challenge }}</td>
-                        <td v-if="!filters.violations">{{ obj.text }}</td>
+                        <td>{{ obj.text }}</td>
                         <td>{{ new Date(obj.time).toLocaleString() }}</td>
-                        <td v-if="filters.violations">{{ obj.reason }}</td>
-                        <td v-else-if="obj.flag!==null">{{ flag_names[[obj.challenge,obj.flag]]||obj.flag }}</td>
+                        <td v-if="obj.flag!==null">{{ flag_names[[obj.challenge,obj.flag]]||obj.flag }}</td>
                         <td v-else></td>
-                        <td v-if="filters.violations">{{ users[obj.violation_user]||obj.violation_user }}</td>
+                    </tr>
+                    </tbody>
+                </table>
+                <table v-else id="result_list">
+                    <thead>
+                    <tr>
+                        <th scope="col"><div class="text"><span>提交项用户</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>题目</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>时间</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>违例原因</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span>违例用户</span></div><div class="clear"></div></th>
+                    </tr>
+                    </thead>
+                    <tbody v-if="objs">
+                    <tr v-for="obj in objs">
+                        <td>{{ show_user(obj.user) }}</td>
+                        <td>{{ challenge_names[obj.challenge]||obj.challenge }}</td>
+                        <td>{{ new Date(obj.time).toLocaleString() }}</td>
+                        <td>{{ obj.reason }}</td>
+                        <td>{{ show_user(obj.violation_user) }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -151,6 +167,13 @@
                     this.filters[k] = update[k];
                 }
                 this.refresh();
+            },
+            show_user(pk) {
+                if (users[obj.user]) {
+                    return `${obj.user}.${users[obj.user]}`;
+                } else {
+                    return `${obj.user}`;
+                }
             },
         },
     });

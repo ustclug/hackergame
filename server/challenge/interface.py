@@ -112,18 +112,17 @@ class Challenge:
                     user=self._context.user.pk,
                 ).exists():
                     for flag in matches:
-                        violations.append((self._context.user.pk, 
+                        violations.append((self._context.user.pk,
                                            f"在题目 {flag['name']} 中未下载文件，但是提交了正确的 flag"))
             return matches, violations
         for i, flag in enumerate(json.loads(self._obj.flags)):
             if flag['type'] == 'expr':
-                matches = models.ExprFlag.objects.filter(expr=flag['flag'],
-                                                         flag=text)
-                len_matches = len(matches)
-                violations.append((self._context.user.pk, f"在题目 {flags[i]['name']} 中匹配了其他人（{len_matches} 个）的 flag"))
-                if len_matches == 1:
-                    this_match = matches[0]
-                    violations.append((this_match.user, f"在题目 {flags[i]['name']} 中被其他人匹配到了 flag"))
+                matches = list(models.ExprFlag.objects.filter(expr=flag['flag'], flag=text))
+                if len(matches) == 1:
+                    violations.append((self._context.user.pk, f"在题目 {flags[i]['name']} 中提交了 ID 为 {matches[0].user} 的选手的 flag"))
+                    violations.append((matches[0].user, f"在题目 {flags[i]['name']} 中被 ID 为 {self._context.user.pk} 的选手提交了自己的 flag"))
+                else:
+                    violations.append((self._context.user.pk, f"在题目 {flags[i]['name']} 中提交了其他 {len(matches)} 名选手的 flag"))
         return [], violations
 
     def get_and_log_url_orig(self):
