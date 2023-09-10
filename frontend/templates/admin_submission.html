@@ -26,12 +26,13 @@
                     <thead>
                     <tr>
                         <th v-if="!filters.violations" scope="col"><div class="text"><span>#</span></div><div class="clear"></div></th>
-                        <th scope="col"><div class="text"><span>用户</span></div><div class="clear"></div></th>
+                        <th scope="col"><div class="text"><span v-if="filters.violations">提交项用户</span><span v-else>用户</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>题目</span></div><div class="clear"></div></th>
                         <th v-if="!filters.violations" scope="col"><div class="text"><span>文本</span></div><div class="clear"></div></th>
                         <th scope="col"><div class="text"><span>时间</span></div><div class="clear"></div></th>
-                        <th scope="col"><div class="text"><span>匹配的 flag</span></div><div class="clear"></div></th>
-                        <th v-if="filters.violations" scope="col"><div class="text"><span>匹配的用户</span></div><div class="clear"></div></th>
+                        <th v-if="!filters.violations" scope="col"><div class="text"><span>匹配的 flag</span></div><div class="clear"></div></th>
+                        <th v-else scope="col"><div class="text"><span>违例原因</span></div><div class="clear"></div></th>
+                        <th v-if="filters.violations" scope="col"><div class="text"><span>违例用户</span></div><div class="clear"></div></th>
                     </tr>
                     </thead>
                     <tbody v-if="objs">
@@ -41,7 +42,7 @@
                         <td>{{ challenge_names[obj.challenge]||obj.challenge }}</td>
                         <td v-if="!filters.violations">{{ obj.text }}</td>
                         <td>{{ new Date(obj.time).toLocaleString() }}</td>
-                        <td v-if="filters.violations">{{ flag_names[[obj.challenge,obj.violation_flag]]||obj.violation_flag }}</td>
+                        <td v-if="filters.violations">{{ obj.reason }}</td>
                         <td v-else-if="obj.flag!==null">{{ flag_names[[obj.challenge,obj.flag]]||obj.flag }}</td>
                         <td v-else></td>
                         <td v-if="filters.violations">{{ users[obj.violation_user]||obj.violation_user }}</td>

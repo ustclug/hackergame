@@ -45,11 +45,11 @@ class Submission:
             time=context.time,
         )
         matches, violations = challenge.check_flag_with_violations(text)
-        for f, u in violations:
+        for u, r in violations:
             models.FlagViolation.objects.create(
                 submission=obj,
-                violation_flag=f['index'],
                 violation_user=u,
+                reason=r,
             )
         try:
             Trigger.test_can_submit(context)
@@ -159,7 +159,7 @@ class Submission:
         if group is not None:
             queryset = queryset.filter(submission__group=group)
         return list(queryset.values(
-            'violation_flag', 'violation_user',
+            'reason', 'violation_user',
             user=models.models.F('submission__user'),
             challenge=models.models.F('submission__challenge'),
             time=models.models.F('submission__time'),
