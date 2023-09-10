@@ -1,5 +1,7 @@
 import json
 
+from django.urls import reverse
+
 from server.terms.interface import Terms
 from server.trigger.interface import Trigger, TriggerIsOff
 from server.user.interface import User, PermissionRequired
@@ -10,9 +12,10 @@ from . import models
 
 class Challenge:
     json_fields = ('pk', 'score', 'enabled', 'name', 'category',
-                   'detail', 'url', 'prompt', 'index', 'flags')
-    update_fields = ('enabled', 'name', 'category', 'detail', 'url',
-                     'prompt', 'index', 'flags')
+                   'detail', 'url', 'url_orig', 'prompt', 'index', 'flags',
+                   'check_url_clicked')
+    update_fields = ('enabled', 'name', 'category', 'detail', 'url_orig',
+                     'prompt', 'index', 'flags', 'check_url_clicked')
     subscribers = []
 
     def __init__(self, context, obj: models.Challenge):
@@ -97,15 +100,30 @@ class Challenge:
                     flag=text,
                 ).exists():
                     matches.append(flags[i])
-        if matches:
-            return matches, []
         violations = []
+        if matches:
+            # check click url
+            if self._obj.check_url_clicked:
+                if not models.ChallengeURLRecord.objects.filter(
+                    challenge=self._obj,
+                    user=self._context.user.pk,
+                ).exists():
+                    for flag in matches:
+                        violations.append((flag, self._context.user.pk))
+            return matches, violations
         for i, flag in enumerate(json.loads(self._obj.flags)):
             if flag['type'] == 'expr':
                 for match in models.ExprFlag.objects.filter(expr=flag['flag'],
                                                             flag=text):
                     violations.append((flags[i], match.user))
         return [], violations
+
+    def get_and_log_url_orig(self):
+        _ = models.ChallengeURLRecord.objects.get_or_create(
+            challenge=self._obj,
+            user=self._context.user.pk,
+        )
+        return self._obj.url_orig
 
     def update(self, **kwargs):
         User.test_permission(self._context, 'challenge.full')
@@ -117,10 +135,10 @@ class Challenge:
 
     def _update(self, **kwargs):
         for k, v in kwargs.items():
-            if k in {'name', 'category', 'url', 'prompt'}:
+            if k in {'name', 'category', 'url_orig', 'prompt'}:
                 v = v or None
                 setattr(self._obj, k, v)
-            elif k in {'enabled', 'detail', 'index'}:
+            elif k in {'enabled', 'detail', 'index', 'check_url_clicked'}:
                 setattr(self._obj, k, v)
             elif k == 'flags':
                 flags = [{
@@ -193,7 +211,27 @@ class Challenge:
 
     @property
     def url(self):
-        return self._obj.url
+        if self._obj.url_orig is None:
+            return None
+        return reverse('challenge_url', args=[self.pk])
+    
+    @property
+    def url_orig(self):
+        try:
+            User.test_permission(self._context, 'challenge.full',
+                                 'challenge.view')
+            return self._obj.url_orig
+        except:
+            return None
+    
+    @property
+    def check_url_clicked(self):
+        try:
+            User.test_permission(self._context, 'challenge.full',
+                                 'challenge.view')
+            return self._obj.check_url_clicked
+        except:
+            return None
 
     @property
     def prompt(self):

@@ -6,10 +6,11 @@ class Challenge(models.Model):
     category = models.TextField()
     enabled = models.BooleanField()
     detail = models.TextField()
-    url = models.TextField(null=True)
+    url_orig = models.TextField(null=True)
     prompt = models.TextField(null=True)
     index = models.IntegerField(db_index=True)
     flags = models.TextField()
+    check_url_clicked = models.BooleanField(default=False)
 
     class Meta:
         default_permissions = ()
@@ -45,3 +46,13 @@ class ExprFlag(models.Model):
     class Meta:
         default_permissions = ()
         unique_together = ('expr', 'user')
+
+
+class ChallengeURLRecord(models.Model):
+    challenge = models.ForeignKey(Challenge, models.CASCADE)
+    user = models.IntegerField(db_index=True)
+    date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        default_permissions = ()
+        unique_together = ('challenge', 'user')

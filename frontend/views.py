@@ -1,4 +1,5 @@
 import json
+from urllib.parse import quote
 
 from django.contrib import messages
 from django.contrib.admin import site
@@ -202,6 +203,17 @@ class CoreDataView(View):
             'users': User.get_public_data(context),
             'submissions': Submission.get_public_data(context),
         })
+
+
+class ChallengeURLView(View):
+    def get(self, request, challenge_id):
+        context = Context.from_request(request)
+        challenge = Challenge.get(context, challenge_id)
+        user = User.get(context, request.user.pk)
+        url = challenge.get_and_log_url_orig().format(
+            token=quote(user.token),
+        )
+        return redirect(url)
 
 
 class UstcProfileView(View):
