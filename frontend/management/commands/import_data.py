@@ -112,6 +112,8 @@ class Command(BaseCommand):
         readme = path / 'README.md'
         with readme.open() as f:
             challenge.update(next(yaml.safe_load_all(f)))
+        if challenge.get('url') and not challenge.get('url_orig'):
+            challenge['url_orig'] = challenge['url']
         lines = readme.read_text().splitlines(keepends=True)
         lines = lines[lines.index('---\n', 1) + 1:]
         if (path / 'pre-import-hook.sh').exists():
