@@ -1,0 +1,184 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+{{ block.super }}
+<script src="{% static 'vue.min.js' %}"></script>
+<script src="{% static 'axios.min.js' %}"></script>
+<script src="{% static 'chart.umd.min.js' %}"></script>
+<script src="{% static 'moment.min.js' %}"></script>
+<script src="{% static 'chartjs-adapter-moment.min.js' %}"></script>
+<script>
+    axios.defaults.xsrfCookieName = 'csrftoken';
+    axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+</script>
+{% endblock %}
+
+{% block content %}
+{% verbatim %}
+<div id="app">
+    <h1>总排名</h1>
+    <div id="rank-chart-text">正在加载</div>
+    <canvas id="rank-chart" style="width: 100%; height: 400px"></canvas>
+    <h1>分数</h1>
+    <div id="score-chart-text">正在加载</div>
+    <canvas id="score-chart" style="width: 100%; height: 400px"></canvas>
+</div>
+{% endverbatim %}
+{{ user_.json|json_script:'json-user' }}
+<script>
+    const app = new Vue({
+        el: '#app',
+        data: {
+            user: JSON.parse(document.getElementById('json-user').textContent),
+        },
+        async created() {
+            await this.refresh();
+        },
+        methods: {
+            async refresh() {
+                const timeRange = await this.getTimeRange();
+                if (!timeRange) {
+                    document.getElementById('rank-chart-text').innerHTML = '比赛尚未开始';
+                    document.getElementById('score-chart-text').innerHTML = '比赛尚未开始';
+                    return;
+                }
+                this.timeRange = timeRange;
+                const { data } = await axios.get('/data/core.json');
+                this.coreData = data;
+                this.scoreMap = this.buildScoreMap();
+                const rankHistory = this.generateRankHistory();
+                this.drawChart(rankHistory, 'rank-chart', '#2ECC71', true);
+                document.getElementById('rank-chart-text').innerHTML = '';
+                const scoreHistory = this.generateScoreHistory();
+                this.drawChart(scoreHistory, 'score-chart', '#3498DB');
+                document.getElementById('score-chart-text').innerHTML = '';
+            },
+            buildScoreMap() {
+                let challenges = {};
+                for (const c of this.coreData.challenges) {
+                    challenges[c.id] = {};
+                    for (const f of c.flags) {
+                        challenges[c.id][f.id] = f.score;
+                    }
+                }
+                return challenges;
+            },
+            generateScoreHistory() {
+                let score = 0;
+                let history = [];
+                for (const i of this.coreData.submissions) {
+                    if (i.user !== this.user.pk) {
+                        continue;
+                    }
+                    score += this.scoreMap[i.challenge][i.flag];
+                    history.push({ time: i.time, data: score });
+                }
+                history.unshift({
+                    time: this.timeRange.starttime,
+                    data: 0,
+                });
+                history.push({
+                    time: this.timeRange.endtime,
+                    data: score,
+                });
+                return history;
+            },
+            generateRankHistory() {
+                let scores = [];
+                for (const u of this.coreData.users) {
+                    scores.push({ user: u.id, score: 0, time: this.timeRange.starttime });
+                }
+                let history = [];
+                for (const i of this.coreData.submissions) {
+                    const idx = scores.findIndex((s) => s.user == i.user);
+                    scores[idx].score += this.scoreMap[i.challenge][i.flag];
+                    scores[idx].time = i.time;
+                    const user_ = scores.find((s) => s.user == this.user.pk);
+                    const rank = scores.filter(({ user, score, time }) => {
+                        return score > user_.score || (score == user_.score && new Date(user_.time) > new Date(time));
+                    }).length + 1;
+                    if (history.length == 0 || history.slice(-1)[0].data != rank) {
+                        history.push({ time: i.time, data: rank });
+                    }
+                }
+                history.unshift({
+                    time: this.timeRange.starttime,
+                    data: 1,
+                });
+                history.push({
+                    time: this.timeRange.endtime,
+                    data: history.slice(-1)[0].data,
+                });
+                return history;
+            },
+            async getTimeRange() {
+                const { data: { value: triggers } } = await axios.post('/admin/trigger/', { method: 'get_all' });
+
+                let starttime = triggers.find(i => i.can_submit);
+                if (!starttime || new Date(starttime.time) > new Date()) {
+                    return null;
+                } else {
+                    starttime = new Date(starttime.time);
+                }
+                let last_starttime = [...triggers].reverse().find(i => i.can_submit);
+                let endtime = [...triggers].reverse().find(i => !i.can_submit);
+                if (!endtime || new Date(endtime.time) > new Date() || new Date(endtime.time) < new Date(last_starttime.time)) {
+                    endtime = new Date();
+                } else {
+                    endtime = new Date(endtime.time);
+                }
+                return {
+                    starttime,
+                    endtime,
+                }
+            },
+            drawChart(history, chartId, color, flipYAxis = false) {
+                const points = history.map(({ time, data }) => ({ x: new Date(time), y: data }));
+                const datasets = [{
+                    label: this.user.display_name,
+                    data: points,
+                    stepped: true,
+                    fill: false,
+                    backgroundColor: color,
+                    borderColor: color,
+                    borderWidth: 2,
+                    radius: 2,
+                    hoverRadius: 3,
+                }];
+
+                new Chart(document.getElementById(chartId).getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        datasets,
+                    },
+                    options: {
+                        hover: {
+                            mode: 'x',
+                        },
+                        responsive: false,
+                        scales: {
+                            x: {
+                                type: 'time',
+                                ticks: {
+                                    minRotation: 50,
+                                },
+                                time: {
+                                    unit: 'hour',
+                                    displayFormats: {
+                                        hour: "MM-DD HH:mm",
+                                    },
+                                    tooltipFormat: "YYYY-MM-DD HH:mm:ss",
+                                },
+                            },
+                            y: {
+                                reverse: flipYAxis,
+                            }
+                        },
+                    },
+                });
+            }
+        }
+    });
+</script>
+{% endblock %}
