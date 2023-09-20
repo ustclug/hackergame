@@ -59,6 +59,9 @@
                 {% endif %}
                 {% if user_ %}
                     <li class="pure-menu-item">
+                        <a class="pure-button" href="{% url 'score' %}">分数</a>
+                    </li>
+                    <li class="pure-menu-item">
                         <a class="pure-button" href="{% url 'profile' %}">个人信息</a>
                     </li>
                     <li class="pure-menu-item">

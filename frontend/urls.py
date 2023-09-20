@@ -20,6 +20,7 @@ urlpatterns = [
     path('error/', views.ErrorView.as_view()),
     path('data/core.json', views.CoreDataView.as_view(), name='coredata'),
     path('challenge/<int:challenge_id>/', views.ChallengeURLView.as_view(), name='challenge_url'),
+    path('score/', views.ScoreView.as_view(), name='score'),
 
     path('profile/ustc/', views.UstcProfileView.as_view(), name='ustcprofile'),
 

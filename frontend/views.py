@@ -213,6 +213,14 @@ class ChallengeURLView(View):
         url = challenge.get_and_log_url_orig().replace('{token}', quote(user.token))
         return redirect(url)
 
+class ScoreView(View):
+    def get(self, request):
+        try:
+            User.test_authenticated(Context.from_request(request))
+        except LoginRequired:
+            return redirect('hub')
+        context = Context.from_request(request)
+        return TemplateResponse(request, 'score.html')
 
 class UstcProfileView(View):
     def check(self):
