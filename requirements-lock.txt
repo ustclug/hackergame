@@ -7,7 +7,7 @@ cryptography==41.0.4
 defusedxml==0.7.1
 Django==4.2.5
 django-allauth==0.56.1
-gevent==23.9.0.post1
+gevent==23.9.1
 greenlet==2.0.2
 idna==3.4
 jmespath==0.10.0
