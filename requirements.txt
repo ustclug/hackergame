@@ -7,7 +7,7 @@ gevent==23.9.1
 Markdown==3.4.4
 psycopg==3.1.10
 psycopg-binary==3.1.10
-psycopg-pool==3.1.7
+psycopg-pool==3.1.8
 pymemcache==4.0.0
 pyOpenSSL==23.2.0
 PyYAML==6.0.1

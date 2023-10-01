@@ -15,7 +15,7 @@ Markdown==3.4.4
 oauthlib==3.2.2
 psycopg==3.1.10
 psycopg-binary==3.1.10
-psycopg-pool==3.1.7
+psycopg-pool==3.1.8
 pycparser==2.21
 PyJWT==2.8.0
 pymemcache==4.0.0
