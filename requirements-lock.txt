@@ -14,7 +14,7 @@ jmespath==0.10.0
 Markdown==3.4.4
 oauthlib==3.2.2
 psycopg==3.1.10
-psycopg-binary==3.1.10
+psycopg-binary==3.1.12
 psycopg-pool==3.1.7
 pycparser==2.21
 PyJWT==2.8.0
