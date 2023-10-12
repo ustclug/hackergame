@@ -90,7 +90,7 @@
                             </td>
                             <td class="center narrow"><span class="category" :style="{backgroundColor: category_color(challenge.category)}">{{ challenge.category }}</span></td>
                             <td class="center narrow">{{ challenge.score }}</td>
-                            <td class="center narrow">{{ get_challenge_count_string(challenge) }}</td>
+                            <td class="center narrow">{{ get_challenge_count(challenge) }}</td>
                         </tr>
                         <tr v-if="challenge===opened && challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags" class="flag">
                             <td>
@@ -101,7 +101,7 @@
                             </td>
                             <td></td>
                             <td class="center narrow">{{ flag.score }}</td>
-                            <td class="center narrow">{{ get_subchallenge_count_string(challenge, flag_index) }}</td>
+                            <td class="center narrow">{{ get_subchallenge_count(challenge, flag_index) }}</td>
                         </tr>
                     </template>
                     <tr v-if="user.is_staff">
@@ -216,13 +216,13 @@
                     } while (!color.valid());
                     return color.hex();
                 },
-                get_challenge_count_string(challenge) {
+                get_challenge_count(challenge) {
                     let count = (this.clear_count.flags.find(i => i.challenge === challenge.pk) || {count: 0}).count;
                     // are there any sub-flags?
                     if (challenge.flags.length > 1) {
                         let max_sub = 0;
                         for (let j = 0; j < challenge.flags.length; j++) {
-                            let sub_count = this.get_subchallenge_count_string(challenge, j);
+                            let sub_count = this.get_subchallenge_count(challenge, j);
                             if (sub_count > max_sub) {
                                 max_sub = sub_count;
                             }
@@ -231,7 +231,7 @@
                     }
                     return count;
                 },
-                get_subchallenge_count_string(challenge, flag_index) {
+                get_subchallenge_count(challenge, flag_index) {
                     let count = (this.clear_count.flags.find(i => i.challenge === challenge.pk && i.flag === flag_index) || {count: 0}).count;
                     return count;
                 }

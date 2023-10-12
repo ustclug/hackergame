@@ -14,8 +14,8 @@
         <script id="json-quiz" type="application/json">
         {"header": "请选择所有不违反以上条款的内容：", "questions": [[true, "使用搜索引擎搜索以尝试解题"], [false, "问做出题目的舍友 flag"], [false, "在群聊中分享自己的解题方法"], [true, "一边听歌一边做题"]]}
         </script>
-        {% endcomment %}{% verbatim %}
-        {% endverbatim %}{% csrf_token %}
+        {% endcomment %}
+        {% csrf_token %}
         {% for obj in terms %}
             <h1>{{ obj.name }}</h1>
             <input type="hidden" name="terms" value="{{ obj.pk }}">
