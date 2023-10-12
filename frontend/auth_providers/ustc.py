@@ -1,10 +1,5 @@
-from urllib.error import URLError
-from urllib.parse import urlencode
-from urllib.request import urlopen
 from xml.etree import ElementTree
 
-from django.contrib import messages
-from django.shortcuts import redirect
 from django.urls import path
 
 from typing import Optional
