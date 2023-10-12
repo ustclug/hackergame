@@ -47,8 +47,8 @@ class ExternalGetCodeView(BaseGetCodeView):
 
     def send(self, identity, code):
         use_smtp = settings.EXTERNAL_LOGINS[self.provider]['use_smtp']
-        url = settings.EXTERNAL_LOGINS[self.provider].get('url', "")
-        key = settings.EXTERNAL_LOGINS[self.provider].get('key', "")
+        url = settings.EXTERNAL_LOGINS[self.provider].get('url', None)
+        key = settings.EXTERNAL_LOGINS[self.provider].get('key', None)
 
         if settings.DEBUG or use_smtp:
             EmailMessage(
