@@ -244,11 +244,11 @@ class UstcProfileView(View):
             return redirect('hub')
         eligible = request.POST['eligible']
         if eligible == 'yes':
-            SpecialProfileUsedRecord.objects.create(user=request.user, eligible=True)
+            SpecialProfileUsedRecord.objects.create(user=request.user)
             user = User.get(Context.from_request(request).copy(elevated=True), request.user.pk)
             user.update(group='ustc')
         elif eligible == 'no':
-            SpecialProfileUsedRecord.objects.create(user=request.user, eligible=False)
+            SpecialProfileUsedRecord.objects.create(user=request.user)
         return redirect('hub')
 
 
