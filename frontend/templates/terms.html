@@ -62,6 +62,8 @@
                     return;
                 }
                 const quizs = JSON.parse(ele.textContent);
+                // comment out this if you don't want to shuffle the quizs.
+                this.inplace_shuffle(quizs.questions);
                 this.quizs = quizs;
             },
             check() {
@@ -75,6 +77,18 @@
                     }
                 }
                 this.enable_submit = true;
+            },
+            inplace_shuffle(array) {
+                // https://stackoverflow.com/a/2450976/8460426
+                let current_index = array.length;
+                let random_index;
+
+                while (current_index > 0) {
+                    random_index = Math.floor(Math.random() * current_index);
+                    current_index--;
+
+                    [array[current_index], array[random_index]] = [array[random_index], array[current_index]];
+                }
             }
         }
     });
