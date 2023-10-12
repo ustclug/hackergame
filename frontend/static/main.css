@@ -189,3 +189,11 @@ table .narrow {
     max-width: 50%;
     width: 100%;
 }
+/* revert changes by purecss in form */
+#token {
+    border: revert;
+    background-color: revert;
+    padding: revert;
+    vertical-align: revert;
+    border-radius: revert;
+}
