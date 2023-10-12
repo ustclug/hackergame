@@ -11,7 +11,7 @@ from server.trigger.models import Trigger
 from server.user.models import User
 from .models import Page, Account, Code, AccountLog, SpecialProfileUsedRecord, Qa, Credits
 
-admin.site.register([Page, Account, Code, AccountLog, SpecialProfileUsedRecord, Qa, Credits])
+admin.site.register([Page, Account, Code, Qa, Credits, SpecialProfileUsedRecord])
 
 
 class PermissionListFilter(admin.SimpleListFilter):
@@ -57,3 +57,8 @@ class FakeAdmin(admin.ModelAdmin):
 
     def has_view_permission(self, request, obj=None):
         return False
+
+
+@admin.register(AccountLog)
+class AccountLogAdmin(admin.ModelAdmin):
+    search_fields = ["account__pk", "contents"]

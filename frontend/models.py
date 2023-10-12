@@ -78,7 +78,7 @@ class AccountLog(models.Model):
     content_type = models.CharField(max_length=32, default='学号')
 
     def __str__(self):
-        return f"{self.account.pk} ({self.contents})"
+        return f"Account {self.account.pk} ({self.content_type} {self.contents})"
 
 
 # 记录需要在首次登录后显示换组页面并且已经换组的用户
@@ -87,7 +87,7 @@ class SpecialProfileUsedRecord(models.Model):
     user = models.OneToOneField(get_user_model(), models.CASCADE, primary_key=True)
 
     def __str__(self) -> str:
-        return f"{self.user.pk}"
+        return f"A used record of User id {self.user.pk}"
 
 
 class Qa(models.Model):
