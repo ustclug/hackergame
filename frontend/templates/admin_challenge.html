@@ -38,6 +38,16 @@
                     </div>
                 </div>
                 <div class="form-row">
+                    <label for="form-podzol-image-name">PodZol 使用的容器镜像名:</label>
+                    <input class="vTextField" type="text" id="form-podzol-image-name" name="podzol-image-name" v-model="opened.podzol_image_name">
+                    <div class="help">如果没有配置 PodZol 支持，留空。</div>
+                </div>
+                <div class="form-row">
+                    <label for="form-podzol-lifetime">PodZol 超时时间（秒）:</label>
+                    <input class="vIntegerField" type="number" id="form-podzol-lifetime" name="podzol-lifetime" v-model="opened.podzol_lifetime">
+                    <div class="help">如果没有配置 PodZol 支持，留空。如果不设置，则实际使用 3600 秒（1 小时）。</div>
+                </div>
+                <div class="form-row">
                     <label for="form-prompt">提示:</label>
                     <input class="vTextField" type="text" id="form-prompt" name="prompt" v-model="opened.prompt">
                 </div>
@@ -163,6 +173,8 @@
                         prompt: 'flag{...}',
                         index: 0,
                         check_url_clicked: false,
+                        podzol_image_name: '',
+                        podzol_lifetime: '',
                         flags: [{
                             name: '',
                             score: 100,

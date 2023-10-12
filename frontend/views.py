@@ -213,6 +213,7 @@ class ChallengeURLView(View):
         url = challenge.get_and_log_url_orig().replace('{token}', quote(user.token))
         return redirect(url)
 
+
 class ScoreView(View):
     def get(self, request):
         try:
@@ -221,6 +222,23 @@ class ScoreView(View):
             return redirect('hub')
         context = Context.from_request(request)
         return TemplateResponse(request, 'score.html')
+
+
+class PodZolView(View):
+    def post(self, request, challenge_id):
+        context = Context.from_request(request)
+        challenge = Challenge.get(context, challenge_id)
+        if not challenge.is_podzol:
+            return JsonResponse({'error': "not for podzol"}, status=404)
+        payload = json.loads(request.body)
+        action = payload['action']
+        if action not in ['create', 'get', 'remove']:
+            return JsonResponse({'error': "invalid action"}, status=400)
+        result = challenge.podzol(action)
+        if result is None:
+            return JsonResponse(None, safe=False)
+        return JsonResponse(result)
+
 
 class UstcProfileView(View):
     def check(self):

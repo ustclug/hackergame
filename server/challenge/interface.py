@@ -7,15 +7,18 @@ from server.trigger.interface import Trigger, TriggerIsOff
 from server.user.interface import User, PermissionRequired
 from server.context import Context
 from server.exceptions import NotFound, WrongArguments
-from . import models
+from . import models, podzol
+
+from typing import Optional
 
 
 class Challenge:
     json_fields = ('pk', 'score', 'enabled', 'name', 'category',
                    'detail', 'url', 'url_orig', 'prompt', 'index', 'flags',
-                   'check_url_clicked')
+                   'check_url_clicked', 'podzol_image_name', 'podzol_lifetime', 'is_podzol')
     update_fields = ('enabled', 'name', 'category', 'detail', 'url_orig',
-                     'prompt', 'index', 'flags', 'check_url_clicked')
+                     'prompt', 'index', 'flags', 'check_url_clicked',
+                     'podzol_image_name', 'podzol_lifetime')
     subscribers = []
 
     def __init__(self, context, obj: models.Challenge):
@@ -142,7 +145,7 @@ class Challenge:
 
     def _update(self, **kwargs):
         for k, v in kwargs.items():
-            if k in {'name', 'category', 'url_orig', 'prompt'}:
+            if k in {'name', 'category', 'url_orig', 'prompt', 'podzol_image_name', 'podzol_lifetime'}:
                 v = v or None
                 setattr(self._obj, k, v)
             elif k in {'enabled', 'detail', 'index', 'check_url_clicked'}:
@@ -177,6 +180,16 @@ class Challenge:
         self._obj = None
         for subscriber in self.subscribers:
             subscriber(old, None)
+
+    def podzol(self, action) -> Optional[dict]:
+        if action == "create":
+            return podzol.PodZol().create(self._context, self._obj)
+        elif action == "get":
+            return podzol.PodZol().get(self._context, self._obj)
+        elif action == "remove":
+            return podzol.PodZol().remove(self._context, self._obj)
+        else:
+            raise WrongArguments()
 
     @property
     def json(self):
@@ -241,12 +254,36 @@ class Challenge:
             return None
 
     @property
+    def podzol_image_name(self):
+        try:
+            User.test_permission(self._context, 'challenge.full',
+                                 'challenge.view')
+            return self._obj.podzol_image_name
+        except PermissionRequired:
+            return None
+
+    @property
+    def podzol_lifetime(self):
+        try:
+            User.test_permission(self._context, 'challenge.full',
+                                 'challenge.view')
+            return self._obj.podzol_lifetime
+        except PermissionRequired:
+            return None
+
+    @property
     def prompt(self):
         return self._obj.prompt
 
     @property
     def index(self):
         return self._obj.index
+    
+    @property
+    def is_podzol(self):
+        if not self._obj.podzol_image_name:
+            return False
+        return True
 
     @property
     def flags(self):

@@ -11,6 +11,8 @@ class Challenge(models.Model):
     index = models.IntegerField(db_index=True)
     flags = models.TextField()
     check_url_clicked = models.BooleanField(default=False)
+    podzol_image_name = models.TextField(null=True)
+    podzol_lifetime = models.IntegerField(null=True)
 
     class Meta:
         default_permissions = ()

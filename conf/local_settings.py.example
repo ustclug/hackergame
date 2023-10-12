@@ -18,3 +18,5 @@ EXTERNAL_LOGINS = {
         'use_smtp': False,
     }
 }
+PODZOL_MANAGER = 'http://127.0.0.1:9998'
+PODZOL_REVPROXY = 'http://127.0.0.1:9999'
