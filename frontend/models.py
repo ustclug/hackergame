@@ -79,6 +79,12 @@ class AccountLog(models.Model):
 
     def __str__(self):
         return f"Account {self.account.pk} ({self.content_type} {self.contents})"
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['account', 'content_type'],
+                                    name='unique_account_log_for_each_type'),
+        ]
 
 
 # 记录需要在首次登录后显示换组页面并且已经换组的用户
