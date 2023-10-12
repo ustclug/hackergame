@@ -20,7 +20,7 @@
         </div>
         <div v-if="user.group==='banned'" class="msg-error">
             由于违反规则，你的参赛资格已被取消，如有疑问请联系 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>，
-            并在邮件中附上下面显示的 token。
+            并在邮件中粘贴下面的 token。
         </div>
         <div v-if="user && user.group==='banned'" class="msg-info">
             <label for="token">Token:</label>
