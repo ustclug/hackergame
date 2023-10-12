@@ -28,6 +28,9 @@ class Account(models.Model):
     identity = models.TextField()
     user = models.ForeignKey(get_user_model(), models.CASCADE, null=True)
 
+    def __str__(self):
+        return f'User {self.user.pk} ({self.provider}:{self.identity})'
+
     class Meta:
         unique_together = ('provider', 'identity')
 
