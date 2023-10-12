@@ -71,14 +71,23 @@ class Code(models.Model):
             return False
 
 
-class UstcSnos(models.Model):
-    account = models.OneToOneField(Account, models.CASCADE, primary_key=True)
-    snos = models.TextField()
+# 记录特殊登录方式（例如 USTC CAS）的用户，其登录方式返回的「可靠」信息
+class AccountLog(models.Model):
+    account = models.OneToOneField(Account, models.CASCADE, db_index=True)
+    contents = models.TextField()
+    content_type = models.CharField(max_length=32, default='学号')
+
+    def __str__(self):
+        return f"{self.account.pk} ({self.contents})"
 
 
-class UstcEligible(models.Model):
+# 记录需要在首次登录后显示换组页面并且已经换组的用户
+# 目前只有 USTC 有这个需求
+class SpecialProfileUsedRecord(models.Model):
     user = models.OneToOneField(get_user_model(), models.CASCADE, primary_key=True)
-    eligible = models.BooleanField()
+
+    def __str__(self) -> str:
+        return f"{self.user.pk}"
 
 
 class Qa(models.Model):
