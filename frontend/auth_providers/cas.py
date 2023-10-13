@@ -6,7 +6,6 @@ from xml.etree import ElementTree
 from django.http import HttpRequest
 from django.contrib import messages
 from django.shortcuts import redirect
-from django.urls import path
 
 from typing import Optional
 
