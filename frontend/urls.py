@@ -11,6 +11,7 @@ urlpatterns = [
          name='announcements'),
     path('board/', views.BoardView.as_view(), name='board'),
     path('first/', views.FirstView.as_view(), name='first'),
+    path('login/', views.LoginView.as_view(), name='login'),
     path('logout/', views.LogoutView.as_view(), name='logout'),
     path('profile/', views.ProfileView.as_view(), name='profile'),
     path('terms/', views.TermsView.as_view(), name='terms'),

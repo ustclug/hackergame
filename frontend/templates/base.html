@@ -71,38 +71,8 @@
                         </form>
                     </li>
                 {% else %}
-                    <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-                        <span class="pure-button pure-button-primary">注册/登录</span>
-                        <ul class="pure-menu-children">
-                            {% if debug %}
-                                <li class="pure-menu-item"><a href="/accounts/debug/login/" class="pure-menu-link">调试登录</a></li>
-                            {% endif %}
-                            <li class="pure-menu-item"><a href="/accounts/ustc/login/" class="pure-menu-link">中国科学技术大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/zju/login/" class="pure-menu-link">浙江大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/jlu/login/" class="pure-menu-link">吉林大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/nuaa/login/" class="pure-menu-link">南京航空航天大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/neu/login/" class="pure-menu-link">东北大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/sysu/login/" class="pure-menu-link">中山大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/xidian/login/" class="pure-menu-link">西安电子科技大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/hit/login/" class="pure-menu-link">哈尔滨工业大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/nudt/login/" class="pure-menu-link">国防科技大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/fdu/login/" class="pure-menu-link">复旦大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/tongji/login/" class="pure-menu-link">同济大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/gdou/login/" class="pure-menu-link">广东海洋大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/gdut/login/" class="pure-menu-link">广东工业大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/gzhu/login/" class="pure-menu-link">广州大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/sustech/login/" class="pure-menu-link">南方科技大学</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/xmut/login/" class="pure-menu-link">厦门理工学院</a></li>
-                            <li class="pure-menu-item"><a href="/accounts/shu/login/" class="pure-menu-link">上海大学</a></li>
-                            <li class="pure-menu-item pure-menu-has-children pure-menu-allow-hover">
-                                <a href="#" class="pure-menu-link">其他选手</a>
-                                <ul class="pure-menu-children">
-                                    <li class="pure-menu-item"><a href="/accounts/sms/login/" class="pure-menu-link">手机号码登录</a></li>
-                                    <li class="pure-menu-item"><a href="/accounts/google/login/" class="pure-menu-link">Google 账号登录</a></li>
-                                    <li class="pure-menu-item"><a href="/accounts/microsoft/login/" class="pure-menu-link">Microsoft 账号登录</a></li>
-                                </ul>
-                            </li>
-                        </ul>
+                    <li class="pure-menu-item">
+                        <a class="pure-button pure-button-primary" href="{% url 'login' %}">注册/登录</a>
                     </li>
                 {% endif %}
             </ul>

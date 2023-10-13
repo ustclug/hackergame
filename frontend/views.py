@@ -131,6 +131,11 @@ class FirstView(View):
             return redirect('hub')
 
 
+class LoginView(View):
+    def get(self, request):
+        return TemplateResponse(request, 'login.html')
+
+
 # noinspection PyMethodMayBeStatic
 class LogoutView(View):
     def post(self, request):
