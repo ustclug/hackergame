@@ -7,6 +7,7 @@ from .models import Challenge
 from server.user.interface import User
 
 import secrets
+from typing import Optional
 
 
 # Spec: https://github.com/iBug/podzol#api-reference
@@ -26,7 +27,7 @@ class PodZol:
         self.podzol_revproxy = settings.PODZOL_REVPROXY
 
     # POST /create -> ContainerInfo
-    def create(self, context: Context, challenge: Challenge):
+    def create(self, context: Context, challenge: Challenge) -> dict:
         user = context.user
         token = User.get(context, user.pk).token
         challenge_name = challenge.name
@@ -49,7 +50,7 @@ class PodZol:
         return r.json()
 
     # GET /list?opts= -> ContainerInfo[]
-    def get(self, context: Context, challenge: Challenge):
+    def get(self, context: Context, challenge: Challenge) -> Optional[dict]:
         user = context.user
         challenge_name = challenge.name
         r = requests.get(
@@ -67,7 +68,7 @@ class PodZol:
         return r[0]
 
     # POST /remove -> None
-    def remove(self, context: Context, challenge: Challenge):
+    def remove(self, context: Context, challenge: Challenge) -> None:
         user = context.user
         challenge_name = challenge.name
         r = requests.post(

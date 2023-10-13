@@ -21,7 +21,7 @@ urlpatterns = [
     path('data/core.json', views.CoreDataView.as_view(), name='coredata'),
     path('challenge/<int:challenge_id>/', views.ChallengeURLView.as_view(), name='challenge_url'),
     path('score/', views.ScoreView.as_view(), name='score'),
-    path('podzol/<int:challenge_id>/', views.PodZolView.as_view(), name='podzol'),
+    path('podzol/<int:challenge_id>/<str:action>', views.PodZolView.as_view(), name='podzol'),
 
     path('profile/ustc/', views.UstcProfileView.as_view(), name='ustcprofile'),
 

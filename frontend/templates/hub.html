@@ -14,6 +14,10 @@
     <script src="{% static 'seedrandom.js' %}"></script>
     <script src="{% static 'katex/katex.min.js' %}"></script>
     <script src="{% static 'katex/auto-render.min.js' %}"></script>
+    <script>
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+    </script>
 {% endblock %}
 
 {% block content %}
@@ -114,13 +118,14 @@
         <div class="main-body" v-if="opened">
             <h1>{{ opened.name }}</h1>
             <div id="challenge-detail" v-html="opened.detail.replace(/{token}/g, encodeURIComponent(user.token))"></div>
-            <div id="challenge-podzol" v-if="opened.is_podzol">
+            <form class="pure-form" id="challenge-podzol" v-if="opened.is_podzol" method="post" :action="`/podzol/${opened.pk}/go`">
                 <hr>
-                <h5>动态容器管理</h5>
-                <p>当前状态：{{ podzol.status }}</p>
-                <button v-if="podzol.status==='未运行'" @click="podzol_create" :disabled="podzol.button_disabled">启动</button>
-                <button v-else-if="podzol.status==='运行中'" @click="podzol_remove" :disabled="podzol.button_disabled">停止</button>
-            </div>
+                {% endverbatim %}{% csrf_token %}{% verbatim %}
+                <h5>动态容器：本题的题目环境为动态分配的独立容器。</h5>
+                <button class="pure-button pure-button-primary pure-input-rounded" type="submit">进入环境</button>
+                <button class="pure-button pure-input-rounded" @click.prevent.stop="podzol_remove" :disabled="podzol.button_disabled">停止容器</button>
+                <hr>
+            </form>
             <form class="pure-form" method="post" :key="opened.pk">
                 {% endverbatim %}{% csrf_token %}{% verbatim %}
                 <a v-if="opened.url" class="pure-button pure-button-primary pure-input-rounded" target="_blank" rel="noopener" :href="opened.url.replace(/{token}/g, encodeURIComponent(user.token))">打开/下载题目</a>
@@ -195,19 +200,11 @@
                 token_show: false,
                 token_copy_text: '复制',
                 code_show: false,
-                podzol: {
-                    status: '加载中...',
-                    button_disabled: false,
-                },
+                podzol: {},
             },
             computed: {
                 categories() {
                     return [...new Set(this.challenges.map(i => i.category))].sort();
-                },
-            },
-            watch: {
-                opened: function () {
-                    this.update_podzol();
                 },
             },
             methods: {
@@ -233,45 +230,14 @@
                     } while (!color.valid());
                     return color.hex();
                 },
-                update_podzol() {
-                    if (this.opened.is_podzol) {
-                        let token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-                        axios.post(`/podzol/${opened.pk}/`, { action: 'get' }, { headers: { 'X-CSRFToken': token } })
-                            .then(response => {
-                                this.podzol.raw = response.data;
-
-                                if (this.podzol.raw === null) {
-                                    this.podzol.status = '未运行';
-                                } else {
-                                    this.podzol.status = '运行中';
-                                }
-                            });
-                    } else {
-                        // reset
-                        this.podzol = {
-                            status: '加载中...',
-                            button_disabled: false,
-                        };
-                    }
-                },
-                podzol_create() {
-                    this.podzol.button_disabled = true;
-                    let token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-                    axios.post(`/podzol/${opened.pk}/`, { action: 'create' }, { headers: { 'X-CSRFToken': token } })
-                        .then(response => {
-                            this.podzol.raw = response.data;
-                            this.podzol.status = '运行中';
-                            this.podzol.button_disabled = false;
-                        });
-                },
                 podzol_remove() {
                     this.podzol.button_disabled = true;
-                    let token = document.getElementsByName("csrfmiddlewaretoken")[0].value;
-                    axios.post(`/podzol/${opened.pk}/`, { action: 'remove' }, { headers: { 'X-CSRFToken': token } })
+                    axios.post(`/podzol/${opened.pk}/remove`, { action: 'remove' })
                         .then(response => {
-                            this.podzol.raw = response.data;
-                            this.podzol.status = '未运行';
                             this.podzol.button_disabled = false;
+                        })
+                        .catch(({response: {data: {error}}}) => {
+                            alert(error && error.message);
                         });
                 },
             },
@@ -284,7 +250,6 @@
                 this.$nextTick(function () {
                     update_math();
                 })
-                this.update_podzol();
             }
         });
         {{ page.js|safe }}

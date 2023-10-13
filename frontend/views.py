@@ -225,19 +225,33 @@ class ScoreView(View):
 
 
 class PodZolView(View):
-    def post(self, request, challenge_id):
+    def post(self, request, challenge_id, action):
         context = Context.from_request(request)
         challenge = Challenge.get(context, challenge_id)
         if not challenge.is_podzol:
             return JsonResponse({'error': "not for podzol"}, status=404)
-        payload = json.loads(request.body)
-        action = payload['action']
-        if action not in ['create', 'get', 'remove']:
+        if action not in ['go', 'remove']:
             return JsonResponse({'error': "invalid action"}, status=400)
-        result = challenge.podzol(action)
-        if result is None:
-            return JsonResponse(None, safe=False)
-        return JsonResponse(result)
+        if action == 'remove':
+            result = challenge.podzol(action)
+            if result is None:
+                return JsonResponse(None, safe=False)
+            return JsonResponse(result)
+        else:
+            # redirect to reverse proxy, or show error
+            try:
+                # 1. is container alive now?
+                result = challenge.podzol("get")
+                print(result)
+                if result:
+                    if not result['hostname']:
+                        raise Error("No hostname")
+                    return redirect(f"http://{result['hostname']}")
+                # 2. well, we need to create a new container
+                result = challenge.podzol("create")
+                return redirect(f"http://{result['hostname']}")
+            except Error as e:
+                return JsonResponse({'error': e.json}, status=400)
 
 
 class UstcProfileView(View):

@@ -6,7 +6,7 @@ from server.terms.interface import Terms
 from server.trigger.interface import Trigger, TriggerIsOff
 from server.user.interface import User, PermissionRequired
 from server.context import Context
-from server.exceptions import NotFound, WrongArguments
+from server.exceptions import NotFound, WrongArguments, Error
 from . import models, podzol
 
 from typing import Optional
@@ -183,9 +183,15 @@ class Challenge:
 
     def podzol(self, action) -> Optional[dict]:
         if action == "create":
-            return podzol.PodZol().create(self._context, self._obj)
+            payload = podzol.PodZol().create(self._context, self._obj)
+            if payload.get("error"):
+                raise Error(payload["error"])
+            return payload
         elif action == "get":
-            return podzol.PodZol().get(self._context, self._obj)
+            payload = podzol.PodZol().get(self._context, self._obj)
+            if payload and payload.get("error"):
+                raise Error(payload["error"])
+            return payload
         elif action == "remove":
             return podzol.PodZol().remove(self._context, self._obj)
         else:
