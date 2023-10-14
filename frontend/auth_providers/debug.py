@@ -21,5 +21,5 @@ class LoginView(BaseLoginView):
 
 
 urlpatterns = [
-    path('debug/login/', LoginView.as_view()),
+    path('debug/login/', LoginView.as_view(), name='debug_login'),
 ] if settings.DEBUG else []

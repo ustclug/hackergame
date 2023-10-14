@@ -14,17 +14,7 @@
 {% block content %}
     <h1>注册/登录</h1>
     {% if debug %}
-        <h2>调试登录</h2>
-        <form class="pure-form" method="post">
-            {% csrf_token %}
-            <select name="provider" required>
-                <option value="debug" selected>调试用户</option>
-                <option value="ustc">中国科学技术大学 GID</option>
-                <option value="sms">手机号码</option>
-            </select>
-            <input type="text" name="identity" required>
-            <button type="submit" class="pure-button pure-button-primary">登录</button>
-        </form>
+        <h2><a href="{% url 'debug_login' %}">调试登录</a></h2>
     {% endif %}
     <h2>协办单位选手</h2>
     <div class="group">
