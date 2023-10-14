@@ -52,7 +52,7 @@ class LoginView(CASBaseLoginView):
                     o.contents = new_value
                     o.save()
             except AccountLog.DoesNotExist:
-                AccountLog.objects.create(account=account, contents=f"{self.value}", content_type=display_name)
+                AccountLog.objects.create(account=account, contents=f"{self_value}", content_type=display_name)
         return account
 
 

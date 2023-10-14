@@ -1,4 +1,6 @@
-from django.test import TestCase
+from django.test import TestCase, Client
+from django.contrib import auth
+from django.urls import reverse
 from .auth_providers.ustc import LoginView as USTCLoginView
 from .auth_providers.sustech import LoginView as SUSTECHLoginView
 from unittest import mock
@@ -60,6 +62,7 @@ def ustc_check_ticket():
     v.ticket = "ST-1234567890"
     return v, v.check_ticket()
 
+
 @mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
 def sustech_check_ticket():
     v = SUSTECHLoginView()
@@ -91,3 +94,22 @@ class AuthProviderCASHasImplementedLoginAttrs(TestCase):
     def test_sustech(self):
         v, _ = sustech_check_ticket()
         v.login_attrs()
+
+
+class AuthProviderCASLoginTest(TestCase):
+    def setUp(self) -> None:
+        self.c = Client()
+
+    @mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
+    def test_ustc(self):
+        self.c.logout()
+        resp = self.c.get("/accounts/ustc/login/", {"ticket": "ST-1234567890"})
+        self.assertRedirects(resp, reverse('hub'), target_status_code=302)
+        self.assert_(auth.get_user(self.c).is_authenticated)
+
+    @mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
+    def test_sustech(self):
+        self.c.logout()
+        resp = self.c.get("/accounts/sustech/login/", {"ticket": "ST-1234567890"})
+        self.assertRedirects(resp, reverse('hub'), target_status_code=302)
+        self.assert_(auth.get_user(self.c).is_authenticated)

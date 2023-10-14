@@ -29,7 +29,7 @@ class Account(models.Model):
     user = models.ForeignKey(get_user_model(), models.CASCADE, null=True)
 
     def __str__(self):
-        return f'User {self.user.pk} ({self.provider}:{self.identity})'
+        return f'User {self.user.pk if self.user else "(null)"} ({self.provider}:{self.identity})'
 
     class Meta:
         unique_together = ('provider', 'identity')
@@ -76,7 +76,7 @@ class Code(models.Model):
 
 # 记录特殊登录方式（例如 USTC CAS）的用户，其登录方式返回的「可靠」信息
 class AccountLog(models.Model):
-    account = models.OneToOneField(Account, models.CASCADE, db_index=True)
+    account = models.ForeignKey(Account, models.CASCADE, db_index=True)
     contents = models.TextField()
     content_type = models.CharField(max_length=32, default='学号')
 
