@@ -2,7 +2,7 @@ from xml.etree import ElementTree
 
 from django.urls import path
 
-from typing import Optional
+from typing import Optional, Any
 
 from ..models import AccountLog
 from .cas import CASBaseLoginView
@@ -18,6 +18,11 @@ class LoginView(CASBaseLoginView):
     cas_name = '统一身份认证平台'
     cas_login_url = 'https://passport.ustc.edu.cn/login'
     cas_service_validate_url = 'https://passport.ustc.edu.cn/serviceValidate'
+
+    def login_attrs(self) -> dict[str, Any]:
+        return {
+            "sno": self.sno,
+        }
 
     def check_ticket(self) -> Optional[ElementTree.Element]:
         tree = super().check_ticket()

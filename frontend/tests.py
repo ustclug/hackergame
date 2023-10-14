@@ -53,24 +53,41 @@ def mock_urlopen(url, timeout=None):
         raise ValueError("Unknown URL")
 
 
+@mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
+def ustc_check_ticket():
+    v = USTCLoginView()
+    v.service = "http://example.com/accounts/ustc/login/"
+    v.ticket = "ST-1234567890"
+    return v, v.check_ticket()
+
+@mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
+def sustech_check_ticket():
+    v = SUSTECHLoginView()
+    v.service = "http://example.com/accounts/sustech/login/"
+    v.ticket = "ST-1234567890"
+    return v, v.check_ticket()
+
+
 class AuthProviderCASServiceValidateTest(TestCase):
-    @mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
     def test_ustc(self):
-        v = USTCLoginView()
-        v.service = "http://example.com/accounts/ustc/login/"
-        v.ticket = "ST-1234567890"
-        tree = v.check_ticket()
+        v, tree = ustc_check_ticket()
         self.assertEqual(tree.tag, "{http://www.yale.edu/tp/cas}authenticationSuccess")
         self.assertEqual(v.identity, "2201234567")
         self.assertEqual(v.sno, "SA21011000")
 
-    @mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
     def test_sustech(self):
-        v = SUSTECHLoginView()
-        v.service = "http://example.com/accounts/sustech/login/"
-        v.ticket = "ST-1234567890"
-        tree = v.check_ticket()
+        v, tree = sustech_check_ticket()
         self.assertEqual(tree.tag, "{http://www.yale.edu/tp/cas}authenticationSuccess")
         self.assertEqual(v.identity, "11899999")
-        self.assertEqual(v.mail, "11899999@mail.sustech.edu.cn")
+        self.assertEqual(v.email, "11899999@mail.sustech.edu.cn")
         self.assertEqual(v.name, "ZHANG San")
+
+
+class AuthProviderCASHasImplementedLoginAttrs(TestCase):
+    def test_ustc(self):
+        v, _ = ustc_check_ticket()
+        v.login_attrs()
+
+    def test_sustech(self):
+        v, _ = sustech_check_ticket()
+        v.login_attrs()

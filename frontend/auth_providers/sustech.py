@@ -2,7 +2,7 @@ from xml.etree import ElementTree
 
 from django.urls import path
 
-from typing import Optional
+from typing import Any, Optional
 
 from ..models import AccountLog
 from .cas import CASBaseLoginView
@@ -19,12 +19,19 @@ class LoginView(CASBaseLoginView):
     cas_login_url = 'https://sso.cra.ac.cn/realms/cra-service-realm/protocol/cas/login'
     cas_service_validate_url = 'https://sso.cra.ac.cn/realms/cra-service-realm/protocol/cas/serviceValidate'
 
+    def login_attrs(self) -> dict[str, Any]:
+        return {
+            "sno": self.identity,
+            "email": self.email,
+            "name": self.name,
+        }
+
     def check_ticket(self) -> Optional[ElementTree.Element]:
         tree = super().check_ticket()
         if not tree:
             return None
         self.identity = tree.find(self.YALE_CAS_URL + 'user').text.strip()
-        self.mail = tree.find(self.YALE_CAS_URL + 'attributes').find(self.YALE_CAS_URL + 'mail').text.strip()
+        self.email = tree.find(self.YALE_CAS_URL + 'attributes').find(self.YALE_CAS_URL + 'mail').text.strip()
         self.name = tree.find(self.YALE_CAS_URL + 'attributes').find(self.YALE_CAS_URL + 'cn').text.strip()
         return tree
 
@@ -34,7 +41,7 @@ class LoginView(CASBaseLoginView):
         def from_set(vs):
             return ','.join(sorted(vs))
         custom_attrs: list[tuple[str, str]] = [
-            ('邮箱', self.mail),
+            ('邮箱', self.email),
             ('姓名', self.name)
         ]
         for display_name, self_value in custom_attrs:

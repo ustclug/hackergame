@@ -89,6 +89,10 @@ class BaseLoginView(View):
     def normalize_identity(self):
         return self.identity
 
+    # kwargs 会在首次登录（注册）时传入 User.create
+    # 用户可以修改这些信息。
+    # 对于 CAS 等场合（identity 不是学号，或者返回了除了学号以外更多的信息）
+    # 可以将有关信息记录在 AccountLog 中，以备查阅。
     def login(self, **kwargs):
         account, created = Account.objects.get_or_create(
             provider=self.provider,
