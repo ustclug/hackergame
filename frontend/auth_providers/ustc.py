@@ -4,7 +4,7 @@ from django.urls import path
 
 from typing import Optional
 
-from ..models import UstcSnos
+from ..models import AccountLog
 from .cas import CASBaseLoginView
 
 
@@ -33,13 +33,13 @@ class LoginView(CASBaseLoginView):
         def from_set(vs):
             return ','.join(sorted(vs))
         try:
-            o = account.ustcsnos
-            new_snos = from_set(to_set(o.snos) | {self.sno})
-            if new_snos != o.snos:
-                o.snos = new_snos
+            o = AccountLog.objects.get(account=account, content_type='学号')
+            new_snos = from_set(to_set(o.contents) | {self.sno})
+            if new_snos != o.contents:
+                o.contents = new_snos
                 o.save()
-        except UstcSnos.DoesNotExist:
-            UstcSnos.objects.create(account=account, snos=self.sno)
+        except AccountLog.DoesNotExist:
+            AccountLog.objects.create(account=account, contents=f"{self.sno}", content_type='学号')
         return account
 
 

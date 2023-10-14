@@ -18,7 +18,7 @@ from server.user.interface import PermissionRequired, User, LoginRequired, Profi
 from server.context import Context
 from server.exceptions import Error, NotFound, WrongFormat
 
-from frontend.models import Account, Credits, Qa, UstcEligible
+from frontend.models import Account, Credits, Qa, SpecialProfileUsedRecord
 
 
 # noinspection PyMethodMayBeStatic
@@ -27,8 +27,8 @@ class HubView(View):
         if request.user.is_authenticated:
             if Account.objects.filter(provider='ustc', user=request.user).exists():
                 try:
-                    request.user.ustceligible
-                except UstcEligible.DoesNotExist:
+                    request.user.specialprofileusedrecord
+                except SpecialProfileUsedRecord.DoesNotExist:
                     return redirect('ustcprofile')
         context = Context.from_request(request)
         try:
@@ -131,6 +131,11 @@ class FirstView(View):
             return redirect('hub')
 
 
+class LoginView(View):
+    def get(self, request):
+        return TemplateResponse(request, 'login.html')
+
+
 # noinspection PyMethodMayBeStatic
 class LogoutView(View):
     def post(self, request):
@@ -228,9 +233,9 @@ class UstcProfileView(View):
         if request.user.is_authenticated:
             if Account.objects.filter(provider='ustc', user=request.user).exists():
                 try:
-                    request.user.ustceligible
+                    request.user.specialprofileusedrecord
                     return False
-                except UstcEligible.DoesNotExist:
+                except SpecialProfileUsedRecord.DoesNotExist:
                     return True
         return False
 
@@ -244,11 +249,11 @@ class UstcProfileView(View):
             return redirect('hub')
         eligible = request.POST['eligible']
         if eligible == 'yes':
-            UstcEligible.objects.create(user=request.user, eligible=True)
+            SpecialProfileUsedRecord.objects.create(user=request.user)
             user = User.get(Context.from_request(request).copy(elevated=True), request.user.pk)
             user.update(group='ustc')
         elif eligible == 'no':
-            UstcEligible.objects.create(user=request.user, eligible=False)
+            SpecialProfileUsedRecord.objects.create(user=request.user)
         return redirect('hub')
 
 

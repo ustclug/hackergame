@@ -1,15 +1,96 @@
 {% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+{% endblock %}
 
 {% block content %}
+{% verbatim %}
+<div id="app">
     <form method="post">
+        {% endverbatim %}{% comment %} 用户条款页面支持以下的扩展：
+        <script id="json-quiz" type="application/json">
+        {"header": "请选择所有不违反以上条款的内容：", "questions": [[true, "使用搜索引擎搜索以尝试解题"], [false, "问做出题目的舍友 flag"], [false, "在群聊中分享自己的解题方法"], [true, "一边听歌一边做题"]]}
+        </script>
+        {% endcomment %}
         {% csrf_token %}
         {% for obj in terms %}
             <h1>{{ obj.name }}</h1>
             <input type="hidden" name="terms" value="{{ obj.pk }}">
             <div>{{ obj.content|safe }}</div>
         {% endfor %}
-        {% if user_ %}
-            <button type="submit" class="pure-button pure-button-primary">我理解并同意以上条款</button>
-        {% endif %}
+        {% verbatim %}
+        <div v-if="user_">
+            <div id="vue-quiz" v-if="quizs">
+                <hr>
+                <p>以下问题回答正确后，同意按钮才会启用。</p>
+                <span v-if="quizs.header">{{ quizs.header }}</span>
+                <ul>
+                    <li v-for="(quiz, index) in quizs.questions">
+                        <div>
+                            <input type="checkbox" :name="`quiz-${index}`" @change="check()">
+                            <label v-for="`quiz-${quiz.pk}`">{{ quiz[1] }}</label>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <!-- 请读者注意：以任何形式提交理解并同意的网络请求均视为已经完全理解并且同意以上条款的内容。 -->
+            <button type="submit" class="pure-button pure-button-primary" :disabled="!enable_submit">我理解并同意以上条款</button>
+        </div>
     </form>
+</div>
+{% endverbatim %}
+{{ user_.json|json_script:'json-user' }}
+<script>
+    app = new Vue({
+        el: '#app',
+        data: {
+            user_: JSON.parse(document.getElementById('json-user').textContent),
+            enable_submit: false,
+            quizs: null,
+        },
+        created() {
+            this.init_quiz();
+        },
+        methods: {
+            init_quiz() {
+                const ele = document.getElementById('json-quiz');
+                if (!ele) {
+                    this.enable_submit = true;
+                    return;
+                }
+                const quizs = JSON.parse(ele.textContent);
+                // comment out this if you don't want to shuffle the quizs.
+                this.inplace_shuffle(quizs.questions);
+                this.quizs = quizs;
+            },
+            check() {
+                for (const [index, quiz] of this.quizs.questions.entries()) {
+                    const ele = document.getElementsByName(`quiz-${index}`)[0];
+                    const user_checked = ele.checked;
+                    const correct_ans = quiz[0];
+                    if (correct_ans != user_checked) {
+                        this.enable_submit = false;
+                        return;
+                    }
+                }
+                this.enable_submit = true;
+            },
+            inplace_shuffle(array) {
+                // https://stackoverflow.com/a/2450976/8460426
+                let current_index = array.length;
+                let random_index;
+
+                while (current_index > 0) {
+                    random_index = Math.floor(Math.random() * current_index);
+                    current_index--;
+
+                    [array[current_index], array[random_index]] = [array[random_index], array[current_index]];
+                }
+            }
+        }
+    });
+</script>
 {% endblock %}

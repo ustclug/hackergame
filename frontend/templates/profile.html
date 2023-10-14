@@ -19,7 +19,15 @@
             如果你看到这条消息，说明你的浏览器版本过低或网络存在问题，导致比赛平台不能正常加载。请忽略以下显示的任何信息，换用最新版 Firefox 或 Chrome 浏览器访问比赛平台。
         </div>
         <div v-if="user.group==='banned'" class="msg-error">
-            由于违反规则，你的参赛资格已被取消，如有疑问请联系 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>。
+            由于违反规则，你的参赛资格已被取消，如有疑问请联系 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>，
+            并在邮件中粘贴下面的 token。
+        </div>
+        <div v-if="user && user.group==='banned'" class="msg-info">
+            <label for="token">Token:</label>
+            <button @click.prevent.stop="token_show=!token_show">{{ token_show?'隐藏':'显示' }}</button>
+            <input v-show="token_show" type="text" id="token" :value="user.token" readonly>
+            <button @click.prevent.stop="token_copy()">{{ token_copy_text }}</button>
+            Token 是一些题目的登录凭证，禁止分享，否则视为作弊
         </div>
         <div v-if="info.length" class="msg-info">
             <div v-for="i in info">{{ i }}</div>
@@ -89,6 +97,21 @@
     {{ user_.json|json_script:'json-user' }}
     {{ profile_required|json_script:'json-profile_required' }}
     <script>
+        function token_copy() {
+            let t = app.token_show;
+            app.token_show = true;
+            Vue.nextTick(function () {
+                let copyText = document.getElementById("token");
+                copyText.select();
+                copyText.setSelectionRange(0, 99999);
+                document.execCommand("copy");
+                app.token_show = t;
+                app.token_copy_text = '已复制';
+                setTimeout(function () {
+                    app.token_copy_text = '复制';
+                }, 1000);
+            });
+        }
         let user = JSON.parse(document.getElementById('json-user').textContent);
         let profile_required = JSON.parse(document.getElementById('json-profile_required').textContent);
         let fields_required = {};
@@ -132,6 +155,8 @@
                 fields: fields_required,
                 info,
                 submit_disabled: false,
+                token_show: false,
+                token_copy_text: '复制',
             },
             methods: {
                 submit() {

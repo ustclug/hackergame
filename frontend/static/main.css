@@ -63,7 +63,7 @@ table {
 .content {
     margin: 0 auto 2em;
     padding: 0 1em;
-    max-width: 72em;
+    max-width: 81em;
 }
 @media screen and (min-width: 48em) {
     .content {
@@ -121,7 +121,7 @@ h1 {
 }
 @media screen and (min-width: 48em) {
     .challenges {
-        max-width: 25em;
+        max-width: 28em;
         margin-left: 1em;
     }
 }
@@ -179,7 +179,7 @@ table .narrow {
 }
 @media screen and (min-width: 48em) {
     .main-body img {
-        max-width: calc(100% - 26em);
+        max-width: calc(100% - 28em);
     }
     .logout {
         max-width: 14em;
@@ -188,4 +188,12 @@ table .narrow {
 .challenge-column {
     max-width: 50%;
     width: 100%;
+}
+/* revert changes by purecss in form */
+#token {
+    border: revert;
+    background-color: revert;
+    padding: revert;
+    vertical-align: revert;
+    border-radius: revert;
 }

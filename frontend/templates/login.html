@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+
+{% block css %}
+    {{ block.super }}
+    <style>
+        .group {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            grid-gap: 1em;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <h1>注册/登录</h1>
+    {% if debug %}
+        <h2>调试登录</h2>
+        <form class="pure-form" method="post">
+            {% csrf_token %}
+            <select name="provider" required>
+                <option value="debug" selected>调试用户</option>
+                <option value="ustc">中国科学技术大学 GID</option>
+                <option value="sms">手机号码</option>
+            </select>
+            <input type="text" name="identity" required>
+            <button type="submit" class="pure-button pure-button-primary">登录</button>
+        </form>
+    {% endif %}
+    <h2>协办单位选手</h2>
+    <div class="group">
+        <a class="pure-button" href="/accounts/ustc/login/">中国科学技术大学</a>
+        <a class="pure-button" href="/accounts/zju/login/">浙江大学</a>
+        <a class="pure-button" href="/accounts/jlu/login/">吉林大学</a>
+        <a class="pure-button" href="/accounts/nuaa/login/">南京航空航天大学</a>
+        <a class="pure-button" href="/accounts/neu/login/">东北大学</a>
+        <a class="pure-button" href="/accounts/sysu/login/">中山大学</a>
+        <a class="pure-button" href="/accounts/xidian/login/">西安电子科技大学</a>
+        <a class="pure-button" href="/accounts/hit/login/">哈尔滨工业大学</a>
+        <a class="pure-button" href="/accounts/nudt/login/">国防科技大学</a>
+        <a class="pure-button" href="/accounts/fdu/login/">复旦大学</a>
+        <a class="pure-button" href="/accounts/tongji/login/">同济大学</a>
+        <a class="pure-button" href="/accounts/gdou/login/">广东海洋大学</a>
+        <a class="pure-button" href="/accounts/gdut/login/">广东工业大学</a>
+        <a class="pure-button" href="/accounts/gzhu/login/">广州大学</a>
+        <a class="pure-button" href="/accounts/sustech/login/">南方科技大学</a>
+        <a class="pure-button" href="/accounts/xmut/login/">厦门理工学院</a>
+        <a class="pure-button" href="/accounts/shu/login/">上海大学</a>
+    </div>
+    <h2>其他选手</h2>
+    <div class="group">
+        <a class="pure-button" href="/accounts/sms/login/">手机号码登录</a>
+        <a class="pure-button" href="/accounts/google/login/">Google 账号登录</a>
+        <a class="pure-button" href="/accounts/microsoft/login/">Microsoft 账号登录</a>
+    </div>
+    <!-- 测试移动端 -->
+{% endblock %}

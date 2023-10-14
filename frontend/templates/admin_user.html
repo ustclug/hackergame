@@ -21,7 +21,10 @@
                     <input class="vTextField" type="text" id="form-nickname" name="nickname" v-model="opened.nickname" required>
                 </div>
                 <div class="form-row">
-                    <a :href="`/admin/auth/user/${opened.pk}/change`">跳转到 Django 用户模型页面……</a>
+                    <a :href="`/admin/auth/user/${opened.pk}/change`">跳转到 Django 用户模型页面（配置权限）……</a>
+                </div>
+                <div class="form-row">
+                    <a :href="`/admin/frontend/account/${opened.pk}/change`">跳转到 Account 模型页面（查看登录方式信息）……</a>
                 </div>
                 <div class="form-row">
                     <label for="form-name">姓名:</label>
