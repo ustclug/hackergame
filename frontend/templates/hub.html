@@ -217,7 +217,7 @@
                     return color.hex();
                 },
                 get_challenge_count(challenge) {
-                    let count = (this.clear_count.flags.find(i => i.challenge === challenge.pk) || {count: 0}).count;
+                    let count = (this.clear_count.challenges.find(i => i.challenge === challenge.pk) || {count: 0}).count;
                     // are there any sub-flags?
                     if (challenge.flags.length > 1) {
                         let max_sub = 0;
