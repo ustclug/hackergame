@@ -61,6 +61,7 @@ class User:
         'sustech': '南方科技大学',
         'xmut': '厦门理工学院',
         'shu': '上海大学',
+        'nyist': '南洋理工学院',
         'other': '其他选手',
         'banned': '已封禁',
     }
