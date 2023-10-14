@@ -90,6 +90,7 @@ class User:
         'sustech': ['nickname', 'name', 'sno'],
         'xmut': ['nickname', 'name', 'sno'],
         'shu': ['nickname', 'name', 'sno'],
+        'nyist': ['nickname', 'name', 'sno'],
         'other': ['nickname'],
         'banned': ['nickname'],
     }

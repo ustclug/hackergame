@@ -43,6 +43,7 @@ urlpatterns = [
     path('accounts/', include('frontend.auth_providers.sustech')),
     path('accounts/', include('frontend.auth_providers.xmut')),
     path('accounts/', include('frontend.auth_providers.shu')),
+    path('accounts/', include('frontend.auth_providers.nyist')),
     path('accounts/', include('frontend.auth_providers.sms')),
     path('accounts/', include('allauth.socialaccount.providers.google.urls')),
     path('accounts/', include('allauth.socialaccount.providers.microsoft.urls')),

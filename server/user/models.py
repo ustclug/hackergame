@@ -44,6 +44,7 @@ class User(models.Model):
             ('view_sustech', '查看南方科技大学个人信息'),
             ('view_xmut', '查看厦门理工学院个人信息'),
             ('view_shu', '查看上海大学个人信息'),
+            ('view_nyist', '查看南阳理工学院个人信息'),
         ]
 
 
