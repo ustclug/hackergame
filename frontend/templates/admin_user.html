@@ -24,7 +24,7 @@
                     <a :href="`/admin/auth/user/${opened.pk}/change`">跳转到 Django 用户模型页面（配置权限）……</a>
                 </div>
                 <div class="form-row" v-if="account_pks.length > 0">
-                    <a :href="`/admin/frontend/account/${opened.pk}/change`">跳转到 Account 模型页面（查看登录方式信息）……</a>
+                    <a :href="`/admin/frontend/account/${account}/change`" v-for="account in account_pks">跳转到 Account 模型页面（查看登录方式信息）……</a>
                 </div>
                 <div class="form-row" v-if="account_pks.length > 0">
                     <a @click.prevent="get_accountlog" href="#">显示 AccountLog 记录</a>

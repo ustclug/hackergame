@@ -291,7 +291,6 @@ class AccountView(View):
             return JsonResponse({'value': logs})
 
 
-
 # noinspection PyMethodMayBeStatic
 class BaseAdminView(View):
     title = None
