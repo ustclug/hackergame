@@ -1,6 +1,10 @@
 from django.test import TestCase, Client
 from django.contrib import auth
 from django.urls import reverse
+from frontend.models import Account
+from server.context import Context
+
+from server.user.interface import User
 from .auth_providers.ustc import LoginView as USTCLoginView
 from .auth_providers.sustech import LoginView as SUSTECHLoginView
 from unittest import mock
@@ -119,11 +123,13 @@ class AuthProviderCASLoginTest(TestCase):
 class AccountLogViewPermission(TestCase):
     def setUp(self) -> None:
         self.c = Client()
+        self.u = User.create(Context(elevated=True), group='other')
+        Account.objects.create(provider='debug', identity='root', user=self.u.user)
 
     def test_anonymous(self):
         resp = self.c.post(
             reverse("account"),
-            data=json.dumps({"method": "accountlog", "user": 1}),
+            data=json.dumps({"method": "accountlog", "user": self.u.pk}),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 400)
@@ -138,7 +144,7 @@ class AccountLogViewPermission(TestCase):
         self.assert_(auth.get_user(self.c).is_authenticated)
         resp = self.c.post(
             reverse("account"),
-            data=json.dumps({"method": "accountlog", "user": 1}),
+            data=json.dumps({"method": "accountlog", "user": self.u.pk}),
             content_type="application/json",
         )
         self.assertEqual(resp.status_code, 400)
