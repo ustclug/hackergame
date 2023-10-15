@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% comment %}包含自定义 info 的登录页模板{% endcomment %}
+
+{% block content %}
+    {% block form %}
+        <h1>{% block heading %}{{ provider_name }}登录{% endblock %}</h1>
+        <button type="submit" onclick="location.href=this.value;" value="{{ url }}" class="pure-button pure-button-primary">登录</button>
+        {% block info %}
+            <div class="msg-info">
+                <p>{{ info }}</p>
+            </div>
+        {% endblock %}
+    {% endblock %}
+{% endblock %}
