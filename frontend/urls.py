@@ -18,6 +18,7 @@ urlpatterns = [
     path('user/', views.UserView.as_view()),
     path('qa/', views.QaView.as_view(), name='qa'),
     path('credits/', views.CreditsView.as_view(), name='credits'),
+    path('account/', views.AccountView.as_view(), name='account'),
     path('error/', views.ErrorView.as_view()),
     path('data/core.json', views.CoreDataView.as_view(), name='coredata'),
     path('challenge/<int:challenge_id>/', views.ChallengeURLView.as_view(), name='challenge_url'),

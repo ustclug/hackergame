@@ -1,10 +1,15 @@
 from django.test import TestCase, Client
 from django.contrib import auth
 from django.urls import reverse
+from frontend.models import Account
+from server.context import Context
+
+from server.user.interface import User
 from .auth_providers.ustc import LoginView as USTCLoginView
 from .auth_providers.sustech import LoginView as SUSTECHLoginView
 from unittest import mock
 from contextlib import contextmanager
+import json
 
 
 USTC_CAS_EXAMPLE_RESPONSE = """<cas:serviceResponse xmlns:cas='http://www.yale.edu/tp/cas'>
@@ -104,12 +109,44 @@ class AuthProviderCASLoginTest(TestCase):
     def test_ustc(self):
         self.c.logout()
         resp = self.c.get("/accounts/ustc/login/", {"ticket": "ST-1234567890"})
-        self.assertRedirects(resp, reverse('hub'), target_status_code=302)
+        self.assertRedirects(resp, reverse("hub"), target_status_code=302)
         self.assert_(auth.get_user(self.c).is_authenticated)
 
     @mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
     def test_sustech(self):
         self.c.logout()
         resp = self.c.get("/accounts/sustech/login/", {"ticket": "ST-1234567890"})
-        self.assertRedirects(resp, reverse('hub'), target_status_code=302)
+        self.assertRedirects(resp, reverse("hub"), target_status_code=302)
         self.assert_(auth.get_user(self.c).is_authenticated)
+
+
+class AccountLogViewPermission(TestCase):
+    def setUp(self) -> None:
+        self.c = Client()
+        self.u = User.create(Context(elevated=True), group='other')
+        Account.objects.create(provider='debug', identity='root', user=self.u.user)
+
+    def test_anonymous(self):
+        resp = self.c.post(
+            reverse("account"),
+            data=json.dumps({"method": "accountlog", "user": self.u.pk}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 400)
+        code = resp.json()["error"]['code']
+        self.assertEqual(code, 'permission_required')
+
+    @mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
+    def test_low_privilege(self):
+        # get a ustc account
+        self.c.logout()
+        resp = self.c.get("/accounts/sustech/login/", {"ticket": "ST-1234567890"})
+        self.assert_(auth.get_user(self.c).is_authenticated)
+        resp = self.c.post(
+            reverse("account"),
+            data=json.dumps({"method": "accountlog", "user": self.u.pk}),
+            content_type="application/json",
+        )
+        self.assertEqual(resp.status_code, 400)
+        code = resp.json()["error"]['code']
+        self.assertEqual(code, 'permission_required')
