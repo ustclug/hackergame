@@ -272,21 +272,20 @@ class AccountView(View):
         body = json.loads(request.body)
         method = body['method']
         user_pk = body['user']
+        # Check permission
+        try:
+            context = Context.from_request(request)
+            target_user = User.get(context, user_pk)
+            User.test_permission(context, 'user.full', 'user.view', f'user.view_{target_user.group}')
+        except PermissionRequired as e:
+            j = e.json
+            j['message'] = '您目前没有权限查看此项'
+            return JsonResponse({'error': j}, status=400)
+
         accounts = Account.objects.filter(user__pk=user_pk)
         if method == "account_pk":
             return JsonResponse({'value': [i.pk for i in accounts]})
         elif method == "accountlog":
-            # Check permission
-            try:
-                context = Context.from_request(request)
-                if request.user.pk is None:
-                    raise PermissionRequired()
-                target_user = User.get(context, user_pk)
-                User.test_permission(context, 'user.full', 'user.view', f'user.view_{target_user.group}')
-            except PermissionRequired as e:
-                j = e.json
-                j['message'] = '您目前没有权限查看此项'
-                return JsonResponse({'error': j}, status=400)
             logs = list(AccountLog.objects.filter(account__in=accounts).values('content_type', 'contents'))
             return JsonResponse({'value': logs})
 

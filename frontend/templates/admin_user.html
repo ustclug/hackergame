@@ -23,15 +23,15 @@
                 <div class="form-row">
                     <a :href="`/admin/auth/user/${opened.pk}/change`">跳转到 Django 用户模型页面（配置权限）……</a>
                 </div>
-                <div class="form-row" v-if="account_pks.length > 0">
-                    <a :href="`/admin/frontend/account/${account}/change`" v-for="account in account_pks">跳转到 Account 模型页面（查看登录方式信息）……</a>
+                <div class="form-row" v-if="account_pks[opened.pk]">
+                    <a :href="`/admin/frontend/account/${account}/change`" v-for="account in account_pks[opened.pk]">跳转到 Account 模型页面（查看登录方式信息）……</a>
                 </div>
-                <div class="form-row" v-if="account_pks.length > 0">
-                    <a @click.prevent="get_accountlog" href="#">显示 AccountLog 记录</a>
-                    <ul v-if="accountlog && accountlog.length > 0">
-                        <li v-for="log in accountlog">{{ log.content_type }}: {{ log.contents }}</li>
+                <div class="form-row" v-if="account_pks[opened.pk] && account_pks[opened.pk].length > 0">
+                    <a @click.prevent="get_accountlog" href="#">获取 AccountLog 记录</a>
+                    <ul v-if="accountlog[opened.pk] && accountlog[opened.pk].length > 0">
+                        <li v-for="log in accountlog[opened.pk]">{{ log.content_type }}: {{ log.contents }}</li>
                     </ul>
-                    <p v-else-if="accountlog">（无结果）</p>
+                    <p v-else-if="accountlog[opened.pk]">（无结果）</p>
                 </div>
                 <div class="form-row">
                     <label for="form-name">姓名:</label>
@@ -176,8 +176,8 @@
             filters: {
                 group: null,
             },
-            account_pks: [],
-            accountlog: undefined,
+            account_pks: {},
+            accountlog: {},
         },
         created() {
             this.refresh();
@@ -204,11 +204,9 @@
             },
             open(obj) {
                 this.opened = {...obj};
-                this.account_pks = [];
-                this.accountlog = undefined;
                 axios.post('/account/', {method: 'account_pk', user: obj.pk})
                     .then(({data: {value}}) => {
-                        this.account_pks = value;
+                        this.$set(this.account_pks, obj.pk, value)
                     })
                     .catch(({response: {data: {error}}}) => {
                         alert(error && error.message);
@@ -229,9 +227,10 @@
                     });
             },
             get_accountlog() {
-                axios.post('/account/', {method: 'accountlog', user: this.opened.pk})
+                const pk = this.opened.pk;
+                axios.post('/account/', {method: 'accountlog', user: pk})
                     .then(({data: {value}}) => {
-                        this.accountlog = value;
+                        this.$set(this.accountlog, pk, value);
                     })
                     .catch(({response: {data: {error}}}) => {
                         alert(error && error.message);
