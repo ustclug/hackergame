@@ -18,7 +18,7 @@ from server.user.interface import PermissionRequired, User, LoginRequired, Profi
 from server.context import Context
 from server.exceptions import Error, NotFound, WrongFormat
 
-from frontend.models import Account, Credits, Qa, SpecialProfileUsedRecord
+from frontend.models import Account, AccountLog, Credits, Qa, SpecialProfileUsedRecord
 
 
 # noinspection PyMethodMayBeStatic
@@ -265,6 +265,31 @@ class QaView(View):
 class CreditsView(View):
     def get(self, request):
         return TemplateResponse(request, 'credits.html', {'credits': Credits.get()})
+
+
+class AccountView(View):
+    def post(self, request):
+        body = json.loads(request.body)
+        method = body['method']
+        user_pk = body['user']
+        accounts = Account.objects.filter(user__pk=user_pk)
+        if method == "account_pk":
+            return JsonResponse({'value': [i.pk for i in accounts]})
+        elif method == "accountlog":
+            # Check permission
+            try:
+                context = Context.from_request(request)
+                if request.user.pk is None:
+                    raise PermissionRequired()
+                user = User.get(context, request.user.pk)
+                User.test_permission(context, 'user.full', 'user.view', f'user.view_{user.group}')
+            except PermissionRequired as e:
+                j = e.json
+                j['message'] = '您目前没有权限查看此项'
+                return JsonResponse({'error': j}, status=400)
+            logs = list(AccountLog.objects.filter(account__in=accounts).values('content_type', 'contents'))
+            return JsonResponse({'value': logs})
+
 
 
 # noinspection PyMethodMayBeStatic

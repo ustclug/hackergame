@@ -23,8 +23,15 @@
                 <div class="form-row">
                     <a :href="`/admin/auth/user/${opened.pk}/change`">跳转到 Django 用户模型页面（配置权限）……</a>
                 </div>
-                <div class="form-row">
+                <div class="form-row" v-if="account_pks.length > 0">
                     <a :href="`/admin/frontend/account/${opened.pk}/change`">跳转到 Account 模型页面（查看登录方式信息）……</a>
+                </div>
+                <div class="form-row" v-if="account_pks.length > 0">
+                    <a @click.prevent="get_accountlog" href="#">显示 AccountLog 记录</a>
+                    <ul v-if="accountlog && accountlog.length > 0">
+                        <li v-for="log in accountlog">{{ log.content_type }}: {{ log.contents }}</li>
+                    </ul>
+                    <p v-else-if="accountlog">（无结果）</p>
                 </div>
                 <div class="form-row">
                     <label for="form-name">姓名:</label>
@@ -169,6 +176,8 @@
             filters: {
                 group: null,
             },
+            account_pks: [],
+            accountlog: undefined,
         },
         created() {
             this.refresh();
@@ -195,6 +204,15 @@
             },
             open(obj) {
                 this.opened = {...obj};
+                this.account_pks = [];
+                this.accountlog = undefined;
+                axios.post('/account/', {method: 'account_pk', user: obj.pk})
+                    .then(({data: {value}}) => {
+                        this.account_pks = value;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                    });
                 location.hash = `#edit-${obj.pk}`;
             },
             opened_save() {
@@ -210,6 +228,15 @@
                         this.opened_disabled = false;
                     });
             },
+            get_accountlog() {
+                axios.post('/account/', {method: 'accountlog', user: this.opened.pk})
+                    .then(({data: {value}}) => {
+                        this.accountlog = value;
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        alert(error && error.message);
+                    });
+            }
         },
     });
     </script>
