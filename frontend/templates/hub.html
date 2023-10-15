@@ -4,6 +4,27 @@
 {% block css %}
     {{ block.super }}
     <link rel="stylesheet" href="{% static 'katex/katex.min.css' %}">
+    <style>
+        .hover-tip-complete-count {
+            position: relative;
+        }
+        .hover-tip-content {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            z-index: 1;
+            background-color: #111;
+            color: #fff;
+            font-weight: normal;
+            padding: 0.5em;
+            border-radius: 0.5em;
+            width: 20em;
+        }
+        .hover-tip-complete-count:hover .hover-tip-content {
+            display: block;
+        }
+    </style>
 {% endblock %}
 
 {% block js %}
@@ -69,7 +90,10 @@
                         <th class="challenge-column">题目</th>
                         <th></th>
                         <th class="center narrow">分数</th>
-                        <th class="center narrow">完成人数</th>
+                        <th class="center narrow hover-tip-complete-count">
+                            完成人数 <i class="fas fa-question-circle"></i>
+                            <div class="hover-tip-content">对于有多个小题的题目，显示<br>“全部完成人数 (至少完成一小题的人数)”</div>
+                        </th>
                     </tr>
                 </thead>
                 <tbody v-if="challenges_error">
