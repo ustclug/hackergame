@@ -281,8 +281,8 @@ class AccountView(View):
                 context = Context.from_request(request)
                 if request.user.pk is None:
                     raise PermissionRequired()
-                user = User.get(context, request.user.pk)
-                User.test_permission(context, 'user.full', 'user.view', f'user.view_{user.group}')
+                target_user = User.get(context, user_pk)
+                User.test_permission(context, 'user.full', 'user.view', f'user.view_{target_user.group}')
             except PermissionRequired as e:
                 j = e.json
                 j['message'] = '您目前没有权限查看此项'
