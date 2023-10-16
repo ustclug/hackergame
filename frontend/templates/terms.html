@@ -10,7 +10,34 @@
 {% verbatim %}
 <div id="app">
     <form method="post">
-        {% endverbatim %}
+        {% endverbatim %}{% comment %} 用户条款页面支持以下的扩展：
+            <script id="json-quiz" type="application/json">
+                {
+                    "questions": [
+                        {
+                            "question": "使用搜索引擎搜索以尝试解题",
+                            "answer": true,
+                            "reason": "使用搜索引擎等通用工具解题是允许的"
+                        },
+                        {
+                            "question": "问做出题目的舍友 flag",
+                            "answer": false,
+                            "reason": "blabla"
+                        },
+                        {
+                            "question": "在群聊中分享自己的解题方法",
+                            "answer": false,
+                            "reason": "blabla"
+                        },
+                        {
+                            "question": "一边听歌一边做题",
+                            "answer": true,
+                            "reason": "blabla"
+                        }
+                    ]
+                }
+            </script>
+        {% endcomment %}
         {% csrf_token %}
         {% for obj in terms %}
             <h1>{{ obj.name }}</h1>
@@ -62,28 +89,12 @@
         },
         methods: {
             init_quiz() {
-                const quizs = {questions: [
-                    {
-                        question: '使用搜索引擎搜索以尝试解题',
-                        answer: true,
-                        reason: '使用搜索引擎等通用工具解题是允许的',
-                    },
-                    {
-                        question: '问做出题目的舍友 flag',
-                        answer: false,
-                        reason: 'blabla',
-                    },
-                    {
-                        question: '在群聊中分享自己的解题方法',
-                        answer: false,
-                        reason: 'blabla',
-                    },
-                    {
-                        question: '一边听歌一边做题',
-                        answer: true,
-                        reason: 'blabla',
-                    },
-                ]};
+                const ele = document.getElementById('json-quiz');
+                if (!ele) {
+                    this.enable_submit = true;
+                    return;
+                }
+                const quizs = JSON.parse(ele.textContent);
                 // comment out this if you don't want to shuffle the quizs.
                 this.inplace_shuffle(quizs.questions);
                 this.quizs = quizs;
