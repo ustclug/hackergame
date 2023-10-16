@@ -10,11 +10,7 @@
 {% verbatim %}
 <div id="app">
     <form method="post">
-        {% endverbatim %}{% comment %} 用户条款页面支持以下的扩展：
-        <script id="json-quiz" type="application/json">
-        {"header": "请选择所有不违反以上条款的内容：", "questions": [[true, "使用搜索引擎搜索以尝试解题"], [false, "问做出题目的舍友 flag"], [false, "在群聊中分享自己的解题方法"], [true, "一边听歌一边做题"]]}
-        </script>
-        {% endcomment %}
+        {% endverbatim %}
         {% csrf_token %}
         {% for obj in terms %}
             <h1>{{ obj.name }}</h1>
@@ -26,15 +22,24 @@
             <div id="vue-quiz" v-if="quizs">
                 <hr>
                 <p>以下问题回答正确后，同意按钮才会启用。</p>
-                <span v-if="quizs.header">{{ quizs.header }}</span>
-                <ul>
-                    <li v-for="(quiz, index) in quizs.questions">
-                        <div>
-                            <input type="checkbox" :name="`quiz-${index}`" @change="check()">
-                            <label v-for="`quiz-${quiz.pk}`">{{ quiz[1] }}</label>
-                        </div>
-                    </li>
-                </ul>
+                <form class="pure-form">
+                    <ol>
+                        <li v-for="(quiz, index) in quizs.questions" style="margin-bottom: 1em">
+                            <div>{{ quiz.question }}</div>
+                            <div>
+                                <input type="radio" :id="`quiz-${index}-true`" :name="`quiz-${index}`" @change="check">
+                                <label :for="`quiz-${index}-true`">符合</label>
+                                <input type="radio" :id="`quiz-${index}-false`" :name="`quiz-${index}`" @change="check">
+                                <label :for="`quiz-${index}-false`">不符合</label>
+                            </div>
+                            <div v-if="choices[index] !== null">
+                                <span v-if="choices[index] === quiz.answer" style="color: green">选择正确，</span>
+                                <span v-else style="color: red">选择错误，</span>
+                                <span>{{ quiz.reason }}</span>
+                            </div>
+                        </li>
+                    </ol>
+                </form>
             </div>
             <!-- 请读者注意：以任何形式提交理解并同意的网络请求均视为已经完全理解并且同意以上条款的内容。 -->
             <button type="submit" class="pure-button pure-button-primary" :disabled="!enable_submit">我理解并同意以上条款</button>
@@ -50,33 +55,58 @@
             user_: JSON.parse(document.getElementById('json-user').textContent),
             enable_submit: false,
             quizs: null,
+            choices: null,
         },
         created() {
             this.init_quiz();
         },
         methods: {
             init_quiz() {
-                const ele = document.getElementById('json-quiz');
-                if (!ele) {
-                    this.enable_submit = true;
-                    return;
-                }
-                const quizs = JSON.parse(ele.textContent);
+                const quizs = {questions: [
+                    {
+                        question: '使用搜索引擎搜索以尝试解题',
+                        answer: true,
+                        reason: '使用搜索引擎等通用工具解题是允许的',
+                    },
+                    {
+                        question: '问做出题目的舍友 flag',
+                        answer: false,
+                        reason: 'blabla',
+                    },
+                    {
+                        question: '在群聊中分享自己的解题方法',
+                        answer: false,
+                        reason: 'blabla',
+                    },
+                    {
+                        question: '一边听歌一边做题',
+                        answer: true,
+                        reason: 'blabla',
+                    },
+                ]};
                 // comment out this if you don't want to shuffle the quizs.
                 this.inplace_shuffle(quizs.questions);
                 this.quizs = quizs;
+                this.choices = Object.fromEntries(quizs.questions.map((_, index) => [index, null]));
             },
             check() {
+                let correct = true;
                 for (const [index, quiz] of this.quizs.questions.entries()) {
-                    const ele = document.getElementsByName(`quiz-${index}`)[0];
-                    const user_checked = ele.checked;
-                    const correct_ans = quiz[0];
-                    if (correct_ans != user_checked) {
-                        this.enable_submit = false;
-                        return;
+                    const ele_true = document.getElementById(`quiz-${index}-true`);
+                    const ele_false = document.getElementById(`quiz-${index}-false`);
+                    const correct_ans = quiz.answer;
+                    if (ele_true.checked !== correct_ans || ele_false.checked !== !correct_ans) {
+                        correct = false;
+                    }
+                    if (ele_true.checked) {
+                        this.choices[index] = true;
+                    } else if (ele_false.checked) {
+                        this.choices[index] = false;
+                    } else {
+                        this.choices[index] = null;
                     }
                 }
-                this.enable_submit = true;
+                this.enable_submit = correct;
             },
             inplace_shuffle(array) {
                 // https://stackoverflow.com/a/2450976/8460426
