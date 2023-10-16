@@ -29,6 +29,9 @@
             <button @click.prevent.stop="token_copy()">{{ token_copy_text }}</button>
             Token 是一些题目的登录凭证，禁止分享，否则视为作弊
         </div>
+        <div v-if="user && user.group==='other'" class="msg-info">
+            你目前所在组别是其他选手组，如需更换组别，请按<a href="/qa/">问与答</a>页面的指示的步骤向组委会发送邮件申请更换组别。
+        </div>
         <div v-if="info.length" class="msg-info">
             <div v-for="i in info">{{ i }}</div>
         </div>
