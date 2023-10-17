@@ -110,6 +110,9 @@ table {
     font-size: 1.25em;
     color: #aaa;
 }
+.title:hover {
+    color: #fff;
+}
 h1 {
     font-size: 1.75em;
 }
