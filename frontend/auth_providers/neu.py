@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.urls import path
 
-from .base import UserRegexAndDomainEmailValidator
+from .base import DomainEmailValidator
 from .external import ExternalLoginView, ExternalGetCodeView
 
 
