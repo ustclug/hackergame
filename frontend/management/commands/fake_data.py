@@ -1,4 +1,5 @@
 import random
+import markdown.treeprocessors
 
 from django.core.management.base import BaseCommand
 from django.db.transaction import atomic
@@ -82,13 +83,22 @@ class Command(BaseCommand):
         )
 
         for i in range(1, fake_complex_challenges + 1):
-            if random.choice((False, False, True)):
+            choice = random.choice((1, 2, 2, 3))
+            if choice == 1:
                 detail = """<p>众所周知，对 $x$ 求导得到的结果为 1。<code>flag{FLAG_INDEX}</code></p>
                 <p>块状公式测试 <code>flag{FLAG_INDEX:USER_ID}</code></p>
                 <p>$$\\frac{1}{3} = \\frac{2}{6}$$</p>
                 """
-            else:
+            elif choice == 2:
                 detail = '<code>flag{FLAG_INDEX}</code> 或 <code>flag{FLAG_INDEX:USER_ID}</code>'
+            elif choice == 3:
+                # test markdown code block
+                detail = markdown.markdown(
+                    """```python
+def a():
+    pass
+```""", extensions=['codehilite', 'fenced_code'],
+                )
             Challenge.create(
                 Context(root),
                 name=f'复杂题 {i}',
