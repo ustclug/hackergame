@@ -34,6 +34,7 @@
 1. uWSGI 相关配置文件：`cp conf/systemd/hackergame@.service /etc/systemd/system/`, `cp conf/logrotate/uwsgi /etc/logrotate.d/`, `systemctl daemon-reload`, `systemctl enable --now hackergame@hackergame.service`。
 1. Nginx 配置文件：`cp conf/nginx-sites/hackergame /etc/nginx/sites-available/hackergame`，`ln -s /etc/nginx/sites-available/hackergame /etc/nginx/sites-enabled/hackergame`，`systemctl reload nginx`。
 1. 其他配置文件：`cp conf/pgbouncer.ini /etc/pgbouncer/`, `systemctl restart pgbouncer`。
+1. 配置反向代理的客户端 IP 透传：前置反向代理需使用 `X-Real-IP` 请求头传递客户端 IP，`/etc/nginx/sites-enabled/hackergame` 中需添加一行 `set_real_ip_from <reverse-proxy-ip>` 以信任来自 `reverse-proxy-ip` 的指示客户端 IP 的请求头，否则平台不能正确获取用户 IP。
 
 另外我们提供 [docker compose 样例](./docker-compose.yml)，但是实际部署不使用该容器版本。
 
