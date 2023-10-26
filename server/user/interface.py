@@ -451,21 +451,21 @@ class User:
             return None
         token = self._obj.token
         return f'{self.pk}-{int(sha256(token.encode()).hexdigest(), 16)%10000:04}'
-    
+
     @property
     def suspicious(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full', 'user.view')
         return self._obj.suspicious
-    
+
     @property
     def suspicious_reason(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full', 'user.view')
         return self._obj.suspicious_reason
-    
+
     @property
     def suspicious_ddl(self):
         if self._context.user.pk != self.pk:
-            User.test_permission(self._context, 'user.full')
+            User.test_permission(self._context, 'user.full', 'user.view')
         return self._obj.suspicious_ddl
