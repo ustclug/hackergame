@@ -5,8 +5,8 @@ from frontend.models import Account
 from server.context import Context
 
 from server.user.interface import User
-from .auth_providers.ustc import LoginView as USTCLoginView
-from .auth_providers.sustech import LoginView as SUSTECHLoginView
+from ..auth_providers.ustc import LoginView as USTCLoginView
+from ..auth_providers.sustech import LoginView as SUSTECHLoginView
 from unittest import mock
 from contextlib import contextmanager
 import json
