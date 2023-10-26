@@ -37,11 +37,11 @@
             <div>专业：{{ obj.major }}</div>
             <div>校区：{{ obj.campus }}</div>
             <div>了解比赛的渠道: {{ obj.aff }}</div>
-            <div v-if="accountlog">
+            <div v-if="accountlog[obj.pk]">
                 <hr>
                 <div>AccountLog 信息：</div>
-                <div v-if="accountlog.length > 0">
-                    <div v-for="log in accountlog">{{ log.content_type }}: {{ log.contents }}</div>
+                <div v-if="accountlog[obj.pk].length > 0">
+                    <div v-for="log in accountlog[obj.pk]">{{ log.content_type }}: {{ log.contents }}</div>
                 </div>
                 <div v-else>没有记录</div>
             </div>
@@ -56,7 +56,7 @@
             groups: JSON.parse(document.getElementById('json-groups').textContent),
             pk: '',
             obj: undefined,
-            accountlog: undefined,
+            accountlog: {},
         },
         methods: {
             load() {
@@ -69,7 +69,7 @@
                     });
                 axios.post('/account/', {method: 'accountlog', user: Number(this.pk)})
                     .then(({data: {value}}) => {
-                        this.accountlog = value;
+                        this.$set(this.accountlog, Number(this.pk), value);
                     })
                     .catch(({response: {data: {error}}}) => {
                         console.log("accountlog:", error && error.message);
