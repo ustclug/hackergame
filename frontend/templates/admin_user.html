@@ -215,6 +215,13 @@
             },
             opened_save() {
                 this.opened_disabled = true;
+                let suspicious_ddl = new Date(this.opened.suspicious_ddl);
+                if (isNaN(suspicious_ddl.valueOf())) {
+                    alert('时间格式错误');
+                    this.opened_disabled = false;
+                    return;
+                }
+                this.opened.suspicious_ddl = suspicious_ddl.toJSON();
                 axios.post('.', {method: 'save', args: this.opened})
                     .then(({data: {value}}) => {
                         this.opened = undefined;
