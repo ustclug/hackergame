@@ -4,7 +4,7 @@ from urllib.parse import quote
 from django.contrib import messages
 from django.contrib.admin import site
 from django.contrib.auth import logout
-from django.http import JsonResponse
+from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.views import View
@@ -213,10 +213,19 @@ class CoreDataView(View):
 class ChallengeURLView(View):
     def get(self, request, challenge_id):
         context = Context.from_request(request)
-        challenge = Challenge.get(context, challenge_id)
-        user = User.get(context, request.user.pk)
-        url = challenge.get_and_log_url_orig().replace('{token}', quote(user.token))
-        return redirect(url)
+        try:
+            User.test_authenticated(context)
+            user = User.get(context, request.user.pk)
+            challenge = Challenge.get(context, challenge_id)
+            url_orig = challenge.get_and_log_url_orig()
+            if url_orig is None:
+                raise Http404
+            url = url_orig.replace('{token}', quote(user.token))
+            return redirect(url)
+        except Error as e:
+            messages.error(request, e.message)
+            return redirect('hub')
+
 
 class ScoreView(View):
     def get(self, request):
@@ -226,6 +235,7 @@ class ScoreView(View):
             return redirect('hub')
         context = Context.from_request(request)
         return TemplateResponse(request, 'score.html')
+
 
 class UstcProfileView(View):
     def check(self):
