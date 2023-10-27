@@ -96,9 +96,11 @@
                 </div>
                 <div class="form-row">
                     <label for="form-suspicious-ddl">显示的第一阶段封禁联系截止时间:</label>
-                    <input class="vTextField" type="text" id="form-suspicious-ddl" name="suspicious-ddl" v-model="opened.suspicious_ddl">
-                    <div class="help" v-if="isNaN(new Date(opened.suspicious_ddl).valueOf())"><strong>格式错误！</strong></div>
-                    <div class="help" v-else>本地时间: {{ new Date(opened.suspicious_ddl).toLocaleString() }}<br>UTC 时间: {{ new Date(opened.suspicious_ddl).toJSON() }}</div>
+                    <input class="vTextField" type="text" id="form-suspicious-ddl" name="suspicious-ddl" v-model="suspicious_ddl_input">
+                    <template v-if="suspicious_ddl_input">
+                        <div class="help" v-if="isNaN(new Date(suspicious_ddl_input).valueOf())"><strong>格式错误！</strong></div>
+                        <div class="help" v-else>本地时间: {{ new Date(suspicious_ddl_input).toLocaleString() }}<br>UTC 时间: {{ new Date(suspicious_ddl_input).toJSON() }}</div>
+                    </template>
                 </div>
             </fieldset>
             <div class="submit-row" v-show="!opened_disabled">
@@ -178,6 +180,7 @@
             },
             account_pks: {},
             accountlog: {},
+            suspicious_ddl_input: '',
         },
         created() {
             this.refresh();
@@ -204,6 +207,7 @@
             },
             open(obj) {
                 this.opened = {...obj};
+                this.suspicious_ddl_input = obj.suspicious_ddl || '';
                 axios.post('/account/', {method: 'account_pk', user: obj.pk})
                     .then(({data: {value}}) => {
                         this.$set(this.account_pks, obj.pk, value)
@@ -215,13 +219,17 @@
             },
             opened_save() {
                 this.opened_disabled = true;
-                let suspicious_ddl = new Date(this.opened.suspicious_ddl);
-                if (isNaN(suspicious_ddl.valueOf())) {
-                    alert('时间格式错误');
-                    this.opened_disabled = false;
-                    return;
+                if (this.suspicious_ddl_input) {
+                    let suspicious_ddl = new Date(this.suspicious_ddl_input);
+                    if (isNaN(suspicious_ddl.valueOf())) {
+                        alert('时间格式错误');
+                        this.opened_disabled = false;
+                        return;
+                    }
+                    this.opened.suspicious_ddl = suspicious_ddl.toJSON();
+                } else {
+                    this.opened.suspicious_ddl = null;
                 }
-                this.opened.suspicious_ddl = suspicious_ddl.toJSON();
                 axios.post('.', {method: 'save', args: this.opened})
                     .then(({data: {value}}) => {
                         this.opened = undefined;
