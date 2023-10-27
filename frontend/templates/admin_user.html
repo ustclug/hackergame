@@ -233,6 +233,7 @@
                 axios.post('.', {method: 'save', args: this.opened})
                     .then(({data: {value}}) => {
                         this.opened = undefined;
+                        location.hash = '';
                         this.refresh();
                         this.opened_disabled = false;
                     })
