@@ -66,9 +66,9 @@
                         <a class="pure-button" href="{% url 'profile' %}">个人信息</a>
                     </li>
                     <li class="pure-menu-item">
-                        <form action="{% url 'logout' %}" method="post", id="logout-form">
+                        <form action="{% url 'logout' %}" method="post" onsubmit="return confirm('确定要退出登录吗？')">
                             {% csrf_token %}
-                            <button name="logout-button" class="pure-button logout">退出登录 {{ user_.display_name }}</button>
+                            <button class="pure-button logout">退出登录 {{ user_.display_name }}</button>
                         </form>
                     </li>
                 {% else %}
@@ -80,19 +80,6 @@
         </div>
     </div>
 </div>
-<script>
-    var form = document.getElementById('logout-form');
-    var button = form['logout-button'];
-    button.addEventListener('click', function (e) {
-        button.disabled = true;
-        if(confirm('确定要退出登录吗？')) {
-            form.submit();
-        } else {
-            e.preventDefault();
-            button.disabled = false;
-        }
-    });
-</script>
 <script src="{% static 'menus.js' %}"></script>
 <div class="content">
     {% if messages %}
