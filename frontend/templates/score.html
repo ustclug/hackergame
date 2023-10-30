@@ -140,15 +140,32 @@
                     scoreHistory[u] = [{ time: this.timeRange.starttime, data: 0 }];
                     rankHistory[u] = [{ time: this.timeRange.starttime, data: 1 }];
                 }
+                const scoreBuckets = new Map([[0, this.coreData.users.length]]);
                 for (const i of this.coreData.submissions) {
-                    scores[i.user].score += this.scoreMap[i.challenge][i.flag];
-                    scores[i.user].time = i.time;
+                    const oldScore = scores[i.user].score;
+                    const newScore = oldScore + this.scoreMap[i.challenge][i.flag];
+                    scores[i.user].score = newScore;
+                    const oldTime = scores[i.user].time;
+                    const newTime = i.time;
+                    scores[i.user].time = newTime;
+                    scoreBuckets.set(oldScore, scoreBuckets.get(oldScore) - 1);
+                    scoreBuckets.set(newScore, (scoreBuckets.get(newScore) || 0) + 1);
                     for (const u of this.userSet) {
-                        const rank = Object.values(scores).filter(({ score, time }) => {
-                            return score > scores[u].score || (score == scores[u].score && new Date(scores[u].time) > new Date(time));
-                        }).length + 1;
-                        if (rankHistory[u].length == 0 || rankHistory[u].slice(-1)[0].data != rank) {
+                        if (u === i.user) {
+                            let rank = 0;
+                            for (const [score, count] of scoreBuckets) {
+                                if (score >= newScore) {
+                                    rank += count;
+                                }
+                            }
                             rankHistory[u].push({ time: i.time, data: rank });
+                        } else {
+                            const oldScoreIsLower = oldScore < scores[u].score || (oldScore === scores[u].score && oldTime >= scores[u].time);
+                            const newScoreIsHigher = newScore > scores[u].score;  // 超过的话一定是新分数更高，不可能相等
+                            if (oldScoreIsLower && newScoreIsHigher) {
+                                rank = rankHistory[u].slice(-1)[0].data + 1;
+                                rankHistory[u].push({ time: i.time, data: rank });
+                            }
                         }
                     }
                     if (this.userSet.includes(i.user)) {
@@ -158,8 +175,8 @@
                             user: i.user,
                             challenge: i.challenge,
                             flag: i.flag,
-                            oldScore: scores[i.user].score - this.scoreMap[i.challenge][i.flag],
-                            newScore: scores[i.user].score,
+                            oldScore,
+                            newScore,
                             oldRank: rankHistory[i.user].slice(-2)[0].data,
                             newRank: rankHistory[i.user].slice(-1)[0].data,
                         });
