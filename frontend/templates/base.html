@@ -68,7 +68,7 @@
                     <li class="pure-menu-item">
                         <form action="{% url 'logout' %}" method="post" onsubmit="return confirm('确定要退出登录吗？')">
                             {% csrf_token %}
-                            <button class="pure-button logout">退出登录 {{ user_.display_name }}</button>
+                            <button type="submit" class="pure-button logout">退出登录 {{ user_.display_name }}</button>
                         </form>
                     </li>
                 {% else %}
