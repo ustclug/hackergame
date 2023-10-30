@@ -43,7 +43,7 @@
             <tbody v-if="objs">
             <tr v-for="(obj, obj_index) in objs" :class="{'highlight-row': obj.user===user.pk}">
                 <td>{{ obj_index + 1 }}</td>
-                <td v-if="!show_progress" style="word-break: break-all"><span v-for="part in pretty_name(users[obj.user].display_name)" :style="part.style">{{ part.text }}</span></td>
+                <td v-if="!show_progress" style="word-break: break-all"><a :href="`/score/#${user.pk},${obj.user}`" style="color: #333"><span v-for="part in pretty_name(users[obj.user].display_name)" :style="part.style">{{ part.text }}</span></a></td>
                 <td v-if="!show_progress">{{ obj.score }}</td>
                 <td v-if="!show_progress" style="word-break: keep-all">{{ new Date(obj.time).toLocaleString() }}</td>
                 <td v-if="!show_progress&&show_profile" v-for="field in profile_fields">{{ users[obj.user][field.field] }}</td>

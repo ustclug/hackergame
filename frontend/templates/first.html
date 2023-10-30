@@ -33,13 +33,13 @@
             <template v-for="challenge in challenges">
                 <tr :class="{'highlight-row': objs.challenges[challenge.pk].user===user.pk}">
                     <td>{{ challenge.name }}</td>
-                    <td style="word-break: break-all"><span v-for="part in pretty_name((users[objs.challenges[challenge.pk].user]||{display_name:''}).display_name)" :style="part.style">{{ part.text }}</span></td>
+                    <td style="word-break: break-all"><a v-if="objs.challenges[challenge.pk].user" :href="`/score/#${user.pk},${objs.challenges[challenge.pk].user}`" style="color: #333"><span v-for="part in pretty_name(users[objs.challenges[challenge.pk].user].display_name)" :style="part.style">{{ part.text }}</span></a></td>
                     <td style="word-break: keep-all">{{ objs.challenges[challenge.pk].time }}</td>
                     <td v-if="show_profile" v-for="field in profile_fields">{{ (users[objs.challenges[challenge.pk].user]||{[field.field]:''})[field.field] }}</td>
                 </tr>
                 <tr v-if="challenge.flags.length>1" v-for="(flag, flag_index) in challenge.flags" :class="{'highlight-row': objs.flags[[challenge.pk, flag_index]].user===user.pk}">
                     <td>{{ challenge.name }} / {{ flag.name }}</td>
-                    <td style="word-break: break-all"><span v-for="part in pretty_name((users[objs.flags[[challenge.pk, flag_index]].user]||{display_name:''}).display_name)" :style="part.style">{{ part.text }}</span></td>
+                    <td style="word-break: break-all"><a v-if="objs.flags[[challenge.pk, flag_index]].user" :href="`/score/#${user.pk},${objs.flags[[challenge.pk, flag_index]].user}`" style="color: #333"><span v-for="part in pretty_name(users[objs.flags[[challenge.pk, flag_index]].user].display_name)" :style="part.style">{{ part.text }}</span></a></td>
                     <td style="word-break: keep-all">{{ objs.flags[[challenge.pk, flag_index]].time }}</td>
                     <td v-if="show_profile" v-for="field in profile_fields">{{ (users[objs.flags[[challenge.pk, flag_index]].user]||{[field.field]:''})[field.field] }}</td>
                 </tr>
