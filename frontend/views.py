@@ -229,11 +229,6 @@ class ChallengeURLView(View):
 
 class ScoreView(View):
     def get(self, request):
-        try:
-            User.test_authenticated(Context.from_request(request))
-        except LoginRequired:
-            return redirect('hub')
-        context = Context.from_request(request)
         return TemplateResponse(request, 'score.html')
 
 

@@ -17,42 +17,106 @@
 {% block content %}
 {% verbatim %}
 <div id="app">
-    <h1>总排名</h1>
+    <h1>分数查询</h1>
+    <form class="pure-form" @submit.prevent="refresh">
+        <label for="user-set">用户 ID（用英文逗号隔开多个）:</label>
+        <input type="text" id="user-set" v-model="userSetText" required>
+        <button type="submit" class="pure-button pure-button-primary">加载</button>
+    </form>
+    <h2>总排名</h2>
     <div id="rank-chart-text">正在加载</div>
     <canvas id="rank-chart" style="width: 100%; height: 400px"></canvas>
-    <h1>分数</h1>
+    <h2>分数</h2>
     <div id="score-chart-text">正在加载</div>
     <canvas id="score-chart" style="width: 100%; height: 400px"></canvas>
+    <h2>事件</h2>
+    <div id="event-list-text">正在加载</div>
+    <table class="pure-table pure-table-horizontal center" v-if="showResults">
+        <thead>
+        <tr class="center">
+            <td>时间</td>
+            <td>用户</td>
+            <td>解出题目</td>
+            <td>分数变化</td>
+            <td>总排名变化</td>
+        </tr>
+        </thead>
+        <tbody>
+            <tr v-for="i in events">
+                <td>{{ new Date(i.time).toLocaleString() }}</td>
+                <td>{{ i.user }}.{{ coreData.users.find(j => j.id === i.user).display_name }}</td>
+                <td>{{ getFlagName(i.challenge, i.flag) }}</td>
+                <td>{{ i.oldScore }} <i class="fas fa-long-arrow-alt-right"></i> {{ i.newScore }}</td>
+                <td>{{ i.oldRank }} <i class="fas fa-long-arrow-alt-right"></i> {{ i.newRank }}</td>
+            </tr>
+        </tbody>
+    </table>
 </div>
 {% endverbatim %}
 {{ user_.json|json_script:'json-user' }}
 <script>
+    let defaultUserSetText = '';
+    if (window.location.hash) {
+        const defaultUserSet = window.location.hash.slice(1).split(',').map(i => parseInt(i));
+        defaultUserSetText = defaultUserSet.join(',');
+    } else {
+        const user = JSON.parse(document.getElementById('json-user').textContent);
+        if (user) {
+            defaultUserSetText = `${user.pk}`;
+        }
+    }
     const app = new Vue({
         el: '#app',
         data: {
-            user: JSON.parse(document.getElementById('json-user').textContent),
+            userSetText: defaultUserSetText,
+            showResults: false,
         },
         async created() {
             await this.refresh();
         },
         methods: {
             async refresh() {
-                const timeRange = await this.getTimeRange();
-                if (!timeRange) {
+                this.showResults = false;
+                if (this.rankChart) {
+                    this.rankChart.destroy();
+                    document.getElementById('rank-chart').outerHTML = '<canvas id="rank-chart" style="width: 100%; height: 400px"></canvas>';
+                }
+                if (this.scoreChart) {
+                    this.scoreChart.destroy();
+                    document.getElementById('score-chart').outerHTML = '<canvas id="score-chart" style="width: 100%; height: 400px"></canvas>';
+                }
+                this.timeRange = await this.getTimeRange();
+                if (!this.timeRange) {
                     document.getElementById('rank-chart-text').innerHTML = '比赛尚未开始';
                     document.getElementById('score-chart-text').innerHTML = '比赛尚未开始';
+                    document.getElementById('event-list-text').innerHTML = '比赛尚未开始';
                     return;
                 }
-                this.timeRange = timeRange;
+                this.userSet = this.userSetText.split(',').map(i => parseInt(i));
+                if (this.userSet.length === 0) {
+                    document.getElementById('rank-chart-text').innerHTML = '请输入用户 ID';
+                    document.getElementById('score-chart-text').innerHTML = '请输入用户 ID';
+                    document.getElementById('event-list-text').innerHTML = '请输入用户 ID';
+                    return;
+                }
+                if (this.userSet.length > 10) {
+                    document.getElementById('rank-chart-text').innerHTML = '最多同时显示 10 个用户';
+                    document.getElementById('score-chart-text').innerHTML = '最多同时显示 10 个用户';
+                    document.getElementById('event-list-text').innerHTML = '最多同时显示 10 个用户';
+                    return;
+                }
+                window.location.hash = this.userSet.join(',');
                 const { data } = await axios.get('/data/core.json');
                 this.coreData = data;
                 this.scoreMap = this.buildScoreMap();
-                const rankHistory = this.generateRankHistory();
-                this.drawChart(rankHistory, 'rank-chart', '#2ECC71', true);
-                document.getElementById('rank-chart-text').innerHTML = '';
-                const scoreHistory = this.generateScoreHistory();
-                this.drawChart(scoreHistory, 'score-chart', '#3498DB');
+                const { scoreHistory, rankHistory, events } = this.generate();
+                this.scoreChart = this.drawChart(scoreHistory, 'score-chart');
+                this.rankChart = this.drawChart(rankHistory, 'rank-chart', true);
+                this.events = events;
                 document.getElementById('score-chart-text').innerHTML = '';
+                document.getElementById('rank-chart-text').innerHTML = '';
+                document.getElementById('event-list-text').innerHTML = '';
+                this.showResults = true;
             },
             buildScoreMap() {
                 let challenges = {};
@@ -64,53 +128,54 @@
                 }
                 return challenges;
             },
-            generateScoreHistory() {
-                let score = 0;
-                let history = [];
-                for (const i of this.coreData.submissions) {
-                    if (i.user !== this.user.pk) {
-                        continue;
-                    }
-                    score += this.scoreMap[i.challenge][i.flag];
-                    history.push({ time: i.time, data: score });
-                }
-                history.unshift({
-                    time: this.timeRange.starttime,
-                    data: 0,
-                });
-                history.push({
-                    time: this.timeRange.endtime,
-                    data: score,
-                });
-                return history;
-            },
-            generateRankHistory() {
-                let scores = [];
+            generate() {
+                const scores = {};
                 for (const u of this.coreData.users) {
-                    scores.push({ user: u.id, score: 0, time: this.timeRange.starttime });
+                    scores[u.id] = { score: 0, time: this.timeRange.starttime };
                 }
-                let history = [];
+                const scoreHistory = {};
+                const rankHistory = {};
+                const events = [];
+                for (const u of this.userSet) {
+                    scoreHistory[u] = [{ time: this.timeRange.starttime, data: 0 }];
+                    rankHistory[u] = [{ time: this.timeRange.starttime, data: 1 }];
+                }
                 for (const i of this.coreData.submissions) {
-                    const idx = scores.findIndex((s) => s.user == i.user);
-                    scores[idx].score += this.scoreMap[i.challenge][i.flag];
-                    scores[idx].time = i.time;
-                    const user_ = scores.find((s) => s.user == this.user.pk);
-                    const rank = scores.filter(({ user, score, time }) => {
-                        return score > user_.score || (score == user_.score && new Date(user_.time) > new Date(time));
-                    }).length + 1;
-                    if (history.length == 0 || history.slice(-1)[0].data != rank) {
-                        history.push({ time: i.time, data: rank });
+                    scores[i.user].score += this.scoreMap[i.challenge][i.flag];
+                    scores[i.user].time = i.time;
+                    for (const u of this.userSet) {
+                        const rank = Object.values(scores).filter(({ score, time }) => {
+                            return score > scores[u].score || (score == scores[u].score && new Date(scores[u].time) > new Date(time));
+                        }).length + 1;
+                        if (rankHistory[u].length == 0 || rankHistory[u].slice(-1)[0].data != rank) {
+                            rankHistory[u].push({ time: i.time, data: rank });
+                        }
+                    }
+                    if (this.userSet.includes(i.user)) {
+                        scoreHistory[i.user].push({ time: i.time, data: scores[i.user].score });
+                        events.push({
+                            time: i.time,
+                            user: i.user,
+                            challenge: i.challenge,
+                            flag: i.flag,
+                            oldScore: scores[i.user].score - this.scoreMap[i.challenge][i.flag],
+                            newScore: scores[i.user].score,
+                            oldRank: rankHistory[i.user].slice(-2)[0].data,
+                            newRank: rankHistory[i.user].slice(-1)[0].data,
+                        });
                     }
                 }
-                history.unshift({
-                    time: this.timeRange.starttime,
-                    data: 1,
-                });
-                history.push({
-                    time: this.timeRange.endtime,
-                    data: history.slice(-1)[0].data,
-                });
-                return history;
+                for (const u of this.userSet) {
+                    scoreHistory[u].push({
+                        time: this.timeRange.endtime,
+                        data: scoreHistory[u].slice(-1)[0].data,
+                    });
+                    rankHistory[u].push({
+                        time: this.timeRange.endtime,
+                        data: rankHistory[u].slice(-1)[0].data,
+                    });
+                }
+                return {scoreHistory, rankHistory, events};
             },
             async getTimeRange() {
                 const { data: { value: triggers } } = await axios.post('/admin/trigger/', { method: 'get_all' });
@@ -133,21 +198,23 @@
                     endtime,
                 }
             },
-            drawChart(history, chartId, color, flipYAxis = false) {
-                const points = history.map(({ time, data }) => ({ x: new Date(time), y: data }));
-                const datasets = [{
-                    label: this.user.display_name,
-                    data: points,
-                    stepped: true,
-                    fill: false,
-                    backgroundColor: color,
-                    borderColor: color,
-                    borderWidth: 2,
-                    radius: 2,
-                    hoverRadius: 3,
-                }];
+            drawChart(history, chartId, flipYAxis = false) {
+                const datasets = this.userSet.map((u, i) => {
+                    const color = ["#C0392B", "#2ECC71", "#3498DB", "#F1C40F", "#8E44AD", "#797D7F", "#117864", "#E67E22", "#F1948A", "#1F618D"][i];
+                    return {
+                        label: `${u}.` + this.coreData.users.find(j => j.id === u).display_name,
+                        data: history[u].map(({ time, data }) => ({ x: new Date(time), y: data })),
+                        stepped: true,
+                        fill: false,
+                        backgroundColor: color,
+                        borderColor: color,
+                        borderWidth: 2,
+                        radius: 2,
+                        hoverRadius: 3,
+                    };
+                });
 
-                new Chart(document.getElementById(chartId).getContext('2d'), {
+                return new Chart(document.getElementById(chartId).getContext('2d'), {
                     type: 'line',
                     data: {
                         datasets,
@@ -177,8 +244,19 @@
                         },
                     },
                 });
-            }
-        }
+            },
+            getFlagName(cid, fid) {
+                const challenge = this.coreData.challenges.find(i => i.id === cid);
+                if (challenge.flags.length === 1) {
+                    return challenge.name;
+                } else {
+                    return challenge.name + ' / ' + challenge.flags[fid].name;
+                }
+            },
+            getFlagScore(cid, fid) {
+                return this.scoreMap[cid][fid];
+            },
+        },
     });
 </script>
 {% endblock %}
