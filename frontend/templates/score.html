@@ -8,6 +8,8 @@
 <script src="{% static 'chart.umd.min.js' %}"></script>
 <script src="{% static 'moment.min.js' %}"></script>
 <script src="{% static 'chartjs-adapter-moment.min.js' %}"></script>
+<script src="{% static 'color.js' %}"></script>
+<script src="{% static 'seedrandom.js' %}"></script>
 <script>
     axios.defaults.xsrfCookieName = 'csrftoken';
     axios.defaults.xsrfHeaderName = 'X-CSRFToken';
@@ -35,7 +37,7 @@
         <thead>
         <tr class="center">
             <td>时间</td>
-            <td>用户</td>
+            <td>用户 ID.昵称</td>
             <td>解出题目</td>
             <td>分数变化</td>
             <td>总排名变化</td>
@@ -44,7 +46,7 @@
         <tbody>
             <tr v-for="i in events">
                 <td>{{ new Date(i.time).toLocaleString() }}</td>
-                <td>{{ i.user }}.{{ coreData.users.find(j => j.id === i.user).display_name }}</td>
+                <td style="word-break: break-all"><span>{{ i.user }}.</span><span v-for="part in pretty_name(coreData.users.find(j => j.id === i.user).display_name)" :style="part.style">{{ part.text }}</span></td>
                 <td>{{ getFlagName(i.challenge, i.flag) }}</td>
                 <td>{{ i.oldScore }} <i class="fas fa-long-arrow-alt-right"></i> {{ i.newScore }}</td>
                 <td>{{ i.oldRank }} <i class="fas fa-long-arrow-alt-right"></i> {{ i.newRank }}</td>
@@ -273,6 +275,35 @@
             },
             getFlagScore(cid, fid) {
                 return this.scoreMap[cid][fid];
+            },
+            tag_color(tag) {
+                let random = new Math.seedrandom(tag);
+                let color;
+                do {
+                    color = new CIELUV(
+                        random() * 40 + 30,
+                        random() * 400 - 200,
+                        random() * 400 - 200,
+                    ).sRGB();
+                } while (!color.valid());
+                return color.hex();
+            },
+            pretty_name(s) {
+                const [a, ...b] = s.split(' #');
+                const [c, ...d] = a.split('|');
+                const r = [];
+                return [
+                    {text: c, style: {}},
+                    {text: d.map(i => '|' + i).join(''), style: {color: '#888'}},
+                    ...b.map(i => ({text: '#' + i, style: {
+                        backgroundColor: this.tag_color(i),
+                        color: '#fff',
+                        borderRadius: '100em',
+                        padding: '0 .5em',
+                        marginLeft: '.25em',
+                        whiteSpace: 'nowrap',
+                    }})),
+                ];
             },
         },
     });
