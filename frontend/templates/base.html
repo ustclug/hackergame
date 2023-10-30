@@ -66,7 +66,7 @@
                         <a class="pure-button" href="{% url 'profile' %}">个人信息</a>
                     </li>
                     <li class="pure-menu-item">
-                        <form action="{% url 'logout' %}" method="post">
+                        <form action="{% url 'logout' %}" method="post" onsubmit="return confirm('确定要退出登录吗？')">
                             {% csrf_token %}
                             <button type="submit" class="pure-button logout">退出登录 {{ user_.display_name }}</button>
                         </form>
