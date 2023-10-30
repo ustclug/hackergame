@@ -22,15 +22,28 @@
     <h1>分数查询</h1>
     <form class="pure-form" @submit.prevent="refresh">
         <label for="user-set">用户 ID（用英文逗号隔开多个）:</label>
-        <input type="text" id="user-set" v-model="userSetText" required>
+        <input type="text" id="user-set" v-model="userSetText" size="49" required>
+        <select v-model="category">
+            <option value="">所有类别题目</option>
+            <option v-for="i in categories" :value="i">{{ i }}</option>
+        </select>
+        <select v-model="group">
+            <option value="">总排名</option>
+            <option v-for="i in coreData.groups" v-if="!['noscore', 'other', 'banned'].includes(i.id)" :value="i.id">{{ i.name }}</option>
+        </select>
         <button type="submit" class="pure-button pure-button-primary">加载</button>
     </form>
-    <h2>总排名</h2>
+    <p v-if="ignoredUsers">{{ ignoredUsers }}。</p>
+    <h2>排名</h2>
     <div id="rank-chart-text">正在加载</div>
-    <canvas id="rank-chart" style="width: 100%; height: 400px"></canvas>
+    <div id="rank-chart-container">
+        <canvas id="rank-chart" style="width: 100%; height: 400px"></canvas>
+    </div>
     <h2>分数</h2>
     <div id="score-chart-text">正在加载</div>
-    <canvas id="score-chart" style="width: 100%; height: 400px"></canvas>
+    <div id="score-chart-container">
+        <canvas id="score-chart" style="width: 100%; height: 400px"></canvas>
+    </div>
     <h2>事件</h2>
     <div id="event-list-text">正在加载</div>
     <table class="pure-table pure-table-horizontal center" v-if="showResults">
@@ -58,10 +71,24 @@
 {{ user_.json|json_script:'json-user' }}
 <script>
     let defaultUserSetText = '';
+    let defaultCategory = '';
+    let defaultGroup = '';
     if (window.location.hash) {
-        const defaultUserSet = window.location.hash.slice(1).split(',').map(i => parseInt(i));
-        defaultUserSetText = defaultUserSet.join(',');
-    } else {
+        const [userSetPart, ...options] = window.location.hash.slice(1).split(';');
+        if (userSetPart) {
+            const defaultUserSet = userSetPart.split(',').map(i => parseInt(i));
+            defaultUserSetText = defaultUserSet.join(',');
+        }
+        for (const option of options) {
+            const [key, value] = option.split('=');
+            if (key === 'category') {
+                defaultCategory = value;
+            } else if (key === 'group') {
+                defaultGroup = value;
+            }
+        }
+    }
+    if (!defaultUserSetText) {
         const user = JSON.parse(document.getElementById('json-user').textContent);
         if (user) {
             defaultUserSetText = `${user.pk}`;
@@ -71,21 +98,39 @@
         el: '#app',
         data: {
             userSetText: defaultUserSetText,
+            category: defaultCategory,
+            group: defaultGroup,
+            ignoredUsers: "",
+            coreData: {
+                challenges: [],
+                groups: [],
+                submissions: [],
+                users: [],
+            },
             showResults: false,
         },
         async created() {
             await this.refresh();
+        },
+        computed: {
+            categories() {
+                const categories = new Set();
+                for (const c of this.coreData.challenges) {
+                    categories.add(c.category);
+                }
+                return [...categories].sort();
+            },
         },
         methods: {
             async refresh() {
                 this.showResults = false;
                 if (this.rankChart) {
                     this.rankChart.destroy();
-                    document.getElementById('rank-chart').outerHTML = '<canvas id="rank-chart" style="width: 100%; height: 400px"></canvas>';
+                    document.getElementById('rank-chart-container').innerHTML = '<canvas id="rank-chart" style="width: 100%; height: 400px"></canvas>';
                 }
                 if (this.scoreChart) {
                     this.scoreChart.destroy();
-                    document.getElementById('score-chart').outerHTML = '<canvas id="score-chart" style="width: 100%; height: 400px"></canvas>';
+                    document.getElementById('score-chart-container').innerHTML = '<canvas id="score-chart" style="width: 100%; height: 400px"></canvas>';
                 }
                 this.timeRange = await this.getTimeRange();
                 if (!this.timeRange) {
@@ -107,9 +152,18 @@
                     document.getElementById('event-list-text').innerHTML = '最多同时显示 10 个用户';
                     return;
                 }
-                window.location.hash = this.userSet.join(',');
+                window.location.hash = this.userSet.join(',') + (this.category ? `;category=${this.category}` : '') + (this.group ? `;group=${this.group}` : '');
                 const { data } = await axios.get('/data/core.json');
                 this.coreData = data;
+                if (this.group) {
+                    this.ignoredUsers = this.userSet.filter(i => this.coreData.users.find(j => j.id === i).group !== this.group).join('、');
+                    if (this.ignoredUsers) {
+                        this.ignoredUsers = `这些用户不属于${this.coreData.groups.find(i => i.id === this.group).name}组：${this.ignoredUsers}`;
+                    }
+                    this.userSet = this.userSet.filter(i => this.coreData.users.find(j => j.id === i).group === this.group);
+                } else {
+                    this.ignoredUsers = "";
+                }
                 this.scoreMap = this.buildScoreMap();
                 const { scoreHistory, rankHistory, events } = this.generate();
                 this.scoreChart = this.drawChart(scoreHistory, 'score-chart');
@@ -144,6 +198,12 @@
                 }
                 const scoreBuckets = new Map([[0, this.coreData.users.length]]);
                 for (const i of this.coreData.submissions) {
+                    if (this.category && this.coreData.challenges.find(j => j.id === i.challenge).category !== this.category) {
+                        continue;
+                    }
+                    if (this.group && this.coreData.users.find(j => j.id === i.user).group !== this.group) {
+                        continue;
+                    }
                     const oldScore = scores[i.user].score;
                     const newScore = oldScore + this.scoreMap[i.challenge][i.flag];
                     scores[i.user].score = newScore;
