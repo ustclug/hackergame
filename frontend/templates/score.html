@@ -139,7 +139,7 @@
                     document.getElementById('event-list-text').innerHTML = '比赛尚未开始';
                     return;
                 }
-                this.userSet = this.userSetText.split(',').map(i => parseInt(i));
+                this.userSet = [...new Set(this.userSetText.split(',').map(i => parseInt(i)))];
                 if (this.userSet.length === 0) {
                     document.getElementById('rank-chart-text').innerHTML = '请输入用户 ID';
                     document.getElementById('score-chart-text').innerHTML = '请输入用户 ID';
