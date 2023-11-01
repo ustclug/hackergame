@@ -10,7 +10,7 @@ django-allauth==0.57.0
 gevent==23.9.1
 greenlet==3.0.0
 idna==3.4
-jmespath==0.10.0
+jmespath==1.0.1
 Markdown==3.4.4
 oauthlib==3.2.2
 psycopg==3.1.12
