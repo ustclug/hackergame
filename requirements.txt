@@ -29,6 +29,6 @@ requests-oauthlib==1.3.1
 sqlparse==0.4.4
 typing-extensions==4.8.0
 urllib3==2.0.7
-uWSGI==2.0.22
+uWSGI==2.0.23
 zope.event==5.0
 zope.interface==6.1
