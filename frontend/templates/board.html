@@ -132,13 +132,37 @@
                 if (!this.show_progress || this.user_progress) {
                     return;
                 }
-                this.user_progress = {};
-                this.objs.forEach(obj => {
-                    axios.post('/admin/submission/', {method: 'get_user_progress', args: {user: obj.user}})
-                        .then(({data: {value}}) => {
-                            Vue.set(this.user_progress, obj.user, value);
-                        });
-                });
+                axios.get('/data/core.json')
+                    .then(({data}) => {
+                        const challenge_flag_count = {};
+                        for (const challenge of data.challenges) {
+                            challenge_flag_count[challenge.id] = challenge.flags.length;
+                        }
+                        const user_progress = {};
+                        for (const user of data.users) {
+                            user_progress[user.id] = {
+                                flags: [],
+                                challenges: [],
+                            };
+                        }
+                        const user_challenge_flag_count = {};
+                        for (const submission of data.submissions) {
+                            user_progress[submission.user].flags.push({
+                                challenge: submission.challenge,
+                                flag: submission.flag,
+                                time: submission.time,
+                            });
+                            const k = `${submission.user},${submission.challenge}`;
+                            user_challenge_flag_count[k] = (user_challenge_flag_count[k] || 0) + 1;
+                            if (user_challenge_flag_count[k] === challenge_flag_count[submission.challenge]) {
+                                user_progress[submission.user].challenges.push({
+                                    challenge: submission.challenge,
+                                    time: submission.time,
+                                });
+                            }
+                        }
+                        this.user_progress = user_progress;
+                    });
             },
             display_time(o) {
                 if (o) {
