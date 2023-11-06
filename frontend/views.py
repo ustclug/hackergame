@@ -288,6 +288,10 @@ class AccountView(View):
         elif method == "accountlog":
             logs = list(AccountLog.objects.filter(account__in=accounts).values('content_type', 'contents'))
             return JsonResponse({'value': logs})
+        elif method == "account_identity":
+            return JsonResponse({'value': [i.identity for i in accounts]})
+        else:
+            return JsonResponse({'error': 'Method not found'}, status=400)
 
 
 # noinspection PyMethodMayBeStatic

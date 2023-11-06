@@ -37,6 +37,14 @@
             <div>专业：{{ obj.major }}</div>
             <div>校区：{{ obj.campus }}</div>
             <div>了解比赛的渠道: {{ obj.aff }}</div>
+            <div v-if="identities[obj.pk]">
+                <hr>
+                <div>Account identity 信息：</div>
+                <div v-if="identities[obj.pk].length > 0">
+                    <div v-for="identity in identities[obj.pk]">{{ identity }}</div>
+                </div>
+                <div v-else>没有记录</div>
+            </div>
             <div v-if="accountlog[obj.pk]">
                 <hr>
                 <div>AccountLog 信息：</div>
@@ -57,6 +65,7 @@
             pk: '',
             obj: undefined,
             accountlog: {},
+            identities: {},
         },
         methods: {
             load() {
@@ -73,6 +82,13 @@
                     })
                     .catch(({response: {data: {error}}}) => {
                         console.log("accountlog:", error && error.message);
+                    });
+                axios.post('/account/', {method: 'account_identity', user: Number(this.pk)})
+                    .then(({data: {value}}) => {
+                        this.$set(this.identities, Number(this.pk), value);
+                    })
+                    .catch(({response: {data: {error}}}) => {
+                        console.log("account_identity:", error && error.message);
                     });
             },
         },
