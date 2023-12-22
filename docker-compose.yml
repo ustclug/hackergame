@@ -31,6 +31,8 @@ services:
       - POSTGRES_USER=hackergame
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=hackergame
+    volumes:
+      - hackergame-postgresql:/var/lib/postgresql/data/
   pgbouncer:
     container_name: hackergame-pgbouncer
     image: edoburu/pgbouncer:latest
@@ -60,3 +62,4 @@ services:
 volumes:
   hackergame-static:
   nginx-log:
+  hackergame-postgresql:
