@@ -1,0 +1,62 @@
+version: '2.3'
+
+services:
+  hackergame:
+    container_name: &name hackergame
+    hostname: *name
+    build: .
+    restart: always
+    environment:
+      - DJANGO_SETTINGS_MODULE=conf.settings.docker
+      - DB_PASSWORD=${DB_PASSWORD}
+      # 调试用
+      - DEBUG=True
+    volumes:
+      - .:/opt/hackergame/:ro
+      # 存储静态网页与题目文件
+      - hackergame-static:/var/opt/hackergame/
+      # 很不幸，你可能还需要 bind 完整的题目目录进来（不然不方便导入）
+    depends_on:
+      - memcached
+      - pgbouncer
+  memcached:
+    container_name: hackergame-memcached
+    image: memcached
+    restart: always
+  postgresql:
+    container_name: hackergame-postgresql
+    image: postgres:15
+    restart: always
+    environment:
+      - POSTGRES_USER=hackergame
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=hackergame
+  pgbouncer:
+    container_name: hackergame-pgbouncer
+    image: edoburu/pgbouncer:latest
+    restart: always
+    environment:
+      - DB_USER=hackergame
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DB_HOST=postgresql
+      - POOL_MODE=transaction
+      # 坑: pg14+ 默认使用 scram-sha-256, 而 pgbouncer 默认是 md5
+      - AUTH_TYPE=scram-sha-256
+    depends_on:
+      - postgresql
+  nginx:
+    container_name: hackergame-nginx
+    image: nginx:1.25
+    restart: always
+    volumes:
+      - ./conf/nginx-sites/hackergame-docker:/etc/nginx/conf.d/default.conf:ro
+      - hackergame-static:/var/opt/hackergame/:ro
+      - nginx-log:/var/log/nginx/:rw
+    ports:
+      - 12345:80
+    depends_on:
+      - hackergame
+
+volumes:
+  hackergame-static:
+  nginx-log:
