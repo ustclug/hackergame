@@ -3,7 +3,7 @@ asgiref==3.7.2
 certifi==2023.7.22
 cffi==1.16.0
 charset-normalizer==3.3.0
-cryptography==41.0.7
+cryptography==42.0.0
 defusedxml==0.7.1
 Django==4.2.7
 django-allauth==0.57.0
