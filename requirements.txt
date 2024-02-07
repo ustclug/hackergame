@@ -5,7 +5,7 @@ cffi==1.16.0
 charset-normalizer==3.3.0
 cryptography==41.0.7
 defusedxml==0.7.1
-Django==4.2.7
+Django==4.2.10
 django-allauth==0.57.0
 gevent==23.9.1
 greenlet==3.0.0
