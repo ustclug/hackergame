@@ -4,7 +4,7 @@ aliyun-python-sdk-core==2.13.36
 Django==4.2.10
 django-allauth==0.57.0
 gevent==23.9.1
-Markdown==3.4.4
+Markdown==3.5.2
 psycopg==3.1.12
 psycopg-binary==3.1.12
 psycopg-pool==3.1.8
