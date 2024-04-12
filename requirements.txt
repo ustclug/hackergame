@@ -9,7 +9,7 @@ Django==4.2.11
 django-allauth==0.57.0
 gevent==23.9.1
 greenlet==3.0.3
-idna==3.6
+idna==3.7
 jmespath==0.10.0
 Markdown==3.4.4
 oauthlib==3.2.2
