@@ -13,5 +13,5 @@ pygments==2.16.1
 pymemcache==4.0.0
 pyOpenSSL==24.0.0
 PyYAML==6.0.1
-requests==2.31.0
+requests==2.32.0
 uWSGI==2.0.22
