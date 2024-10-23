@@ -15,7 +15,7 @@ class LoginView(ExternalLoginView):
 class GetCodeView(ExternalGetCodeView):
     provider = 'fdu'
     duration = timedelta(hours=1)
-    validate_identity = UserRegexAndDomainEmailValidator(['fudan.edu.cn', 'm.fudan.edu.cn'], r'^\d{11}$')
+    validate_identity = UserRegexAndDomainEmailValidator(['fudan.edu.cn', 'm.fudan.edu.cn'], r'^[a-zA-Z0-9._%+-]+$')
 
 
 urlpatterns = [
