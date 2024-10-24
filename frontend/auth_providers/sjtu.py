@@ -19,6 +19,6 @@ class GetCodeView(ExternalGetCodeView):
 
 
 urlpatterns = [
-    path('ouc/login/', LoginView.as_view()),
-    path('ouc/get_code/', GetCodeView.as_view()),
+    path('sjtu/login/', LoginView.as_view()),
+    path('sjtu/get_code/', GetCodeView.as_view()),
 ]
