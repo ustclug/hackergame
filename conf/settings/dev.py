@@ -19,6 +19,10 @@ LOGGING = {
         'request': {
             'format': '%(asctime)s %(ip)s %(userid)s %(levelname)s %(message)s',
         },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
     },
     'filters': {
         'add_user_info': {
@@ -39,6 +43,11 @@ LOGGING = {
             'handlers': ['request'],
             'propagate': False,
         },
+        'custom': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': False,
+        }
     },
     'handlers': {
         'databaselog': {
@@ -52,6 +61,11 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'request',
         },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        }
     },
 }
 

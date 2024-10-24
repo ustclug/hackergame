@@ -38,6 +38,10 @@ LOGGING = {
         'request': {
             'format': '%(asctime)s %(ip)s %(userid)s %(levelname)s %(message)s',
         },
+        'verbose': {
+            'format': '{levelname} {asctime} [{name}] {message}',
+            'style': '{',
+        },
     },
     'filters': {
         'add_user_info': {
@@ -58,6 +62,11 @@ LOGGING = {
             'class': 'logging.StreamHandler',
             'formatter': 'request',
         },
+        'console': {
+            'level': 'INFO',
+            'class': 'logging.StreamHandler',
+            'formatter': 'verbose',
+        },
     },
     'loggers': {
         'django': {
@@ -72,6 +81,11 @@ LOGGING = {
         'django.request': {
             'filters': ['add_user_info'],
             'handlers': ['request'],
+            'propagate': False,
+        },
+        'custom': {
+            'handlers': ['console'],
+            'level': 'INFO',
             'propagate': False,
         },
     },

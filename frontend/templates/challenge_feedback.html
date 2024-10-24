@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'axios.min.js' %}"></script>
+    <script>
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+    </script>
+{% endblock %}
+
+{% block content %}
+{% verbatim %}
+<div id="app">
+    <h1>提交对题目 {{challenge_name}} 的反馈</h1>
+    <p>提示：</p>
+    <ul>
+        <li>反馈功能是单向的。如果题目没有问题，你不会得到任何形式的通知；反之我们会将题目更新通知到所有选手。如果希望能够得到回复，请使用邮件方式联系我们（点击网页左上角见主页）。</li>
+        <li>反馈功能每题之间反馈至少间隔 1 小时。</li>
+        <li>反馈限制最多 1024 个字符。</li>
+        <li>使用反馈功能大量提交垃圾信息可能导致你的账号被封禁。</li>
+    </ul>
+    <div v-if="!too_frequent">
+        {% endverbatim %}
+        <form method="post" class="pure-form pure-form-stacked">
+            <fieldset>
+                {% csrf_token %}
+                <textarea id="contents" class="pure-input-1" name="contents" rows="20" maxlength="1024" required>{{ contents }}</textarea>
+                <div class="pure-u-1" style="text-align: right;">
+                    <button type="submit" class="pure-button pure-button-primary">提交！</button>
+                </div>
+            </fieldset>
+        </form>
+        {% verbatim %}
+    </div>
+    <div v-else>
+        <p>你对该题目上一次提交反馈在 {{ human_latest_submit() }}，需要等待提交后一小时方可再次提交。</p>
+    </div>
+</div>
+{% endverbatim %}
+{{ challenge_name|json_script:'challenge-name' }}
+{{ too_frequent|json_script:'too-frequent' }}
+{{ latest_submit|json_script:'latest-submit' }}
+<script>
+    app = new Vue({
+        el: '#app',
+        data: {
+            challenge_name: JSON.parse(document.getElementById('challenge-name').textContent),
+            too_frequent: JSON.parse(document.getElementById('too-frequent').textContent),
+            latest_submit: JSON.parse(document.getElementById('latest-submit').textContent),
+        },
+        methods: {
+            human_latest_submit() {
+                if (!this.latest_submit) {
+                    return ""
+                }
+                const date = new Date(this.latest_submit)
+                return date.toLocaleString()
+            }
+        }
+    });
+</script>
+{% endblock %}

@@ -145,6 +145,7 @@
                 <input type="text" name="flag" class="pure-input-rounded" maxlength="200" autocomplete="off" :placeholder="opened.prompt">
                 <button type="submit" class="pure-button pure-input-rounded">提交</button>
             </form>
+            <a :href="get_feedback_url(opened)">需要提交反馈？</a>
         </div>
         <div class="main-body" v-else v-html="page_content"></div>
     </div>
@@ -259,6 +260,9 @@
                 get_subchallenge_count(challenge, flag_index) {
                     let count = (this.clear_count.flags.find(i => i.challenge === challenge.pk && i.flag === flag_index) || {count: 0}).count;
                     return count;
+                },
+                get_feedback_url(challenge) {
+                    return `/challenge/${opened.pk}/feedback/`
                 }
             },
             updated: function () {
