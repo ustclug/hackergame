@@ -1,5 +1,6 @@
 import json
 from urllib.parse import quote
+from datetime import timedelta
 
 from django.contrib import messages
 from django.contrib.admin import site
@@ -8,6 +9,7 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.views import View
+from django.utils import timezone
 
 from server.announcement.interface import Announcement
 from server.challenge.interface import Challenge
@@ -18,7 +20,7 @@ from server.user.interface import PermissionRequired, User, LoginRequired, Profi
 from server.context import Context
 from server.exceptions import Error, NotFound, WrongFormat
 
-from frontend.models import Account, AccountLog, Credits, Qa, SpecialProfileUsedRecord
+from frontend.models import Account, AccountLog, Credits, Qa, SpecialProfileUsedRecord, UnidirectionalFeedback
 
 
 # noinspection PyMethodMayBeStatic
@@ -225,6 +227,73 @@ class ChallengeURLView(View):
         except Error as e:
             messages.error(request, e.message)
             return redirect('hub')
+
+
+class ChallengeFeedbackURLView(View):
+    def check(self, challenge_id):
+        request = self.request
+        context = Context.from_request(request)
+        try:
+            User.test_authenticated(context)
+            challenge = Challenge.get(context, challenge_id)
+            return challenge
+        except Error as e:
+            return None
+    
+    def check_frequency(self, challenge_id):
+        request = self.request
+        matched_feedbacks = UnidirectionalFeedback.objects.filter(challenge_id=challenge_id, user=request.user)
+        too_frequent = False
+        latest = None
+        if matched_feedbacks:
+            latest = matched_feedbacks.first().submit_datetime
+            for feedback in matched_feedbacks:
+                if feedback.submit_datetime > latest:
+                    latest = feedback.submit_datetime
+            
+            current = timezone.now()
+            if current - latest <= timedelta(hours=1):
+                too_frequent = True
+        
+        return too_frequent, latest
+
+    def get(self, request, challenge_id):
+        challenge = self.check(challenge_id)
+        if not challenge:
+            return redirect('hub')
+        challenge_name = challenge.name
+
+        too_frequent, latest = self.check_frequency(challenge_id)
+        
+        return TemplateResponse(request, 'challenge_feedback.html', {
+            "challenge_name": challenge_name,
+            "too_frequent": too_frequent,
+            "latest_submit": latest,
+        })
+
+    def post(self, request, challenge_id):
+        challenge = self.check(challenge_id)
+        if not challenge:
+            return redirect('hub')
+        challenge_name = challenge.name
+        too_frequent, latest = self.check_frequency(challenge_id)
+        if too_frequent:
+            messages.error(request, "提交反馈太过频繁。")
+            return redirect('hub')
+        contents = request.POST.get("contents")
+        if len(contents) > 1024:
+            messages.error(request, "提交内容超过字数限制。")
+            return TemplateResponse(request, 'challenge_feedback.html', {
+                "challenge_name": challenge_name,
+                "too_frequent": too_frequent,
+                "latest_submit": latest,
+                "contents": contents,
+            })
+        feedback = UnidirectionalFeedback.objects.create(challenge_id=challenge_id, user=request.user, contents=contents)
+        feedback.save()
+
+        messages.success(request, "反馈提交成功。")
+        return redirect('hub')
 
 
 class ScoreView(View):
