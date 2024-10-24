@@ -24,6 +24,10 @@ from server.exceptions import Error, NotFound, WrongFormat
 
 from frontend.models import Account, AccountLog, Credits, Qa, SpecialProfileUsedRecord, UnidirectionalFeedback
 
+import logging
+
+logger = logging.getLogger('custom')
+
 
 # noinspection PyMethodMayBeStatic
 class HubView(View):
@@ -315,6 +319,7 @@ class ChallengeFeedbackURLView(View):
                 response.raise_for_status()
             except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
                 messages.error(request, "反馈发送失败，请向管理员反馈此问题。")
+                logger.exception("反馈发送失败")
                 return TemplateResponse(request, 'challenge_feedback.html', {
                     "challenge_name": challenge_name,
                     "too_frequent": too_frequent,
