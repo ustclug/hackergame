@@ -1,6 +1,7 @@
 import json
 from urllib.parse import quote
 from datetime import timedelta
+import requests
 
 from django.contrib import messages
 from django.contrib.admin import site
@@ -10,6 +11,7 @@ from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.views import View
 from django.utils import timezone
+from django.conf import settings
 
 from server.announcement.interface import Announcement
 from server.challenge.interface import Challenge
@@ -258,6 +260,9 @@ class ChallengeFeedbackURLView(View):
         return too_frequent, latest
 
     def get(self, request, challenge_id):
+        # check if this is set, even as None
+        # to make admins quickly notice if they forgot this...
+        settings.FEEDBACK_ENDPOINT and settings.FEEDBACK_KEY
         challenge = self.check(challenge_id)
         if not challenge:
             return redirect('hub')
@@ -289,6 +294,31 @@ class ChallengeFeedbackURLView(View):
                 "latest_submit": latest,
                 "contents": contents,
             })
+        user = User.get(Context.from_request(request), request.user.pk)
+        # send to user-defined endpoint
+        if settings.FEEDBACK_ENDPOINT:
+            try:
+                response = requests.post(
+                    url=settings.FEEDBACK_ENDPOINT,
+                    headers={
+                        'Authorization': 'Bearer ' + settings.FEEDBACK_KEY,
+                    },
+                    json={
+                        'user_id': user.pk,
+                        'contents': contents,
+                        'challenge_name': challenge_name,
+                    },
+                    timeout=15
+                )
+                response.raise_for_status()
+            except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
+                messages.error(request, "反馈发送失败，请向管理员反馈此问题。")
+                return TemplateResponse(request, 'challenge_feedback.html', {
+                    "challenge_name": challenge_name,
+                    "too_frequent": too_frequent,
+                    "latest_submit": latest,
+                    "contents": contents,
+                })
         feedback = UnidirectionalFeedback.objects.create(challenge_id=challenge_id, user=request.user, contents=contents)
         feedback.save()
 
