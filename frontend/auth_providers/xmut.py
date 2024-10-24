@@ -2,7 +2,7 @@ from datetime import timedelta
 
 from django.urls import path
 
-from .base import DomainEmailValidator
+from .base import UserRegexAndDomainEmailValidator
 from .external import ExternalLoginView, ExternalGetCodeView
 
 
@@ -15,7 +15,7 @@ class LoginView(ExternalLoginView):
 class GetCodeView(ExternalGetCodeView):
     provider = 'xmut'
     duration = timedelta(hours=1)
-    validate_identity = DomainEmailValidator(['s.xmut.edu.cn'])
+    validate_identity = UserRegexAndDomainEmailValidator('s.xmut.edu.cn', r'^[0-9]+$')
 
 
 urlpatterns = [

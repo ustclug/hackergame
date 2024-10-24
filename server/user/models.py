@@ -35,16 +35,14 @@ class User(models.Model):
             ('view_sysu', '查看中山大学个人信息'),
             ('view_xidian', '查看西安电子科技大学个人信息'),
             ('view_hit', '查看哈尔滨工业大学个人信息'),
-            ('view_nudt', '查看国防科技大学个人信息'),
             ('view_fdu', '查看复旦大学个人信息'),
             ('view_tongji', '查看同济大学个人信息'),
             ('view_gdou', '查看广东海洋大学个人信息'),
-            ('view_gdut', '查看广东工业大学个人信息'),
-            ('view_gzhu', '查看广州大学个人信息'),
             ('view_sustech', '查看南方科技大学个人信息'),
             ('view_xmut', '查看厦门理工学院个人信息'),
             ('view_shu', '查看上海大学个人信息'),
             ('view_nyist', '查看南阳理工学院个人信息'),
+            ('view_sjtu', '查看上海交通大学个人信息'),
         ]
 
 
