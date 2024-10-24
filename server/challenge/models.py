@@ -11,6 +11,7 @@ class Challenge(models.Model):
     index = models.IntegerField(db_index=True)
     flags = models.TextField()
     check_url_clicked = models.BooleanField(default=False)
+    use_web_docker_manager = models.BooleanField(default=False)
 
     class Meta:
         default_permissions = ()

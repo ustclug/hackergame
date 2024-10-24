@@ -221,3 +221,22 @@ def a():
                 'flag': 'flag{hackergame}',
             }],
         )
+
+        Challenge.create(
+            Context(root),
+            name='难题 (WDM)',
+            category='hard',
+            detail='难题描述',
+            url_orig='https://example.com/{token}',
+            check_url_clicked=False,
+            use_web_docker_manager=True,
+            prompt='flag{hackergame}',
+            index=100,
+            enabled=True,
+            flags=[{
+                'name': '',
+                'score': 100,
+                'type': 'text',
+                'flag': 'flag{hackergame}',
+            }],
+        )

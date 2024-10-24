@@ -68,8 +68,31 @@ print("Hello, world!")
 ```
 """
 
+FILE4 = """---
+enabled: true
+name: 示例题目 4
+category: web
+url: http://example.com/?token={token}
+prompt: flag{...}
+index: 2
+check_url_clicked: true
+use_web_docker_manager: true
+flags:
+- name: ''
+  score: 0
+  type: text
+  flag: flag{example4}
+---
 
-FILES = (FILE1, FILE2, FILE3)
+一段描述 4。
+
+```python
+print("Hello, world!")
+```
+"""
+
+
+FILES = (FILE1, FILE2, FILE3, FILE4)
 
 
 class ImportDataTest(TestCase):
@@ -101,10 +124,13 @@ class ImportDataTest(TestCase):
         self.assert_("示例题目 3" in keys)
         c2 = challenges["示例题目 2"]
         c3 = challenges["示例题目 3"]
+        c4 = challenges["示例题目 4"]
         self.assert_(c2.url_orig.endswith("/example.txt"))
         self.assertEqual(c3.url_orig, "http://example.com/?token={token}")
         self.assertEqual(c2.check_url_clicked, False)
         self.assertEqual(c3.check_url_clicked, True)
+        self.assertEqual(c3.use_web_docker_manager, False)
+        self.assertEqual(c4.use_web_docker_manager, True)
         self.assert_("codehilite" in c3.detail)
         flag1 = c2.flags[0]
         self.assertEqual(flag1["type"], "expr")

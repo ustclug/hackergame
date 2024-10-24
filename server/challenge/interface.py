@@ -13,9 +13,10 @@ from . import models
 class Challenge:
     json_fields = ('pk', 'score', 'enabled', 'name', 'category',
                    'detail', 'url', 'url_orig', 'prompt', 'index', 'flags',
-                   'check_url_clicked')
+                   'check_url_clicked', 'use_web_docker_manager')
     update_fields = ('enabled', 'name', 'category', 'detail', 'url_orig',
-                     'prompt', 'index', 'flags', 'check_url_clicked')
+                     'prompt', 'index', 'flags', 'check_url_clicked',
+                     'use_web_docker_manager')
     subscribers = []
 
     def __init__(self, context, obj: models.Challenge):
@@ -145,7 +146,7 @@ class Challenge:
             if k in {'name', 'category', 'url_orig', 'prompt'}:
                 v = v or None
                 setattr(self._obj, k, v)
-            elif k in {'enabled', 'detail', 'index', 'check_url_clicked'}:
+            elif k in {'enabled', 'detail', 'index', 'check_url_clicked', 'use_web_docker_manager'}:
                 setattr(self._obj, k, v)
             elif k == 'flags':
                 flags = [{
@@ -239,6 +240,10 @@ class Challenge:
             return self._obj.check_url_clicked
         except PermissionRequired:
             return None
+    
+    @property
+    def use_web_docker_manager(self):
+        return self._obj.use_web_docker_manager
 
     @property
     def prompt(self):

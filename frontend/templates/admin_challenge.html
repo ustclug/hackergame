@@ -38,6 +38,14 @@
                     </div>
                 </div>
                 <div class="form-row">
+                    <input type="checkbox" id="form-use-web-docker-manager" name="use-web-docker-manager" v-model="opened.use_web_docker_manager">
+                    <label class="vCheckboxLabel" for="form-use-web-docker-manager">使用 Web 容器管理方案</label>
+                    <div class="help">
+                        在题目中显示启动/关闭环境的提示。
+                        <strong>需要对应题目兼容 Web Docker Manager。</strong>
+                    </div>
+                </div>
+                <div class="form-row">
                     <label for="form-prompt">提示:</label>
                     <input class="vTextField" type="text" id="form-prompt" name="prompt" v-model="opened.prompt">
                 </div>
@@ -163,6 +171,7 @@
                         prompt: 'flag{...}',
                         index: 0,
                         check_url_clicked: false,
+                        use_web_docker_manager: false,
                         flags: [{
                             name: '',
                             score: 100,

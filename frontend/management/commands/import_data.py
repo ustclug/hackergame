@@ -105,6 +105,7 @@ class Command(BaseCommand):
             'category': None,
             'url_orig': None,
             'check_url_clicked': False,
+            'use_web_docker_manager': False,
             'prompt': 'flag{...}',
             'index': 0,
             'flags': [],
