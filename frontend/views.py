@@ -236,6 +236,7 @@ class ChallengeFeedbackURLView(View):
         request = self.request
         context = Context.from_request(request)
         try:
+            Trigger.test_can_submit(context)
             User.test_authenticated(context)
             challenge = Challenge.get(context, challenge_id)
             return challenge
@@ -265,6 +266,7 @@ class ChallengeFeedbackURLView(View):
         settings.FEEDBACK_ENDPOINT and settings.FEEDBACK_KEY
         challenge = self.check(challenge_id)
         if not challenge:
+            messages.error(request, "反馈功能不可用。")
             return redirect('hub')
         challenge_name = challenge.name
 
