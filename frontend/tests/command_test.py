@@ -105,10 +105,10 @@ class ImportDataTest(TestCase):
             pass
         os.mkdir(self.DIR_NAME)
         # create some example README.md files
-        for i in range(3):
+        for i, file in enumerate(FILES):
             os.mkdir(f"{self.DIR_NAME}/example{i}")
             with open(f"{self.DIR_NAME}/example{i}/README.md", "w") as f:
-                f.write(FILES[i])
+                f.write(file)
 
     def tearDown(self) -> None:
         shutil.rmtree(self.DIR_NAME)
