@@ -9,9 +9,9 @@ from server.submission.models import Submission
 from server.terms.models import Terms
 from server.trigger.models import Trigger
 from server.user.models import User
-from .models import Page, Account, Code, AccountLog, SpecialProfileUsedRecord, Qa, Credits, UnidirectionalFeedback
+from .models import Page, Account, Code, AccountLog, SpecialProfileUsedRecord, Qa, Credits, UnidirectionalFeedback, Feedback
 
-admin.site.register([Page, Account, Code, Qa, Credits, SpecialProfileUsedRecord, UnidirectionalFeedback])
+admin.site.register([Page, Account, Code, Qa, Credits, SpecialProfileUsedRecord, UnidirectionalFeedback, Feedback])
 
 
 class PermissionListFilter(admin.SimpleListFilter):

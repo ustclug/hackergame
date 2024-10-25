@@ -22,7 +22,7 @@ from server.user.interface import PermissionRequired, User, LoginRequired, Profi
 from server.context import Context
 from server.exceptions import Error, NotFound, WrongFormat
 
-from frontend.models import Account, AccountLog, Credits, Qa, SpecialProfileUsedRecord, UnidirectionalFeedback
+from frontend.models import Account, AccountLog, Credits, Qa, SpecialProfileUsedRecord, UnidirectionalFeedback, Feedback
 
 import logging
 
@@ -261,6 +261,14 @@ class ChallengeFeedbackURLView(View):
                 too_frequent = True
         
         return too_frequent, latest
+    
+    def return_template(self, challenge_name, too_frequent, latest):
+        return TemplateResponse(self.request, 'challenge_feedback.html', {
+            "feedback": Feedback.get(),
+            "challenge_name": challenge_name,
+            "too_frequent": too_frequent,
+            "latest_submit": latest,
+        })
 
     def get(self, request, challenge_id):
         # check if this is set, even as None
@@ -274,12 +282,8 @@ class ChallengeFeedbackURLView(View):
         challenge_name = challenge.name
 
         too_frequent, latest = self.check_frequency(challenge_id)
-        
-        return TemplateResponse(request, 'challenge_feedback.html', {
-            "challenge_name": challenge_name,
-            "too_frequent": too_frequent,
-            "latest_submit": latest,
-        })
+
+        return self.return_template(challenge_name, too_frequent, latest)
 
     def post(self, request, challenge_id):
         challenge = self.check(challenge_id)
@@ -293,12 +297,7 @@ class ChallengeFeedbackURLView(View):
         contents = request.POST.get("contents")
         if len(contents) > 1024:
             messages.error(request, "提交内容超过字数限制。")
-            return TemplateResponse(request, 'challenge_feedback.html', {
-                "challenge_name": challenge_name,
-                "too_frequent": too_frequent,
-                "latest_submit": latest,
-                "contents": contents,
-            })
+            return self.return_template(challenge_name, too_frequent, latest)
         user = User.get(Context.from_request(request), request.user.pk)
         # send to user-defined endpoint
         if settings.FEEDBACK_ENDPOINT:
@@ -319,12 +318,7 @@ class ChallengeFeedbackURLView(View):
             except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
                 messages.error(request, "反馈发送失败，请向管理员反馈此问题。")
                 logger.exception("反馈发送失败")
-                return TemplateResponse(request, 'challenge_feedback.html', {
-                    "challenge_name": challenge_name,
-                    "too_frequent": too_frequent,
-                    "latest_submit": latest,
-                    "contents": contents,
-                })
+                return self.return_template(challenge_name, too_frequent, latest)
         feedback = UnidirectionalFeedback.objects.create(challenge_id=challenge_id, user=request.user, contents=contents)
         feedback.save()
 

@@ -12,16 +12,11 @@
 {% endblock %}
 
 {% block content %}
-{% verbatim %}
+
 <div id="app">
     <h1>提交对题目 {{challenge_name}} 的反馈</h1>
-    <p>提示：</p>
-    <ul>
-        <li>反馈功能是单向的。如果题目没有问题，你不会得到任何形式的通知；如果题目确实需要更新，我们会更新并通知所有选手。如果希望能够得到回复，请将您遇到的问题详细描述并发送邮件到 hackergame AT ustclug.org（请将 AT 替换为 @）。邮件中需要包含题目名称、Token 中冒号前的数字编号、你的操作、实际结果与预期结果，详见<a href="/qa/">问与答</a>。</li>
-        <li>同一道题目两次反馈之间至少间隔 1 小时。</li>
-        <li>反馈限制最多 1024 个字符。</li>
-        <li>使用反馈功能大量提交垃圾信息可能导致你的账号被封禁。</li>
-    </ul>
+    <div>{{ feedback.content|safe }}</div>
+{% verbatim %}
     <div v-if="!too_frequent">
         {% endverbatim %}
         <form method="post" class="pure-form pure-form-stacked">
@@ -40,14 +35,12 @@
     </div>
 </div>
 {% endverbatim %}
-{{ challenge_name|json_script:'challenge-name' }}
 {{ too_frequent|json_script:'too-frequent' }}
 {{ latest_submit|json_script:'latest-submit' }}
 <script>
     app = new Vue({
         el: '#app',
         data: {
-            challenge_name: JSON.parse(document.getElementById('challenge-name').textContent),
             too_frequent: JSON.parse(document.getElementById('too-frequent').textContent),
             latest_submit: JSON.parse(document.getElementById('latest-submit').textContent),
         },
