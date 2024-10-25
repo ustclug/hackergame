@@ -253,10 +253,8 @@ class ChallengeFeedbackURLView(View):
         too_frequent = False
         latest = None
         if matched_feedbacks:
-            latest = matched_feedbacks.first().submit_datetime
-            for feedback in matched_feedbacks:
-                if feedback.submit_datetime > latest:
-                    latest = feedback.submit_datetime
+            latest_feedback = matched_feedbacks.latest('submit_datetime')
+            latest = latest_feedback.submit_datetime
             
             current = timezone.now()
             if current - latest <= timedelta(hours=1):
@@ -267,7 +265,8 @@ class ChallengeFeedbackURLView(View):
     def get(self, request, challenge_id):
         # check if this is set, even as None
         # to make admins quickly notice if they forgot this...
-        settings.FEEDBACK_ENDPOINT and settings.FEEDBACK_KEY
+        if settings.FEEDBACK_ENDPOINT:
+            assert settings.FEEDBACK_KEY
         challenge = self.check(challenge_id)
         if not challenge:
             messages.error(request, "反馈功能不可用。")
