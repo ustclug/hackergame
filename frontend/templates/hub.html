@@ -262,7 +262,11 @@
                     return count;
                 },
                 get_feedback_url(challenge) {
-                    return `/challenge/${opened.pk}/feedback/`
+                    if (challenge) {
+                        return `/challenge/${challenge.pk}/feedback/`;
+                    } else {
+                        return "";
+                    }
                 }
             },
             updated: function () {
