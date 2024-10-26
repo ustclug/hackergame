@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block js %}
+    {{ block.super }}
+    <script src="{% static 'vue.min.js' %}"></script>
+    <script src="{% static 'axios.min.js' %}"></script>
+    <script>
+        axios.defaults.xsrfCookieName = 'csrftoken';
+        axios.defaults.xsrfHeaderName = 'X-CSRFToken';
+    </script>
+{% endblock %}
+
+{% block content %}
+
+<div id="app">
+    <h1>提交对题目 {{challenge_name}} 的反馈</h1>
+    <div>{{ feedback.content|safe }}</div>
+{% verbatim %}
+    <div v-if="!too_frequent">
+        {% endverbatim %}
+        <form method="post" class="pure-form pure-form-stacked">
+            <fieldset>
+                {% csrf_token %}
+                <textarea id="contents" class="pure-input-1" name="contents" rows="20" maxlength="1024" required>{{ contents }}</textarea>
+                <div class="pure-u-1" style="text-align: right;">
+                    <button type="submit" class="pure-button pure-button-primary">提交！</button>
+                </div>
+            </fieldset>
+        </form>
+        {% verbatim %}
+    </div>
+    <div v-else>
+        <p>你对该题目上一次提交反馈在 {{ human_latest_submit() }}，需要等待提交后一小时方可再次提交。</p>
+    </div>
+</div>
+{% endverbatim %}
+{{ too_frequent|json_script:'too-frequent' }}
+{{ latest_submit|json_script:'latest-submit' }}
+<script>
+    app = new Vue({
+        el: '#app',
+        data: {
+            too_frequent: JSON.parse(document.getElementById('too-frequent').textContent),
+            latest_submit: JSON.parse(document.getElementById('latest-submit').textContent),
+        },
+        methods: {
+            human_latest_submit() {
+                if (!this.latest_submit) {
+                    return ""
+                }
+                const date = new Date(this.latest_submit)
+                return date.toLocaleString()
+            }
+        }
+    });
+</script>
+{% endblock %}

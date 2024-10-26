@@ -18,3 +18,5 @@ EXTERNAL_LOGINS = {
         'use_smtp': False,
     }
 }
+FEEDBACK_ENDPOINT = 'https://example.com/bot/'  # or None
+FEEDBACK_KEY = '1145141919811'

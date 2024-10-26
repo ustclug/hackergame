@@ -1,5 +1,7 @@
 import json
 from urllib.parse import quote
+from datetime import timedelta
+import requests
 
 from django.contrib import messages
 from django.contrib.admin import site
@@ -8,6 +10,8 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import redirect
 from django.template.response import TemplateResponse
 from django.views import View
+from django.utils import timezone
+from django.conf import settings
 
 from server.announcement.interface import Announcement
 from server.challenge.interface import Challenge
@@ -18,7 +22,11 @@ from server.user.interface import PermissionRequired, User, LoginRequired, Profi
 from server.context import Context
 from server.exceptions import Error, NotFound, WrongFormat
 
-from frontend.models import Account, AccountLog, Credits, Qa, SpecialProfileUsedRecord
+from frontend.models import Account, AccountLog, Credits, Qa, SpecialProfileUsedRecord, UnidirectionalFeedback, Feedback
+
+import logging
+
+logger = logging.getLogger('custom')
 
 
 # noinspection PyMethodMayBeStatic
@@ -225,6 +233,97 @@ class ChallengeURLView(View):
         except Error as e:
             messages.error(request, e.message)
             return redirect('hub')
+
+
+class ChallengeFeedbackURLView(View):
+    def check(self, challenge_id):
+        request = self.request
+        context = Context.from_request(request)
+        try:
+            Trigger.test_can_submit(context)
+            User.test_authenticated(context)
+            challenge = Challenge.get(context, challenge_id)
+            return challenge
+        except Error as e:
+            return None
+    
+    def check_frequency(self, challenge_id):
+        request = self.request
+        matched_feedbacks = UnidirectionalFeedback.objects.filter(challenge_id=challenge_id, user=request.user)
+        too_frequent = False
+        latest = None
+        if matched_feedbacks:
+            latest_feedback = matched_feedbacks.latest('submit_datetime')
+            latest = latest_feedback.submit_datetime
+            
+            current = timezone.now()
+            if current - latest <= timedelta(hours=1):
+                too_frequent = True
+        
+        return too_frequent, latest
+    
+    def return_template(self, challenge_name, too_frequent, latest):
+        return TemplateResponse(self.request, 'challenge_feedback.html', {
+            "feedback": Feedback.get(),
+            "challenge_name": challenge_name,
+            "too_frequent": too_frequent,
+            "latest_submit": latest,
+        })
+
+    def get(self, request, challenge_id):
+        # check if this is set, even as None
+        # to make admins quickly notice if they forgot this...
+        if settings.FEEDBACK_ENDPOINT:
+            assert settings.FEEDBACK_KEY
+        challenge = self.check(challenge_id)
+        if not challenge:
+            messages.error(request, "反馈功能不可用。")
+            return redirect('hub')
+        challenge_name = challenge.name
+
+        too_frequent, latest = self.check_frequency(challenge_id)
+
+        return self.return_template(challenge_name, too_frequent, latest)
+
+    def post(self, request, challenge_id):
+        challenge = self.check(challenge_id)
+        if not challenge:
+            return redirect('hub')
+        challenge_name = challenge.name
+        too_frequent, latest = self.check_frequency(challenge_id)
+        if too_frequent:
+            messages.error(request, "提交反馈太过频繁。")
+            return redirect('hub')
+        contents = request.POST.get("contents")
+        if len(contents) > 1024:
+            messages.error(request, "提交内容超过字数限制。")
+            return self.return_template(challenge_name, too_frequent, latest)
+        user = User.get(Context.from_request(request), request.user.pk)
+        # send to user-defined endpoint
+        if settings.FEEDBACK_ENDPOINT:
+            try:
+                response = requests.post(
+                    url=settings.FEEDBACK_ENDPOINT,
+                    headers={
+                        'Authorization': 'Bearer ' + settings.FEEDBACK_KEY,
+                    },
+                    json={
+                        'user_id': user.pk,
+                        'contents': contents,
+                        'challenge_name': challenge_name,
+                    },
+                    timeout=15
+                )
+                response.raise_for_status()
+            except (requests.exceptions.RequestException, requests.exceptions.HTTPError) as e:
+                messages.error(request, "反馈发送失败，请向管理员反馈此问题。")
+                logger.exception("反馈发送失败")
+                return self.return_template(challenge_name, too_frequent, latest)
+        feedback = UnidirectionalFeedback.objects.create(challenge_id=challenge_id, user=request.user, contents=contents)
+        feedback.save()
+
+        messages.success(request, "反馈提交成功。")
+        return redirect('hub')
 
 
 class ScoreView(View):

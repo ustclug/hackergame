@@ -117,3 +117,24 @@ class Credits(models.Model):
     @classmethod
     def get(cls):
         return cls.objects.get_or_create()[0]
+
+
+class Feedback(models.Model):
+    content = models.TextField(blank=True, help_text='会被放入 <code>div</code> 的 HTML')
+
+    @classmethod
+    def get(cls):
+        return cls.objects.get_or_create()[0]
+
+
+class UnidirectionalFeedback(models.Model):
+    """
+    User could submit feedback for a specific challenge.
+    """
+    challenge_id = models.IntegerField(help_text="该反馈对应 Challenge 的 ID")
+    user = models.ForeignKey(get_user_model(), models.CASCADE, help_text="反馈用户")
+    contents = models.TextField(max_length=1024, help_text="反馈内容，最长 1024")
+    submit_datetime = models.DateTimeField(auto_now_add=True, help_text="反馈时间")
+
+    def __str__(self) -> str:
+        return f"{self.user} 对题目 {self.challenge_id} 的反馈"
