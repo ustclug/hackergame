@@ -15,5 +15,5 @@ pymemcache==4.0.0
 pyOpenSSL==24.2.1
 PyYAML==6.0.2
 requests==2.32.3
-uWSGI==2.0.27
+uWSGI==2.0.28
 pyJWT==2.9.0

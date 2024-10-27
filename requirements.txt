@@ -25,6 +25,6 @@ requests==2.32.3
 sqlparse==0.5.1
 typing_extensions==4.12.2
 urllib3==2.2.3
-uWSGI==2.0.27
+uWSGI==2.0.28
 zope.event==5.0
 zope.interface==7.0.3
