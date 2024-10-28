@@ -138,3 +138,10 @@ class UnidirectionalFeedback(models.Model):
 
     def __str__(self) -> str:
         return f"{self.user} 对题目 {self.challenge_id} 的反馈"
+    
+    @property
+    def json(self):
+        return {
+            "contents": self.contents,
+            "datetime": self.submit_datetime,
+        }
