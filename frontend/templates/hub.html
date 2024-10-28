@@ -145,7 +145,7 @@
                 <input type="text" name="flag" class="pure-input-rounded" maxlength="200" autocomplete="off" :placeholder="opened.prompt">
                 <button type="submit" class="pure-button pure-input-rounded">提交</button>
             </form>
-            <a :href="get_feedback_url(opened)">需要提交反馈？</a>
+            <p><a :href="get_feedback_url(opened)">需要提交反馈？</a></p>
         </div>
         <div class="main-body" v-else v-html="page_content"></div>
     </div>
