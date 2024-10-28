@@ -167,8 +167,8 @@ table .narrow {
 .main-body blockquote {
     background: #f9f9f9;
     border-left: .5em solid #ccc;
-    margin: 0;
-    padding: 0 .5em;
+    margin: 1em 0;
+    padding: 1em .5em;
     overflow: auto;
 }
 .main-body img {
