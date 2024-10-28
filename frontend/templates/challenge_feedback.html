@@ -33,23 +33,28 @@
     <div v-else>
         <p>你对该题目上一次提交反馈在 {{ human_latest_submit() }}，需要等待提交后一小时方可再次提交。</p>
     </div>
+    <div v-if="latest_feedback">
+        <hr />
+        <p>上一次提交的内容：</p>
+        <p style="white-space: pre-line;">{{ latest_feedback.contents }}</p>
+    </div>
 </div>
 {% endverbatim %}
 {{ too_frequent|json_script:'too-frequent' }}
-{{ latest_submit|json_script:'latest-submit' }}
+{{ latest_feedback.json|json_script:'latest-feedback' }}
 <script>
     app = new Vue({
         el: '#app',
         data: {
             too_frequent: JSON.parse(document.getElementById('too-frequent').textContent),
-            latest_submit: JSON.parse(document.getElementById('latest-submit').textContent),
+            latest_feedback: JSON.parse(document.getElementById('latest-feedback').textContent),
         },
         methods: {
             human_latest_submit() {
-                if (!this.latest_submit) {
+                if (!this.latest_feedback.datetime) {
                     return ""
                 }
-                const date = new Date(this.latest_submit)
+                const date = new Date(this.latest_feedback.datetime)
                 return date.toLocaleString()
             }
         }

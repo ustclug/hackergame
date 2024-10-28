@@ -251,6 +251,7 @@ class ChallengeFeedbackURLView(View):
         request = self.request
         matched_feedbacks = UnidirectionalFeedback.objects.filter(challenge_id=challenge_id, user=request.user)
         too_frequent = False
+        latest_feedback = None
         latest = None
         if matched_feedbacks:
             latest_feedback = matched_feedbacks.latest('submit_datetime')
@@ -260,14 +261,14 @@ class ChallengeFeedbackURLView(View):
             if current - latest <= timedelta(hours=1):
                 too_frequent = True
         
-        return too_frequent, latest
+        return too_frequent, latest_feedback
     
-    def return_template(self, challenge_name, too_frequent, latest):
+    def return_template(self, challenge_name, too_frequent, latest_feedback):
         return TemplateResponse(self.request, 'challenge_feedback.html', {
             "feedback": Feedback.get(),
             "challenge_name": challenge_name,
             "too_frequent": too_frequent,
-            "latest_submit": latest,
+            "latest_feedback": latest_feedback,
         })
 
     def get(self, request, challenge_id):
@@ -281,23 +282,23 @@ class ChallengeFeedbackURLView(View):
             return redirect('hub')
         challenge_name = challenge.name
 
-        too_frequent, latest = self.check_frequency(challenge_id)
+        too_frequent, latest_feedback = self.check_frequency(challenge_id)
 
-        return self.return_template(challenge_name, too_frequent, latest)
+        return self.return_template(challenge_name, too_frequent, latest_feedback)
 
     def post(self, request, challenge_id):
         challenge = self.check(challenge_id)
         if not challenge:
             return redirect('hub')
         challenge_name = challenge.name
-        too_frequent, latest = self.check_frequency(challenge_id)
+        too_frequent, latest_feedback = self.check_frequency(challenge_id)
         if too_frequent:
             messages.error(request, "提交反馈太过频繁。")
             return redirect('hub')
         contents = request.POST.get("contents")
         if len(contents) > 1024:
             messages.error(request, "提交内容超过字数限制。")
-            return self.return_template(challenge_name, too_frequent, latest)
+            return self.return_template(challenge_name, too_frequent, latest_feedback)
         user = User.get(Context.from_request(request), request.user.pk)
         # send to user-defined endpoint
         if settings.FEEDBACK_ENDPOINT:
