@@ -182,7 +182,10 @@ table .narrow {
 }
 @media screen and (min-width: 48em) {
     .main-body img {
-        max-width: calc(100% - 29em);
+        max-width: calc(100% - 32em);
+    }
+    .main-body p {
+        max-width: calc(100% - 32em);
     }
     .logout {
         max-width: 14em;
