@@ -184,9 +184,6 @@ table .narrow {
     .main-body img {
         max-width: calc(100% - 32em);
     }
-    .main-body p {
-        max-width: calc(100% - 32em);
-    }
     .logout {
         max-width: 14em;
     }
