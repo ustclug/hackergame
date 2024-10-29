@@ -304,7 +304,7 @@ class ChallengeFeedbackURLView(View):
         contents = request.POST.get("contents")
         if len(contents) > 1024:
             messages.error(request, "提交内容超过字数限制。")
-            return self.return_template(challenge_name, too_frequent, latest_feedback, contents)
+            return self.return_template(challenge_name, too_frequent, latest_feedback, contents[:1024])
         user = User.get(Context.from_request(request), request.user.pk)
         # send to user-defined endpoint
         if settings.FEEDBACK_ENDPOINT:
