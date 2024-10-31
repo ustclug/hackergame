@@ -87,20 +87,8 @@
                     <input class="vTextField" type="text" id="form-aff" name="aff" v-model="opened.aff">
                 </div>
                 <div class="form-row">
-                    <label for="form-suspicious">是否标记为第一阶段封禁:</label>
-                    <input class="vCheckboxField" type="checkbox" id="form-suspicious" name="suspicious" v-model="opened.suspicious">
-                </div>
-                <div class="form-row">
-                    <label for="form-suspicious-reason">第一阶段封禁原因:</label>
+                    <label for="form-suspicious-reason">嫌疑原因（仅在用户在嫌疑组时显示）:</label>
                     <input class="vTextField" type="text" id="form-suspicious-reason" name="suspicious-reason" v-model="opened.suspicious_reason">
-                </div>
-                <div class="form-row">
-                    <label for="form-suspicious-ddl">显示的第一阶段封禁联系截止时间:</label>
-                    <input class="vTextField" type="text" id="form-suspicious-ddl" name="suspicious-ddl" v-model="suspicious_ddl_input">
-                    <template v-if="suspicious_ddl_input">
-                        <div class="help" v-if="isNaN(new Date(suspicious_ddl_input).valueOf())"><strong>格式错误！</strong></div>
-                        <div class="help" v-else>本地时间: {{ new Date(suspicious_ddl_input).toLocaleString() }}<br>UTC 时间: {{ new Date(suspicious_ddl_input).toJSON() }}</div>
-                    </template>
                 </div>
             </fieldset>
             <div class="submit-row" v-show="!opened_disabled">
@@ -155,9 +143,7 @@
                         <td>{{ obj.major }}</td>
                         <td>{{ obj.campus }}</td>
                         <td>{{ obj.aff }}</td>
-                        <td><img v-if="obj.suspicious" src="/static/admin/img/icon-yes.svg" alt="True"><img v-else src="/static/admin/img/icon-no.svg" alt="False"></td>
                         <td>{{ obj.suspicious_reason }}</td>
-                        <td>{{ obj.suspicious_ddl }}</td>
                     </tr>
                     </tbody>
                 </table>
@@ -180,7 +166,6 @@
             },
             account_pks: {},
             accountlog: {},
-            suspicious_ddl_input: '',
         },
         created() {
             this.refresh();
@@ -207,7 +192,6 @@
             },
             open(obj) {
                 this.opened = {...obj};
-                this.suspicious_ddl_input = obj.suspicious_ddl || '';
                 axios.post('/account/', {method: 'account_pk', user: obj.pk})
                     .then(({data: {value}}) => {
                         this.$set(this.account_pks, obj.pk, value)
@@ -219,17 +203,6 @@
             },
             opened_save() {
                 this.opened_disabled = true;
-                if (this.suspicious_ddl_input) {
-                    let suspicious_ddl = new Date(this.suspicious_ddl_input);
-                    if (isNaN(suspicious_ddl.valueOf())) {
-                        alert('时间格式错误');
-                        this.opened_disabled = false;
-                        return;
-                    }
-                    this.opened.suspicious_ddl = suspicious_ddl.toJSON();
-                } else {
-                    this.opened.suspicious_ddl = null;
-                }
                 axios.post('.', {method: 'save', args: this.opened})
                     .then(({data: {value}}) => {
                         this.opened = undefined;
