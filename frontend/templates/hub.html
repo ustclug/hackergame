@@ -49,7 +49,7 @@
             <a href="/announcements/">查看所有公告</a>
         </div>
         <div v-if="user.group==='suspicious'" class="msg-error">
-            经裁判组检查，你的账号有以下疑似违规行为：{{ user.suspicious_reason }}，因此取消排名资格。你仍可继续完成题目。
+            经裁判组检查，你的账号{{ suspicious_words }}，因此取消排名资格。你仍可继续完成题目。
             如果你有异议，请尽快联系 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>，
             提供你的 Token 以及申诉理由。
         </div>
@@ -59,7 +59,7 @@
             <input v-show="token_show" type="text" id="token" :value="user.token" readonly>
             <button onclick="token_copy()">{{ token_copy_text }}</button>
             Token 是一些题目的登录凭证，禁止分享，否则视为作弊
-            <template v-if="progress.scores.find(i=>i.category===null)">
+            <template v-if="progress.scores.find(i=>i.category===null) && user.group!=='suspicious'">
                 <a href="/board/">
                     <br>
                     当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
@@ -217,6 +217,13 @@
                 categories() {
                     return [...new Set(this.challenges.map(i => i.category))].sort();
                 },
+                suspicious_words() {
+                    if (this.user && this.user.suspicious_reason) {
+                        return "有以下疑似违规行为：" + this.user.suspicious_reason;
+                    } else {
+                        return "存在违规行为";
+                    }
+                }
             },
             methods: {
                 open(challenge) {
