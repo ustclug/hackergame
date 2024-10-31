@@ -49,9 +49,10 @@
             <a href="/announcements/">查看所有公告</a>
         </div>
         <div v-if="user.group==='suspicious'" class="msg-error">
-            经裁判组检查，你的账号{{ suspicious_words }}，因此取消排名资格。你仍可继续完成题目。
-            如果你有异议，请尽快联系 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>，
-            提供你的 Token 以及申诉理由。
+            经裁判组检查，你的账号{{ suspicious_words }}。
+            你的分数暂时不计入排行榜，你仍可继续完成题目。
+            你可以在比赛期间及比赛结束后 24 小时内联系组委会配合审核，审核通过后你的分数会重新计入排行榜。
+            请发邮件至 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>，邮件中包含你的 Token。
         </div>
         <div v-if="user" class="msg-info">
             <label for="token">Token:</label>
@@ -221,7 +222,7 @@
                     if (this.user && this.user.suspicious_reason) {
                         return "有以下疑似违规行为：" + this.user.suspicious_reason;
                     } else {
-                        return "存在违规行为";
+                        return "有疑似违规行为";
                     }
                 }
             },

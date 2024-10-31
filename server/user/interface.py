@@ -61,7 +61,7 @@ class User:
         'nyist': '南阳理工学院',
         'sjtu': '上海交通大学',
         'other': '其他选手',
-        'suspicious': '嫌疑组',
+        'suspicious': '待审核',
         'banned': '已封禁',
     }
     # XXX:
