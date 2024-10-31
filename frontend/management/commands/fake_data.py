@@ -156,7 +156,7 @@ def a():
             can_update_profile=True,
         )
 
-        groups = list(set(User.groups.keys()) - {'noscore', 'banned'})
+        groups = list(set(User.groups.keys()) - {'noscore', 'banned', 'suspicious'})
         for i in range(fake_users):
             print('user', i, end='\r')
             u = User.create(

@@ -48,11 +48,11 @@
             <small>{{ new Date(announcement.time).toLocaleString() }}</small>
             <a href="/announcements/">查看所有公告</a>
         </div>
-        <div v-if="user.suspicious" class="msg-error">
-            经裁判组检查，你的账号有以下疑似违规行为：{{ user.suspicious_reason }}。
-            你的账号将会在 {{ new Date(user.suspicious_ddl).toLocaleString() }} 之后被封禁。
-            如果你有异议，请尽快联系 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>，
-            提供你的 Token 以及申诉理由。在封禁之前，你仍可正常参加比赛。
+        <div v-if="user.group==='suspicious'" class="msg-error">
+            经裁判组检查，你的账号{{ suspicious_words }}。
+            你的分数暂时不计入排行榜，你仍可继续完成题目。
+            你可以在比赛期间及比赛结束后 24 小时内联系组委会配合审核，审核通过后你的分数会重新计入排行榜。
+            请发邮件至 <a href="mailto:hackergame@ustclug.org">hackergame@ustclug.org</a>，邮件中包含你的 Token。
         </div>
         <div v-if="user" class="msg-info">
             <label for="token">Token:</label>
@@ -60,7 +60,7 @@
             <input v-show="token_show" type="text" id="token" :value="user.token" readonly>
             <button onclick="token_copy()">{{ token_copy_text }}</button>
             Token 是一些题目的登录凭证，禁止分享，否则视为作弊
-            <template v-if="progress.scores.find(i=>i.category===null)">
+            <template v-if="progress.scores.find(i=>i.category===null) && user.group!=='suspicious'">
                 <a href="/board/">
                     <br>
                     当前分数：{{ (progress.scores.find(i=>i.category===null)||{score:0}).score }}，
@@ -218,6 +218,13 @@
                 categories() {
                     return [...new Set(this.challenges.map(i => i.category))].sort();
                 },
+                suspicious_words() {
+                    if (this.user && this.user.suspicious_reason) {
+                        return "有以下疑似违规行为：" + this.user.suspicious_reason;
+                    } else {
+                        return "有疑似违规行为";
+                    }
+                }
             },
             methods: {
                 open(challenge) {

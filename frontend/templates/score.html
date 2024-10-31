@@ -29,7 +29,7 @@
         </select>
         <select v-model="group">
             <option value="">总排名</option>
-            <option v-for="i in coreData.groups" v-if="!['noscore', 'other', 'banned'].includes(i.id)" :value="i.id">{{ i.name }}</option>
+            <option v-for="i in coreData.groups" v-if="!['noscore', 'other', 'banned', 'suspicious'].includes(i.id)" :value="i.id">{{ i.name }}</option>
         </select>
         <button type="submit" class="pure-button pure-button-primary">加载</button>
     </form>
