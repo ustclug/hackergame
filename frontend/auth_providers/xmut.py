@@ -15,7 +15,7 @@ class LoginView(ExternalLoginView):
 class GetCodeView(ExternalGetCodeView):
     provider = 'xmut'
     duration = timedelta(hours=1)
-    validate_identity = UserRegexAndDomainEmailValidator('s.xmut.edu.cn', r'^[0-9]+$')
+    validate_identity = UserRegexAndDomainEmailValidator(['s.xmut.edu.cn', 'stu.xmut.edu.cn'], r'^[0-9]+$')
 
 
 urlpatterns = [
