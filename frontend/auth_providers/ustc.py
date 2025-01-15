@@ -28,7 +28,10 @@ class LoginView(CASBaseLoginView):
         tree = super().check_ticket()
         if not tree:
             return None
-        self.identity = tree.find('attributes').find(self.YALE_CAS_URL + 'gid').text.strip()
+        self.identity = tree.find(self.YALE_CAS_URL + 'attributes').find(self.YALE_CAS_URL + 'gid').text.strip()
+        if not self.identity:
+            # compatibility with old ustc cas
+            self.identity = tree.find('attributes').find(self.YALE_CAS_URL + 'gid').text.strip()
         self.sno = tree.find(self.YALE_CAS_URL + 'user').text.strip()
         return tree
 
