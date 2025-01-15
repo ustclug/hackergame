@@ -28,7 +28,7 @@ class LoginView(CASBaseLoginView):
 
     def check_ticket(self) -> Optional[ElementTree.Element]:
         tree = super().check_ticket()
-        if not tree:
+        if tree is None:
             return None
         self.identity = tree.find(self.YALE_CAS_URL + 'user').text.strip()
         self.email = tree.find(self.YALE_CAS_URL + 'attributes').find(self.YALE_CAS_URL + 'mail').text.strip()
