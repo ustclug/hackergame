@@ -19,7 +19,7 @@ pycryptodome==3.21.0
 Pygments==2.18.0
 PyJWT==2.9.0
 pymemcache==4.0.0
-pyOpenSSL==24.2.1
+pyOpenSSL==24.3.0
 PyYAML==6.0.2
 requests==2.32.3
 sqlparse==0.5.1
