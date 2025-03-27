@@ -1,0 +1,39 @@
+server {
+    listen 80;
+    #server_name hack.lug.ustc.edu.cn;
+    server_name _;
+
+    charset utf-8;
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    server_tokens off;
+    log_not_found off;
+
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+
+    access_log /var/log/nginx/hackergame.log;
+    error_log /var/log/nginx/hackergame.error.log;
+
+    gzip on;
+    gzip_vary on;
+    gzip_proxied any;
+    gzip_comp_level 6;
+    gzip_types text/plain text/css text/xml application/json application/javascript application/rss+xml application/atom+xml image/svg+xml;
+
+    location /media {
+        root /var/opt/hackergame;
+        add_header Content-Type application/octet-stream;
+        expires -1;
+    }
+    location /static {
+        root /var/opt/hackergame;
+        expires 1h;
+    }
+    location / {
+        uwsgi_pass hackergame:2018;
+        client_max_body_size 500M;
+        include /etc/nginx/uwsgi_params;
+    }
+}
