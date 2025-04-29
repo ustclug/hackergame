@@ -1,6 +1,6 @@
 import base64
 from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.asymmetric import ec
 from hashlib import sha256
 from uuid import uuid4
 
@@ -159,8 +159,7 @@ class User:
         pk = str(user.pk)
         sig = base64.b64encode(self._private_key.sign(
             pk.encode(),
-            padding.PKCS1v15(),
-            hashes.SHA256()
+            ec.ECDSA(hashes.SHA256())
         )).decode()
         self._obj.token = pk + ':' + sig
         try:
