@@ -96,16 +96,16 @@ class ImportDataTest(TestCase):
         context = Context(elevated=True)
         challenges = {i.name: i for i in Challenge.get_all(context)}
         keys = challenges.keys()
-        self.assert_("示例题目 1" not in keys)
-        self.assert_("示例题目 2" in keys)
-        self.assert_("示例题目 3" in keys)
+        self.assertTrue("示例题目 1" not in keys)
+        self.assertTrue("示例题目 2" in keys)
+        self.assertTrue("示例题目 3" in keys)
         c2 = challenges["示例题目 2"]
         c3 = challenges["示例题目 3"]
-        self.assert_(c2.url_orig.endswith("/example.txt"))
+        self.assertTrue(c2.url_orig.endswith("/example.txt"))
         self.assertEqual(c3.url_orig, "http://example.com/?token={token}")
         self.assertEqual(c2.check_url_clicked, False)
         self.assertEqual(c3.check_url_clicked, True)
-        self.assert_("codehilite" in c3.detail)
+        self.assertTrue("codehilite" in c3.detail)
         flag1 = c2.flags[0]
         self.assertEqual(flag1["type"], "expr")
         self.assertEqual("flag{2=2, 1:14}", expr_flag(flag1["flag"], "1:14"))
