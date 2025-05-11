@@ -1,12 +1,12 @@
 asgiref==3.7.2
 certifi==2025.4.26
 cffi==1.17.1
-charset-normalizer==3.4.1
+charset-normalizer==3.4.2
 cryptography==44.0.1
-Django==4.2.2
+Django==4.2.21
 django-allauth==65.0.2
 gevent==24.11.1
-greenlet==3.2.1
+greenlet==3.2.2
 idna==3.10
 Markdown==3.7
 psycopg==3.2.3
@@ -20,7 +20,7 @@ pymemcache==4.0.0
 pyOpenSSL==24.3.0
 PyYAML==6.0.2
 requests==2.32.3
-setuptools==80.0.0
+setuptools==80.4.0
 sqlparse==0.5.3
 typing_extensions==4.13.2
 urllib3==2.4.0
