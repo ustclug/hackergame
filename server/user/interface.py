@@ -1,5 +1,6 @@
 import base64
-import OpenSSL
+from cryptography.hazmat.primitives import serialization, hashes
+from cryptography.hazmat.primitives.asymmetric import ec
 from hashlib import sha256
 from uuid import uuid4
 
@@ -116,8 +117,10 @@ class User:
         'aff': RegexValidator(r'^.{1,100}$', '了解比赛的渠道格式错误'),
         'suspicious_reason': None,
     }
-    _private_key = OpenSSL.crypto.load_privatekey(
-        OpenSSL.crypto.FILETYPE_PEM, settings.PRIVATE_KEY)
+    _private_key = serialization.load_pem_private_key(
+        settings.PRIVATE_KEY.encode(),
+        password=None,
+    )
 
     def __init__(self, context, obj: models.User):
         self._context = context
@@ -154,8 +157,10 @@ class User:
             user = get_user_model().objects.create_user(str(uuid4()))
         self = cls(context, models.User(user=user.pk))
         pk = str(user.pk)
-        sig = base64.b64encode(OpenSSL.crypto.sign(
-            self._private_key, pk.encode(), 'sha256')).decode()
+        sig = base64.b64encode(self._private_key.sign(
+            pk.encode(),
+            ec.ECDSA(hashes.SHA256())
+        )).decode()
         self._obj.token = pk + ':' + sig
         try:
             server.trigger.interface.Trigger.test_can_update_profile(context)

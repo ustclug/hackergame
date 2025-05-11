@@ -110,14 +110,14 @@ class AuthProviderCASLoginTest(TestCase):
         self.c.logout()
         resp = self.c.get("/accounts/ustc/login/", {"ticket": "ST-1234567890"})
         self.assertRedirects(resp, reverse("hub"), target_status_code=302)
-        self.assert_(auth.get_user(self.c).is_authenticated)
+        self.assertTrue(auth.get_user(self.c).is_authenticated)
 
     @mock.patch("frontend.auth_providers.cas.urlopen", new=mock_urlopen)
     def test_sustech(self):
         self.c.logout()
         resp = self.c.get("/accounts/sustech/login/", {"ticket": "ST-1234567890"})
         self.assertRedirects(resp, reverse("hub"), target_status_code=302)
-        self.assert_(auth.get_user(self.c).is_authenticated)
+        self.assertTrue(auth.get_user(self.c).is_authenticated)
 
 
 class AccountLogViewPermission(TestCase):
@@ -141,7 +141,7 @@ class AccountLogViewPermission(TestCase):
         # get a ustc account
         self.c.logout()
         resp = self.c.get("/accounts/sustech/login/", {"ticket": "ST-1234567890"})
-        self.assert_(auth.get_user(self.c).is_authenticated)
+        self.assertTrue(auth.get_user(self.c).is_authenticated)
         resp = self.c.post(
             reverse("account"),
             data=json.dumps({"method": "accountlog", "user": self.u.pk}),
