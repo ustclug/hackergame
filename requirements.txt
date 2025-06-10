@@ -19,7 +19,7 @@ PyJWT==2.9.0
 pymemcache==4.0.0
 pyOpenSSL==24.3.0
 PyYAML==6.0.2
-requests==2.32.3
+requests==2.32.4
 setuptools==80.4.0
 sqlparse==0.5.3
 typing_extensions==4.13.2
