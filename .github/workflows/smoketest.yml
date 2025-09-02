@@ -16,7 +16,7 @@ jobs:
         # Debian 10 uses Python 3.7, which is not supported by Django 4.2 LTS
         python-version: [3.11, 3.9]
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
       with:
         fetch-depth: 0
     - name: Set up Python ${{ matrix.python-version }}
