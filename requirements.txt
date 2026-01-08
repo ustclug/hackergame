@@ -23,7 +23,7 @@ requests==2.32.4
 setuptools==80.4.0
 sqlparse==0.5.3
 typing_extensions==4.13.2
-urllib3==2.6.0
+urllib3==2.6.3
 uWSGI==2.0.28
 zope.event==5.0
 zope.interface==7.2
