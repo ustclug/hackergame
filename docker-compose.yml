@@ -5,6 +5,7 @@ services:
     container_name: &name hackergame
     hostname: *name
     image: ghcr.io/ustclug/hackergame:latest
+    build: .
     restart: always
     environment:
       - DJANGO_SETTINGS_MODULE=conf.settings.docker
