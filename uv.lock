@@ -4,14 +4,14 @@ requires-python = ">=3.9"
 
 [[package]]
 name = "asgiref"
-version = "3.7.2"
+version = "3.8.1"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "typing-extensions", marker = "python_full_version < '3.11'" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/12/19/64e38c1c2cbf0da9635b7082bbdf0e89052e93329279f59759c24a10cc96/asgiref-3.7.2.tar.gz", hash = "sha256:9e0ce3aa93a819ba5b45120216b23878cf6e8525eb3848653452b4192b92afed", size = 33393, upload-time = "2023-05-27T17:21:42.12Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/29/38/b3395cc9ad1b56d2ddac9970bc8f4141312dbaec28bc7c218b0dfafd0f42/asgiref-3.8.1.tar.gz", hash = "sha256:c343bd80a0bec947a9860adb4c432ffa7db769836c64238fc34bdc3fec84d590", size = 35186, upload-time = "2024-03-22T14:39:36.863Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/9b/80/b9051a4a07ad231558fcd8ffc89232711b4e618c15cb7a392a17384bbeef/asgiref-3.7.2-py3-none-any.whl", hash = "sha256:89b2ef2247e3b562a16eef663bc0e2e703ec6468e2fa8a5cd61cd449786d4f6e", size = 24140, upload-time = "2023-05-27T17:21:40.454Z" },
+    { url = "https://files.pythonhosted.org/packages/39/e3/893e8757be2612e6c266d9bb58ad2e3651524b5b40cf56761e985a28b13e/asgiref-3.8.1-py3-none-any.whl", hash = "sha256:3e1e3ecc849832fe52ccf2cb6686b7a55f82bb1d6aee72a58826471390335e47", size = 23828, upload-time = "2024-03-22T14:39:34.521Z" },
 ]
 
 [[package]]
@@ -223,12 +223,16 @@ wheels = [
 
 [[package]]
 name = "django-allauth"
-version = "65.0.2"
+version = "65.13.0"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
+    { name = "asgiref" },
     { name = "django" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/b3/98/9013e6859a3fb2716c6e6091583e906e8a48262c4ee9a2a4d2a01f7cfefc/django_allauth-65.0.2.tar.gz", hash = "sha256:6b5b3a7a65b1c28078b6eb0dd234310b58a44e8addfd187dc30437b0b2bc41a5", size = 1278378, upload-time = "2024-09-27T07:36:59.862Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/7c/05/36b9de6d0109948717ee0fa8076d5b57396bc838d5239f5b44b7d4c29fb0/django_allauth-65.13.0.tar.gz", hash = "sha256:7d7b7e7ad603eb3864c142f051e2cce7be2f9a9c6945a51172ec83d48c6c843b", size = 1987616, upload-time = "2025-10-31T10:20:03.954Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/ff/17/f2fd703781aeeb6d314059408df77360f09625cc3ce85f264b104443108c/django_allauth-65.13.0-py3-none-any.whl", hash = "sha256:119c0cf1cc2e0d1a0fe2f13588f30951d64989256084de2d60f13ab9308f9fa0", size = 1787213, upload-time = "2025-10-31T10:20:00.587Z" },
+]
 
 [[package]]
 name = "gevent"
@@ -369,10 +373,10 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "asgiref", specifier = "==3.7.2" },
+    { name = "asgiref", specifier = "==3.8.1" },
     { name = "cryptography", specifier = "==44.0.1" },
     { name = "django", specifier = "==4.2.28" },
-    { name = "django-allauth", specifier = "==65.0.2" },
+    { name = "django-allauth", specifier = "==65.13.0" },
     { name = "gevent", specifier = "==24.11.1" },
     { name = "markdown", specifier = "==3.7" },
     { name = "psycopg", specifier = "==3.2.3" },
