@@ -13,7 +13,7 @@
 
 ## 生产环境部署
 
-生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached、PgBouncer。以下流程理论上可以用于 Debian 12 或 13 操作系统，测试过。
+生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached、PgBouncer。以下流程理论上可以用于 Debian 12 或 13 操作系统，但尚未测试过。
 
 1. 安装依赖：`apt install python3-dev build-essential nginx postgresql memcached pgbouncer`。
 1. 安装 uv：`wget -qO- https://astral.sh/uv/install.sh | sh`
