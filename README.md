@@ -2,29 +2,27 @@
 
 ## 开发环境部署
 
-1. 创建 venv：`python3 -m venv .venv`。
-1. 进入 venv：`. .venv/bin/activate`。
-1. 安装依赖：`pip install --upgrade pip`，`pip install -r requirements.txt`。
+1. 安装 [uv](https://docs.astral.sh/uv/)。
+1. 安装依赖：`uv sync --locked`。
 1. 密钥配置：`cp conf/local_settings.py.example conf/local_settings.py`，编辑 `conf/local_settings.py`，其中有两条命令，需要执行并把输出贴在相应位置。
 1. 设置环境变量：`export DJANGO_SETTINGS_MODULE=conf.settings.dev`。
 1. 创建数据目录：`mkdir var`。
-1. 数据库初始化：`./manage.py migrate`。
-1. （可选）Google 与 Microsoft app secret 写入数据库：`./manage.py setup`。
+1. 数据库初始化：`uv run ./manage.py migrate`。
+1. （可选）Google 与 Microsoft app secret 写入数据库：`uv run ./manage.py setup`。
 1. 见下方“运行”一节。
-1. 退出 venv：`deactivate`。
 
 ## 生产环境部署
 
-生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached、PgBouncer。以下流程在 Debian 12 测试过。
+生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached、PgBouncer。以下流程理论上可以用于 Debian 12 或 13 操作系统，但尚未测试过。
 
-1. 安装依赖：`apt install python3-dev build-essential python3-venv nginx postgresql memcached pgbouncer`。
+1. 安装依赖：`apt install python3-dev build-essential nginx postgresql memcached pgbouncer`。
+1. 安装 uv：`wget -qO- https://astral.sh/uv/install.sh | sh`
 1. （建议）本地连接 PostgreSQL 无需鉴权：修改 `/etc/postgresql/15/main/pg_hba.conf`，将 `local all all peer` 一行改为 `local all all trust`，然后执行 `systemctl reload postgresql`。
 1. 创建数据库：`su postgres`，`psql`，`create user hackergame; create database hackergame;`, `\c hackergame`, `grant create on schema public to hackergame;`。
 1. 克隆代码：`cd /opt`，`git clone https://github.com/ustclug/hackergame.git`。
 1. Media 目录：`mkdir -p /var/opt/hackergame/media`，`chown www-data: /var/opt/hackergame/media`。
-1. 创建 venv：`cd /opt/hackergame`，`python3 -m venv .venv`。
+1. 使用 uv 创建虚拟环境并安装 Python 软件包：`cd /opt/hackergame`，`uv sync --locked`。
 1. 进入 venv：`. .venv/bin/activate`。
-1. 安装依赖：`pip install --upgrade pip`，`pip install -r requirements.txt`。
 1. 密钥配置：`cp conf/local_settings.py.example conf/local_settings.py`，编辑 `conf/local_settings.py`，其中有两条命令，需要执行并把输出贴在相应位置。
 1. 设置环境变量：`export DJANGO_SETTINGS_MODULE=conf.settings.hackergame`。
 1. 数据库初始化：`./manage.py migrate`。
@@ -138,7 +136,7 @@ server/                         “后端”，只处理业务和权限逻辑
 ## 报错邮件
 
 发生未捕获的异常时会给管理员发报错邮件，收件人列表是 `settings.ADMINS`。代码中有专门的设计来实现邮件限速，短时间内达到报错次数上限时会丢弃之后的报错。以下报错是已知常见并且不需要在意的：
-```
+```text
 Internal Server Error: /accounts/microsoft/login/callback/
 NoReverseMatch at /accounts/microsoft/login/callback/
 Reverse for 'socialaccount_signup' not found. 'socialaccount_signup' is not a valid view function or pattern name.
