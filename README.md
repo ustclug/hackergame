@@ -13,16 +13,16 @@
 
 ## 生产环境部署
 
-生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached、PgBouncer。以下流程在 Debian 12 测试过。
+生产环境中会额外用到：Nginx、uWSGI、PostgreSQL、Memcached、PgBouncer。以下流程理论上可以用于 Debian 12 或 13 操作系统，测试过。
 
-1. 安装依赖：`apt install python3-dev build-essential python3-venv nginx postgresql memcached pgbouncer`。
+1. 安装依赖：`apt install python3-dev build-essential nginx postgresql memcached pgbouncer`。
+1. 安装 uv：`wget -qO- https://astral.sh/uv/install.sh | sh`
 1. （建议）本地连接 PostgreSQL 无需鉴权：修改 `/etc/postgresql/15/main/pg_hba.conf`，将 `local all all peer` 一行改为 `local all all trust`，然后执行 `systemctl reload postgresql`。
 1. 创建数据库：`su postgres`，`psql`，`create user hackergame; create database hackergame;`, `\c hackergame`, `grant create on schema public to hackergame;`。
 1. 克隆代码：`cd /opt`，`git clone https://github.com/ustclug/hackergame.git`。
 1. Media 目录：`mkdir -p /var/opt/hackergame/media`，`chown www-data: /var/opt/hackergame/media`。
-1. 创建 venv：`cd /opt/hackergame`，`python3 -m venv .venv`。
+1. 使用 uv 创建虚拟环境并安装 Python 软件包：`cd /opt/hackergame`，`uv sync --locked`。
 1. 进入 venv：`. .venv/bin/activate`。
-1. 安装依赖：`pip install --upgrade pip`，`pip install -r requirements.txt`。
 1. 密钥配置：`cp conf/local_settings.py.example conf/local_settings.py`，编辑 `conf/local_settings.py`，其中有两条命令，需要执行并把输出贴在相应位置。
 1. 设置环境变量：`export DJANGO_SETTINGS_MODULE=conf.settings.hackergame`。
 1. 数据库初始化：`./manage.py migrate`。
