@@ -41,10 +41,12 @@
 与部署版本不同，该样例**默认开启了调试模式（环境变量 `DEBUG`），并且允许 hostname 为 localhost 等本地地址**。
 
 1. 复制 `docker/.env.example` 到 `.env`：`cp docker/.env.example .env`。并修改其中的环境变量（为数据库设置密码）。
+1. 密钥配置：`cp conf/local_settings.py.example conf/local_settings.py`，编辑 `conf/local_settings.py`，其中有两条命令，需要执行并把输出贴在相应位置。
 1. 执行 `docker compose up` 启动环境。
 1. 执行 `docker exec -it hackergame ./manage.py migrate` 初始化数据库。
 1. 执行 `docker exec -it hackergame ./manage.py collectstatic` 初始化 Static 目录。
 1. 执行 `docker exec -it hackergame ./manage.py setup` 写入 Google 与 Microsoft app secret。
+1. 见下方“运行”一节创建管理员账号、导入题目等。
 
 ### uWSGI 运行模型
 

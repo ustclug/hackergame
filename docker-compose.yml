@@ -55,7 +55,8 @@ services:
       - hackergame-static:/var/opt/hackergame/:ro
       - nginx-log:/var/log/nginx/:rw
     ports:
-      - 12345:80
+      # 默认只暴露在本地
+      - 127.0.0.1:12345:80
     depends_on:
       - hackergame
 
