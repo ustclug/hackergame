@@ -385,7 +385,7 @@ requires-dist = [
     { name = "pyopenssl", specifier = "==24.3.0" },
     { name = "pyyaml", specifier = "==6.0.2" },
     { name = "requests", specifier = "==2.32.4" },
-    { name = "uwsgi", specifier = "==2.0.28" },
+    { name = "uwsgi", specifier = "==2.0.31" },
 ]
 
 [[package]]
@@ -696,9 +696,9 @@ wheels = [
 
 [[package]]
 name = "uwsgi"
-version = "2.0.28"
+version = "2.0.31"
 source = { registry = "https://pypi.org/simple" }
-sdist = { url = "https://files.pythonhosted.org/packages/24/c2/d58480aadc9a1f420dd96fc43cf0dcd8cb5ededb95cab53743529c23b6cd/uwsgi-2.0.28.tar.gz", hash = "sha256:79ca1891ef2df14508ab0471ee8c0eb94bd2d51d03f32f90c4bbe557ab1e99d0", size = 816212, upload-time = "2024-10-26T10:06:16.107Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/9f/49/2f57640e889ba509fd1fae10cccec1b58972a07c2724486efba94c5ea448/uwsgi-2.0.31.tar.gz", hash = "sha256:e8f8b350ccc106ff93a65247b9136f529c14bf96b936ac5b264c6ff9d0c76257", size = 822796, upload-time = "2025-10-11T19:17:28.794Z" }
 
 [[package]]
 name = "zipp"
