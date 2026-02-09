@@ -34,7 +34,19 @@
 1. 其他配置文件：`cp conf/pgbouncer.ini /etc/pgbouncer/`, `systemctl restart pgbouncer`。
 1. 配置反向代理的客户端 IP 透传：前置反向代理需使用 `X-Real-IP` 请求头传递客户端 IP，`/etc/nginx/sites-enabled/hackergame` 中需添加一行 `set_real_ip_from <reverse-proxy-ip>` 以信任来自 `reverse-proxy-ip` 的指示客户端 IP 的请求头，否则平台不能正确获取用户 IP。
 
-另外我们提供 [docker compose 样例](https://github.com/ustclug/hackergame/pull/175)，但是实际部署不使用该容器版本。
+### Docker compose
+
+另外我们提供包括数据库与 nginx 等在内的 [docker compose 样例](./docker-compose.yml)，但是**实际部署不使用该容器版本**。
+
+与部署版本不同，该样例**默认开启了调试模式（环境变量 `DEBUG`），并且允许 hostname 为 localhost 等本地地址**。
+
+1. 复制 `docker/.env.example` 到 `.env`：`cp docker/.env.example .env`。并修改其中的环境变量（为数据库设置密码）。
+1. 密钥配置：`cp conf/local_settings.py.example conf/local_settings.py`，编辑 `conf/local_settings.py`，其中有两条命令，需要执行并把输出贴在相应位置。
+1. 执行 `docker compose up` 启动环境。
+1. 执行 `docker exec -it hackergame ./manage.py migrate` 初始化数据库。
+1. 执行 `docker exec -it hackergame ./manage.py collectstatic` 初始化 Static 目录。
+1. 执行 `docker exec -it hackergame ./manage.py setup` 写入 Google 与 Microsoft app secret。
+1. 见下方“运行”一节创建管理员账号、导入题目等。
 
 ### uWSGI 运行模型
 
