@@ -1,4 +1,5 @@
 import json
+import random
 from urllib.parse import quote
 from datetime import timedelta
 import requests
@@ -79,7 +80,19 @@ class HubView(View):
                                         request.POST['challenge'],
                                         request.POST['flag'].strip())
             if matches:
-                messages.success(request, '答案正确')
+                promotion_messages = [
+                    '恭喜你成功解题！如果觉得 Hackergame 有趣，欢迎邀请你的朋友们一起体验！',
+                    '成功抓到 flag！不如邀请朋友来试试 Hackergame，看看谁能超越你的记录！',
+                    '厉害！刚刚那道题挺有挑战性吧？如果你觉得好玩，快推荐给更多志同道合的人参赛！',
+                    '想知道班里的同学参加 Hackergame 会有几个人可以超过你？告诉同学们一起来吧！',
+                    '顺利解题，是不是很有成就感？快分享给你的朋友们，看看谁能解出来这个 flag！',
+                    '恭喜通过！想让更多人感受这种成功解题的快感吗？在朋友圈转发一下 Hackergame 吧！',
+                    '干得漂亮！要是觉得这题设计得还不错，不妨把 Hackergame 分享给你身边可能感兴趣的人～',
+                    '独乐乐不如众乐乐，让更多对信息安全感兴趣的朋友知道 Hackergame 吧！',
+                    '嘿！发现这些题目有意思吗？记得在同学群里安利一下 Hackergame 哦～',
+                    '解题的快乐想要分享？把 Hackergame 推荐给你的 Hacker 朋友们吧！',
+                ]
+                messages.success(request, '答案正确！' + random.choice(promotion_messages))
             else:
                 messages.error(request, '答案错误')
         except Error as e:
