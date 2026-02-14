@@ -32,14 +32,10 @@ jobs:
         uv sync --locked
 
         cp conf/local_settings.py.example conf/local_settings.py
-        PRIVATE_KEY=$(openssl ecparam -name secp256k1 -genkey -noout)
-
-        sed -i "s!openssl ecparam -name secp256k1 -genkey -noout!${PRIVATE_KEY//$'\n'/\\n}!g" conf/local_settings.py
-        CERTIFICATE=$(openssl req -x509 -key conf/local_settings.py -days 30 -subj "/CN=notforproduction")
-        sed -i "s!openssl req -x509 -key conf/local_settings.py -days 30!${CERTIFICATE//$'\n'/\\n}!g" conf/local_settings.py
-
         # set SECRET_KEY
         sed -i "s/SECRET_KEY = ''/SECRET_KEY = 'test'/g" conf/local_settings.py
+        PRIVATE_KEY=$(uv run ./manage.py generate_key | awk 'NR==2')
+        sed -i "/^PRIVATE_KEY = '''/{n;s|.*|$PRIVATE_KEY|;}" conf/local_settings.py
 
         mkdir var
     - name: Run smoke test
