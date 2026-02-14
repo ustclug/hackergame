@@ -30,14 +30,13 @@ jobs:
     - name: Configuration
       run: |
         uv sync --locked
+        mkdir var
 
         cp conf/local_settings.py.example conf/local_settings.py
         # set SECRET_KEY
         sed -i "s/SECRET_KEY = ''/SECRET_KEY = 'test'/g" conf/local_settings.py
         PRIVATE_KEY=$(uv run ./manage.py generate_key | awk 'NR==2')
         sed -i "/^PRIVATE_KEY = '''/{n;s|.*|$PRIVATE_KEY|;}" conf/local_settings.py
-
-        mkdir var
     - name: Run smoke test
       run: |
         source .venv/bin/activate
