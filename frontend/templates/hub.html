@@ -3,7 +3,7 @@
 
 {% block css %}
     {{ block.super }}
-    <link rel="stylesheet" href="{% static 'katex/katex.min.css' %}">
+    <link rel="preload" href="{% static 'katex/katex.min.css' %}" as="style" fetchPriority="low" onload="this.onload=null;this.rel='stylesheet'">
     <style>
         .hover-tip-complete-count {
             position: relative;
@@ -33,8 +33,8 @@
     <script src="{% static 'vue.min.js' %}"></script>
     <script src="{% static 'color.js' %}"></script>
     <script src="{% static 'seedrandom.js' %}"></script>
-    <script src="{% static 'katex/katex.min.js' %}"></script>
-    <script src="{% static 'katex/auto-render.min.js' %}"></script>
+    <script defer src="{% static 'katex/katex.min.js' %}"></script>
+    <script defer src="{% static 'katex/auto-render.min.js' %}" onload="update_math();"></script>
 {% endblock %}
 
 {% block content %}
@@ -175,8 +175,9 @@
             });
         }
         function update_math() {
+            // called when challenge updates or auto-render extension is loaded.
             const challengeDetailNode = document.querySelector("#challenge-detail");
-            if (challengeDetailNode) {
+            if (challengeDetailNode && window.renderMathInElement) {
                 renderMathInElement(challengeDetailNode, {
                     delimiters: [
                         {left: "$$", right: "$$", display: true},
