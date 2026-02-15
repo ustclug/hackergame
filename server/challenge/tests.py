@@ -22,11 +22,11 @@ class CheckInterfaceFields(TestCase):
 class TestExprFlags(TestCase):
     def setUp(self) -> None:
         # a nonsense token
-        self.token = "2:BBBBBBu1qB2iBBjcpBBBwpBlBnlvryj508f3BeBs5gBaaBB5BiBBn+B4xBx/2+l+c1o81BqBcwBBBnBBpB5fBBewBBz20yw="
+        self.token = "ea7cc653e0838e229a31a10f98f3191daacb8e251c4b06827786e2b69ef6695b50786731c04e159f6b4e6a790a99f0d1ac5dc8099fefcbe50411953afc35920831"
         return super().setUp()
 
     def test_expr(self):
         res = expr_flag("'flag{' + md5('secret' + token)[:16] + '}'", self.token)
-        self.assertEqual(res, "flag{6a513c83d63baea4}")
+        self.assertEqual(res, "flag{6f6814f00964b0ab}")
         res = expr_flag("'flag{' + str(int(md5('secret' + token), 16) % 10001) + '}'", self.token)
-        self.assertEqual(res, "flag{9011}")
+        self.assertEqual(res, "flag{7148}")

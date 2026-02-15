@@ -112,7 +112,7 @@ def a():
                     'name': f'flag {j}',
                     'score': random.randrange(100),
                     'type': ('expr', 'text')[j % 2],
-                    'flag': ("f'flag{{%s:{token.partition(\":\")[0]}}}'" % j,
+                    'flag': ("f'flag{{%s:{token[:12]}}}'" % j,
                              f'flag{{{j}}}')[j % 2],
                 } for j in range(random.randrange(1, 4))],
             )
@@ -132,7 +132,7 @@ def a():
                     'score': random.randrange(100),
                     'type': ('text', 'expr')[i % 2],
                     'flag': ('flag{0}',
-                             "'flag{0:'+token.partition(':')[0]+'}'")[i % 2],
+                             "'flag{0:'+token[:12]+'}'")[i % 2],
                 }],
             )
 

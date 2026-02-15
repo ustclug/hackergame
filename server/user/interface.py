@@ -1,12 +1,12 @@
-import base64
-from cryptography.hazmat.primitives import serialization, hashes
-from cryptography.hazmat.primitives.asymmetric import ec
 from hashlib import sha256
 from uuid import uuid4
 
+import nacl.encoding
+import nacl.signing
+
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.core.exceptions import ValidationError
+from django.core.exceptions import ImproperlyConfigured, ValidationError
 from django.core.validators import RegexValidator, EmailValidator
 
 from server.exceptions import Error, NotFound, WrongArguments, WrongFormat
@@ -117,14 +117,25 @@ class User:
         'aff': RegexValidator(r'^.{1,100}$', '了解比赛的渠道格式错误'),
         'suspicious_reason': None,
     }
-    _private_key = serialization.load_pem_private_key(
-        settings.PRIVATE_KEY.encode(),
-        password=None,
-    )
+    _private_key = None
 
     def __init__(self, context, obj: models.User):
         self._context = context
         self._obj = obj
+
+    @classmethod
+    def _get_private_key(cls):
+        if cls._private_key is None:
+            try:
+                cls._private_key = nacl.signing.SigningKey(
+                    settings.PRIVATE_KEY.strip().encode(),
+                    encoder=nacl.encoding.HexEncoder,
+                )
+            except Exception as exc:
+                raise ImproperlyConfigured(
+                    'PRIVATE_KEY 必须是 64 位十六进制字符串，可用 ./manage.py generate_key 生成'
+                ) from exc
+        return cls._private_key
 
     @classmethod
     def test_authenticated(cls, context):
@@ -157,11 +168,10 @@ class User:
             user = get_user_model().objects.create_user(str(uuid4()))
         self = cls(context, models.User(user=user.pk))
         pk = str(user.pk)
-        sig = base64.b64encode(self._private_key.sign(
+        self._obj.token = self._get_private_key().sign(
             pk.encode(),
-            ec.ECDSA(hashes.SHA256())
-        )).decode()
-        self._obj.token = pk + ':' + sig
+            encoder=nacl.encoding.HexEncoder,
+        ).decode()
         try:
             server.trigger.interface.Trigger.test_can_update_profile(context)
         except server.trigger.interface.TriggerIsOff:
@@ -430,7 +440,7 @@ class User:
             User.test_permission(self._context, 'user.full',
                                  'user.view', f'user.view_{self.group}')
         token = self._obj.token
-        return token[: token.find(':') + 11] + '...'
+        return token if len(token) <= 10 else token[:10] + '...'
 
     @property
     def code(self):

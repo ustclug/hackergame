@@ -6,9 +6,8 @@ readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
     "asgiref==3.8.1",
-    "cryptography==44.0.1",
     "django==4.2.28",
-    "django-allauth==65.13.0",
+    "django-allauth[socialaccount]==65.13.0",
     "gevent==24.11.1",
     "markdown==3.7",
     "psycopg==3.2.3",
@@ -18,7 +17,7 @@ dependencies = [
     "pygments==2.18.0",
     "pyjwt==2.9.0",
     "pymemcache==4.0.0",
-    "pyopenssl==24.3.0",
+    "pynacl==1.5.0",
     "pyyaml==6.0.2",
     "requests==2.32.4",
     "uwsgi==2.0.31",

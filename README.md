@@ -4,8 +4,8 @@
 
 1. 安装 [uv](https://docs.astral.sh/uv/)。
 1. 安装依赖：`uv sync --locked`。
-1. 密钥配置：`cp conf/local_settings.py.example conf/local_settings.py`，编辑 `conf/local_settings.py`，其中有两条命令，需要执行并把输出贴在相应位置。
 1. 设置环境变量：`export DJANGO_SETTINGS_MODULE=conf.settings.dev`。
+1. 密钥配置：`cp conf/local_settings.py.example conf/local_settings.py`，运行 `uv run ./manage.py generate_key`，把输出的私钥填入 `PRIVATE_KEY`，并在其他地方存储公钥（题目可能需要使用）。
 1. 创建数据目录：`mkdir var`。
 1. 数据库初始化：`uv run ./manage.py migrate`。
 1. （可选）Google 与 Microsoft app secret 写入数据库：`uv run ./manage.py setup`。
@@ -23,8 +23,8 @@
 1. Media 目录：`mkdir -p /var/opt/hackergame/media`，`chown www-data: /var/opt/hackergame/media`。
 1. 使用 uv 创建虚拟环境并安装 Python 软件包：`cd /opt/hackergame`，`uv sync --locked`。
 1. 进入 venv：`. .venv/bin/activate`。
-1. 密钥配置：`cp conf/local_settings.py.example conf/local_settings.py`，编辑 `conf/local_settings.py`，其中有两条命令，需要执行并把输出贴在相应位置。
 1. 设置环境变量：`export DJANGO_SETTINGS_MODULE=conf.settings.hackergame`。
+1. 密钥配置：`cp conf/local_settings.py.example conf/local_settings.py`，运行 `./manage.py generate_key`，把输出的私钥填入 `PRIVATE_KEY`。
 1. 数据库初始化：`./manage.py migrate`。
 1. Static 目录初始化：`./manage.py collectstatic`。
 1. Google 与 Microsoft app secret 写入数据库：`./manage.py setup`。
