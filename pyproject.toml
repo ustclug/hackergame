@@ -17,7 +17,7 @@ dependencies = [
     "pygments==2.18.0",
     "pyjwt==2.9.0",
     "pymemcache==4.0.0",
-    "pynacl==1.5.0",
+    "pynacl==1.6.2",
     "pyyaml==6.0.2",
     "requests==2.32.4",
     "uwsgi==2.0.31",
