@@ -15,7 +15,7 @@ dependencies = [
     "psycopg-pool==3.2.3",
     "pycryptodome==3.21.0",
     "pygments==2.18.0",
-    "pyjwt==2.9.0",
+    "pyjwt==2.12.0",
     "pymemcache==4.0.0",
     "pynacl==1.6.2",
     "pyyaml==6.0.2",
